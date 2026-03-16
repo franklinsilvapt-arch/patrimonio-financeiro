@@ -81,8 +81,8 @@ export function PortfolioSummary({ summary }: PortfolioSummaryProps) {
                   <TooltipTrigger asChild>
                     <Info className="h-3.5 w-3.5 text-muted-foreground/60 cursor-help" />
                   </TooltipTrigger>
-                  <TooltipContent side="top" className="max-w-xs text-xs">
-                    Percentagem média dos dados de exposição geográfica e setorial disponíveis para os seus ativos (via JustETF). 100% significa que todos os ETFs têm dados completos de país e setor.
+                  <TooltipContent side="top" className="max-w-xs text-xs bg-white border shadow-md">
+                    Percentagem média dos dados de exposição geográfica e setorial disponíveis para os teus ativos (via JustETF). 100% significa que todos os ETFs têm dados completos de país e setor. Posições sem dados (como cash ou ações individuais) reduzem esta percentagem.
                   </TooltipContent>
                 </Tooltip>
               </CardTitle>

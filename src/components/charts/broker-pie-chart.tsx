@@ -65,18 +65,19 @@ export function BrokerPieChart({ data }: BrokerPieChartProps) {
     );
   }
 
+  // Calculate percentages for legend
+  const total = data.reduce((sum, d) => sum + d.value, 0);
+
   return (
     <ResponsiveContainer width="100%" height={350}>
       <PieChart>
         <Pie
           data={data}
           cx="50%"
-          cy="50%"
-          outerRadius={100}
+          cy="45%"
+          outerRadius={90}
           dataKey="value"
           nameKey="name"
-          label={renderCustomLabel}
-          labelLine={{ strokeWidth: 1, stroke: '#9ca3af' }}
         >
           {data.map((entry, index) => (
             <Cell
@@ -93,6 +94,11 @@ export function BrokerPieChart({ data }: BrokerPieChartProps) {
           verticalAlign="bottom"
           iconType="circle"
           wrapperStyle={{ fontSize: '0.75rem' }}
+          formatter={(value: string) => {
+            const item = data.find((d) => d.name === value);
+            const pct = item && total > 0 ? ((item.value / total) * 100).toFixed(1) : '0';
+            return `${value} (${pct}%)`;
+          }}
         />
       </PieChart>
     </ResponsiveContainer>

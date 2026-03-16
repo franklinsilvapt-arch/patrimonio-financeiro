@@ -374,7 +374,7 @@ export default function DashboardPage() {
 
       <Tabs defaultValue="overview">
         <TabsList>
-          <TabsTrigger value="overview">Visão geral</TabsTrigger>
+          <TabsTrigger value="overview">Geral</TabsTrigger>
           <TabsTrigger value="sectors">Setores</TabsTrigger>
           <TabsTrigger value="factors">Fatores</TabsTrigger>
           <TabsTrigger value="currency">Cambial</TabsTrigger>
