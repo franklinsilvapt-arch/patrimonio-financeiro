@@ -5,7 +5,39 @@ import * as TooltipPrimitive from '@radix-ui/react-tooltip';
 import { cn } from '@/lib/utils';
 
 const TooltipProvider = TooltipPrimitive.Provider;
-const Tooltip = TooltipPrimitive.Root;
+
+/**
+ * Tooltip that works on both desktop (hover) and mobile (tap).
+ * On touch devices, Radix tooltips don't open — this wrapper
+ * toggles open state on click so tapping works.
+ */
+function Tooltip({
+  children,
+  ...props
+}: React.ComponentPropsWithoutRef<typeof TooltipPrimitive.Root>) {
+  const [open, setOpen] = React.useState(false);
+
+  return (
+    <TooltipPrimitive.Root
+      open={open}
+      onOpenChange={setOpen}
+      {...props}
+    >
+      <div
+        onClick={() => setOpen((prev) => !prev)}
+        onPointerDown={(e) => {
+          // Prevent default only on touch to avoid interfering with mouse hover
+          if (e.pointerType === 'touch') {
+            e.preventDefault();
+          }
+        }}
+      >
+        {children}
+      </div>
+    </TooltipPrimitive.Root>
+  );
+}
+
 const TooltipTrigger = TooltipPrimitive.Trigger;
 
 const TooltipContent = React.forwardRef<
