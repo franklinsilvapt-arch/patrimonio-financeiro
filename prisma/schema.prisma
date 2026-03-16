@@ -7,6 +7,22 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// --- Users ---
+
+model User {
+  id             String   @id @default(cuid())
+  name           String?
+  email          String   @unique
+  hashedPassword String
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  accounts           Account[]
+  importBatches      ImportBatch[]
+  portfolioSnapshots PortfolioSnapshot[]
+  taxonomies         Taxonomy[]
+}
+
 // --- Core entities ---
 
 model Broker {
@@ -21,12 +37,14 @@ model Broker {
 
 model Account {
   id          String   @id @default(cuid())
+  userId      String
   brokerId    String
   name        String   // e.g. "Main", "ISA", "Custody"
   currency    String   @default("EUR")
   accountType String   @default("personal") // "personal" or "business"
   createdAt   DateTime @default(now())
 
+  user     User     @relation(fields: [userId], references: [id])
   broker   Broker    @relation(fields: [brokerId], references: [id])
   holdings Holding[]
 
@@ -37,6 +55,7 @@ model Account {
 
 model ImportBatch {
   id              String   @id @default(cuid())
+  userId          String
   brokerId        String
   fileName        String
   importedAt      DateTime @default(now())
@@ -47,6 +66,7 @@ model ImportBatch {
   errors          String?  // JSON array of error messages
   warnings        String?  // JSON array of warning messages
 
+  user     User     @relation(fields: [userId], references: [id])
   broker   Broker    @relation(fields: [brokerId], references: [id])
   holdings Holding[]
 }
@@ -198,10 +218,12 @@ model FactorExposure {
 
 model Taxonomy {
   id          String   @id @default(cuid())
+  userId      String
   name        String   @unique // e.g. "Região", "Estratégia", "Tema"
   description String?
   createdAt   DateTime @default(now())
 
+  user       User              @relation(fields: [userId], references: [id])
   categories TaxonomyCategory[]
 }
 
@@ -235,6 +257,7 @@ model SecurityCategory {
 
 model PortfolioSnapshot {
   id              String   @id @default(cuid())
+  userId          String
   date            DateTime
   totalValue      Float
   personalValue   Float?
@@ -244,6 +267,8 @@ model PortfolioSnapshot {
   assetBreakdown  String?  // JSON: { "EQUITY": 5000, "ETF": 3000, "CASH": 500 }
   createdAt       DateTime @default(now())
 
-  @@unique([date, currency])
+  user User @relation(fields: [userId], references: [id])
+
+  @@unique([userId, date, currency])
   @@index([date])
 }

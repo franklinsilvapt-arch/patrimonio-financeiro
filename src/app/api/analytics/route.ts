@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
+import { getAuthUserId } from '@/lib/auth/get-user';
 
 // Country → primary currency mapping
 const COUNTRY_CURRENCY: Record<string, string> = {
@@ -27,11 +28,23 @@ const COUNTRY_CURRENCY: Record<string, string> = {
 };
 
 export async function GET(request: NextRequest) {
+  let userId: string;
+  try {
+    userId = await getAuthUserId();
+  } catch {
+    return NextResponse.json({ error: 'Não autenticado' }, { status: 401 });
+  }
+
   try {
     const scope = request.nextUrl.searchParams.get('scope');
 
     const holdings = await prisma.holding.findMany({
-      where: scope ? { account: { accountType: scope } } : undefined,
+      where: {
+        account: {
+          userId,
+          ...(scope ? { accountType: scope } : {}),
+        },
+      },
       include: {
         security: {
           include: {
@@ -57,9 +70,6 @@ export async function GET(request: NextRequest) {
     // -----------------------------------------------------------------------
     // 1) HHI — Herfindahl-Hirschman Index by position
     // -----------------------------------------------------------------------
-    // HHI = sum of (weight_i)^2 where weight_i is the fraction of portfolio
-    // HHI range: 1/N (perfectly diversified) to 1 (single position)
-    // We compute by asset, by broker, and by sector (via country exposure)
     const positionWeights: Array<{ name: string; weight: number }> = [];
     for (const h of active) {
       const w = totalValue > 0 ? (h.marketValue || 0) / totalValue : 0;
@@ -92,11 +102,9 @@ export async function GET(request: NextRequest) {
       const mv = h.marketValue || 0;
 
       if (h.security.assetClass === 'CASH') {
-        // Cash: use the holding's currency directly
         const cur = h.currency || 'EUR';
         currencyExposure[cur] = (currencyExposure[cur] || 0) + mv;
       } else if (h.security.countryExposures.length > 0) {
-        // Look-through: map country exposures to currencies
         const latestDate = h.security.countryExposures[0].date;
         const latestExposures = h.security.countryExposures.filter(
           (e) => e.date.getTime() === latestDate.getTime()
@@ -106,7 +114,6 @@ export async function GET(request: NextRequest) {
           currencyExposure[cur] = (currencyExposure[cur] || 0) + mv * e.weight;
         }
       } else {
-        // Fallback: use security domicile or holding currency
         const cur = h.security.country
           ? (COUNTRY_CURRENCY[h.security.country] || h.currency || 'EUR')
           : (h.currency || 'EUR');
@@ -122,7 +129,6 @@ export async function GET(request: NextRequest) {
     // -----------------------------------------------------------------------
     // 3) Correlation matrix between assets
     // -----------------------------------------------------------------------
-    // Use price snapshots if available, otherwise use snapshot-based returns
     const securities = active.map((h) => ({
       id: h.securityId,
       label: h.security.ticker || h.security.name,

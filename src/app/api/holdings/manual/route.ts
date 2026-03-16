@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
+import { getAuthUserId } from '@/lib/auth/get-user';
 import { findMatchingSecurity, normalizeSecurityName } from '@/lib/normalization';
 
 interface ManualPosition {
@@ -15,6 +16,13 @@ interface ManualPosition {
 }
 
 export async function POST(request: NextRequest) {
+  let userId: string;
+  try {
+    userId = await getAuthUserId();
+  } catch {
+    return NextResponse.json({ error: 'Não autenticado' }, { status: 401 });
+  }
+
   try {
     const body: ManualPosition = await request.json();
 
@@ -39,11 +47,11 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // Find or create default account
-    let account = await prisma.account.findFirst({ where: { brokerId: broker.id } });
+    // Find or create default account for this user
+    let account = await prisma.account.findFirst({ where: { brokerId: broker.id, userId } });
     if (!account) {
       account = await prisma.account.create({
-        data: { brokerId: broker.id, name: 'Principal', currency: 'EUR' },
+        data: { brokerId: broker.id, name: 'Principal', currency: 'EUR', userId },
       });
     }
 
@@ -84,6 +92,7 @@ export async function POST(request: NextRequest) {
     const batch = await prisma.importBatch.create({
       data: {
         brokerId: broker.id,
+        userId,
         fileName: `manual_${new Date().toISOString().slice(0, 10)}`,
         status: 'COMPLETED',
         rowsImported: 1,

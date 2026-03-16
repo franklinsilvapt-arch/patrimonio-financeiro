@@ -1,9 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
+import { getAuthUserId } from '@/lib/auth/get-user';
 
 export async function GET() {
+  let userId: string;
+  try {
+    userId = await getAuthUserId();
+  } catch {
+    return NextResponse.json({ error: 'Não autenticado' }, { status: 401 });
+  }
+
   try {
     const taxonomies = await prisma.taxonomy.findMany({
+      where: { userId },
       include: {
         categories: {
           include: {
@@ -29,6 +38,13 @@ export async function GET() {
 }
 
 export async function POST(request: NextRequest) {
+  let userId: string;
+  try {
+    userId = await getAuthUserId();
+  } catch {
+    return NextResponse.json({ error: 'Não autenticado' }, { status: 401 });
+  }
+
   try {
     const { name, description, categories } = await request.json();
     if (!name) {
@@ -37,6 +53,7 @@ export async function POST(request: NextRequest) {
 
     const taxonomy = await prisma.taxonomy.create({
       data: {
+        userId,
         name,
         description,
         categories: categories
@@ -59,10 +76,23 @@ export async function POST(request: NextRequest) {
 }
 
 export async function PUT(request: NextRequest) {
+  let userId: string;
+  try {
+    userId = await getAuthUserId();
+  } catch {
+    return NextResponse.json({ error: 'Não autenticado' }, { status: 401 });
+  }
+
   try {
     const { id, name, description } = await request.json();
     if (!id || !name) {
       return NextResponse.json({ error: 'id and name required' }, { status: 400 });
+    }
+
+    // Verify taxonomy belongs to user
+    const existing = await prisma.taxonomy.findFirst({ where: { id, userId } });
+    if (!existing) {
+      return NextResponse.json({ error: 'Taxonomy not found' }, { status: 404 });
     }
 
     const taxonomy = await prisma.taxonomy.update({
@@ -78,10 +108,23 @@ export async function PUT(request: NextRequest) {
 }
 
 export async function DELETE(request: NextRequest) {
+  let userId: string;
+  try {
+    userId = await getAuthUserId();
+  } catch {
+    return NextResponse.json({ error: 'Não autenticado' }, { status: 401 });
+  }
+
   try {
     const { id } = await request.json();
     if (!id) {
       return NextResponse.json({ error: 'id required' }, { status: 400 });
+    }
+
+    // Verify taxonomy belongs to user
+    const existing = await prisma.taxonomy.findFirst({ where: { id, userId } });
+    if (!existing) {
+      return NextResponse.json({ error: 'Taxonomy not found' }, { status: 404 });
     }
 
     await prisma.taxonomy.delete({ where: { id } });

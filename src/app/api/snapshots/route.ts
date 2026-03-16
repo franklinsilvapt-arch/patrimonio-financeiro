@@ -1,9 +1,18 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
+import { getAuthUserId } from '@/lib/auth/get-user';
 
 export async function GET() {
+  let userId: string;
+  try {
+    userId = await getAuthUserId();
+  } catch {
+    return NextResponse.json({ error: 'Não autenticado' }, { status: 401 });
+  }
+
   try {
     const snapshots = await prisma.portfolioSnapshot.findMany({
+      where: { userId },
       orderBy: { date: 'asc' },
     });
 
@@ -29,9 +38,17 @@ export async function GET() {
 }
 
 export async function POST() {
+  let userId: string;
+  try {
+    userId = await getAuthUserId();
+  } catch {
+    return NextResponse.json({ error: 'Não autenticado' }, { status: 401 });
+  }
+
   try {
     // Get current holdings
     const holdings = await prisma.holding.findMany({
+      where: { account: { userId } },
       include: {
         security: true,
         account: { include: { broker: true } },
@@ -70,13 +87,14 @@ export async function POST() {
     today.setHours(0, 0, 0, 0);
 
     const snapshot = await prisma.portfolioSnapshot.upsert({
-      where: { date_currency: { date: today, currency: 'EUR' } },
+      where: { userId_date_currency: { userId, date: today, currency: 'EUR' } },
       update: {
         totalValue,
         brokerBreakdown: JSON.stringify(brokerBreakdown),
         assetBreakdown: JSON.stringify(assetBreakdown),
       },
       create: {
+        userId,
         date: today,
         totalValue,
         currency: 'EUR',

@@ -1,7 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
+import { getAuthUserId } from '@/lib/auth/get-user';
 
 export async function GET(request: NextRequest) {
+  let userId: string;
+  try {
+    userId = await getAuthUserId();
+  } catch {
+    return NextResponse.json({ error: 'Não autenticado' }, { status: 401 });
+  }
+
   try {
     const { searchParams } = new URL(request.url);
     const broker = searchParams.get('broker');
@@ -13,9 +21,10 @@ export async function GET(request: NextRequest) {
     // Get the most recent holding for each security+account combination
     const holdings = await prisma.holding.findMany({
       where: {
-        ...(broker && {
-          account: { broker: { slug: broker } },
-        }),
+        account: {
+          userId,
+          ...(broker && { broker: { slug: broker } }),
+        },
         ...(assetClass && {
           security: { assetClass: assetClass as any },
         }),
@@ -119,8 +128,17 @@ export async function GET(request: NextRequest) {
 }
 
 export async function DELETE() {
+  let userId: string;
   try {
-    const result = await prisma.holding.deleteMany({});
+    userId = await getAuthUserId();
+  } catch {
+    return NextResponse.json({ error: 'Não autenticado' }, { status: 401 });
+  }
+
+  try {
+    const result = await prisma.holding.deleteMany({
+      where: { account: { userId } },
+    });
     return NextResponse.json({ success: true, deleted: result.count });
   } catch (error) {
     console.error('Error deleting all holdings:', error);

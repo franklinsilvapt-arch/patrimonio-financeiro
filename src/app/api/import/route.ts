@@ -1,13 +1,22 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
+import { getAuthUserId } from '@/lib/auth/get-user';
 import { getImporter } from '@/lib/importers';
 import { findMatchingSecurity, normalizeSecurityName } from '@/lib/normalization';
 import { enrichSecurity } from '@/lib/exposures/enrich';
 import { fetchLatestRates, convertCurrency } from '@/lib/currency/ecb';
 
 export async function GET() {
+  let userId: string;
+  try {
+    userId = await getAuthUserId();
+  } catch {
+    return NextResponse.json({ error: 'Não autenticado' }, { status: 401 });
+  }
+
   try {
     const batches = await prisma.importBatch.findMany({
+      where: { userId },
       include: { broker: true },
       orderBy: { importedAt: 'desc' },
     });
@@ -19,6 +28,13 @@ export async function GET() {
 }
 
 export async function POST(request: NextRequest) {
+  let userId: string;
+  try {
+    userId = await getAuthUserId();
+  } catch {
+    return NextResponse.json({ error: 'Não autenticado' }, { status: 401 });
+  }
+
   try {
     const { content, brokerSlug, fileName, accountName } = await request.json();
     if (!content || !brokerSlug) {
@@ -46,13 +62,13 @@ export async function POST(request: NextRequest) {
 
     // Find or create account (use accountName for IBKR personal vs business)
     const acctName = accountName || 'Principal';
-    let account = await prisma.account.findUnique({
-      where: { brokerId_name: { brokerId: broker.id, name: acctName } },
+    let account = await prisma.account.findFirst({
+      where: { brokerId: broker.id, name: acctName, userId },
     });
     const expectedType = acctName.toLowerCase().includes('empresarial') ? 'business' : 'personal';
     if (!account) {
       account = await prisma.account.create({
-        data: { brokerId: broker.id, name: acctName, currency: 'EUR', accountType: expectedType },
+        data: { brokerId: broker.id, name: acctName, currency: 'EUR', accountType: expectedType, userId },
       });
     } else if (account.accountType !== expectedType) {
       account = await prisma.account.update({
@@ -73,6 +89,7 @@ export async function POST(request: NextRequest) {
     const batch = await prisma.importBatch.create({
       data: {
         brokerId: broker.id,
+        userId,
         fileName: fileName || `${brokerSlug}_import.csv`,
         referenceDate: result.referenceDate,
         status: 'PROCESSING',
@@ -241,6 +258,7 @@ export async function POST(request: NextRequest) {
     // Auto-create portfolio snapshot after import
     try {
       const allHoldings = await prisma.holding.findMany({
+        where: { account: { userId } },
         include: {
           account: { include: { broker: true } },
           security: true,
@@ -276,7 +294,7 @@ export async function POST(request: NextRequest) {
       const snapshotDate = result.referenceDate || new Date();
       snapshotDate.setHours(0, 0, 0, 0);
       await prisma.portfolioSnapshot.upsert({
-        where: { date_currency: { date: snapshotDate, currency: 'EUR' } },
+        where: { userId_date_currency: { userId, date: snapshotDate, currency: 'EUR' } },
         update: {
           totalValue: snapshotTotal,
           personalValue,
@@ -285,6 +303,7 @@ export async function POST(request: NextRequest) {
           assetBreakdown: JSON.stringify(assetBreakdown),
         },
         create: {
+          userId,
           date: snapshotDate,
           totalValue: snapshotTotal,
           personalValue,

@@ -53,6 +53,7 @@ export async function createSnapshot(
   date: Date,
   holdings: HoldingForSnapshot[],
   brokerMap: Record<string, string>, // accountId -> brokerSlug
+  userId?: string,
 ): Promise<SnapshotResult> {
   const totalValue = calculateTotalValue(holdings);
 
@@ -75,7 +76,7 @@ export async function createSnapshot(
 
   const snapshot = await prisma.portfolioSnapshot.upsert({
     where: {
-      date_currency: { date, currency },
+      userId_date_currency: { userId: userId ?? '', date, currency },
     },
     update: {
       totalValue,
@@ -83,6 +84,7 @@ export async function createSnapshot(
       assetBreakdown: JSON.stringify(assetBreakdown),
     },
     create: {
+      userId: userId ?? '',
       date,
       totalValue,
       currency,

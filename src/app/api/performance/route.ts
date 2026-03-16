@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
+import { getAuthUserId } from '@/lib/auth/get-user';
 import {
   calculateTTWROR,
   annualizeReturn,
@@ -10,10 +11,18 @@ import {
 } from '@/lib/performance';
 
 export async function GET(request: NextRequest) {
+  let userId: string;
+  try {
+    userId = await getAuthUserId();
+  } catch {
+    return NextResponse.json({ error: 'Não autenticado' }, { status: 401 });
+  }
+
   try {
     const scope = request.nextUrl.searchParams.get('scope'); // "personal", "business", or null
 
     const snapshots = await prisma.portfolioSnapshot.findMany({
+      where: { userId },
       orderBy: { date: 'asc' },
     });
 

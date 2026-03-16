@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
+import { getAuthUserId } from '@/lib/auth/get-user';
 import { normalizeToBase100 } from '@/lib/benchmark';
 
 /**
@@ -7,9 +8,17 @@ import { normalizeToBase100 } from '@/lib/benchmark';
  * Uses portfolio snapshots and IWDA price snapshots.
  */
 export async function GET() {
+  let userId: string;
+  try {
+    userId = await getAuthUserId();
+  } catch {
+    return NextResponse.json({ error: 'Não autenticado' }, { status: 401 });
+  }
+
   try {
     // Get portfolio snapshots
     const snapshots = await prisma.portfolioSnapshot.findMany({
+      where: { userId },
       orderBy: { date: 'asc' },
     });
 

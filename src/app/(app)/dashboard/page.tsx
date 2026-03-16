@@ -13,6 +13,7 @@ import { HistoryLineChart } from '@/components/charts/history-line-chart';
 import { FactorRadarChart } from '@/components/charts/factor-radar-chart';
 import { CorrelationMatrix } from '@/components/charts/correlation-matrix';
 import { formatPercent, formatCurrency } from '@/lib/utils';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -310,7 +311,7 @@ export default function DashboardPage() {
         <div className="space-y-1">
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
             {[
-              { label: 'TTWROR', value: performance.ttwror },
+              { label: 'TWR', value: performance.ttwror, tooltip: 'Time-Weighted Return — mede a rentabilidade real do portfolio, eliminando o efeito de depósitos e levantamentos.' },
               { label: 'Anualizado', value: performance.annualizedReturn },
               { label: '1 mês', value: performance.periodReturns['1m'] },
               { label: '3 meses', value: performance.periodReturns['3m'] },
@@ -320,7 +321,18 @@ export default function DashboardPage() {
               <Card key={m.label}>
                 <CardContent className="pt-3 pb-3 px-4">
                   <div className="flex items-baseline justify-between gap-2">
-                    <span className="text-xs font-medium text-muted-foreground">{m.label}</span>
+                    {'tooltip' in m && m.tooltip ? (
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <span className="text-xs font-medium text-muted-foreground underline decoration-dotted cursor-help">{m.label}</span>
+                        </TooltipTrigger>
+                        <TooltipContent className="max-w-xs">
+                          <p className="text-xs">{m.tooltip}</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    ) : (
+                      <span className="text-xs font-medium text-muted-foreground">{m.label}</span>
+                    )}
                     <span className={`text-sm font-bold tabular-nums ${returnColor(m.value)}`}>
                       {returnSign(m.value)}
                     </span>

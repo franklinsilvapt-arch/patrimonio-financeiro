@@ -1,12 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
+import { getAuthUserId } from '@/lib/auth/get-user';
 
 export async function GET(request: NextRequest) {
+  let userId: string;
+  try {
+    userId = await getAuthUserId();
+  } catch {
+    return NextResponse.json({ error: 'Não autenticado' }, { status: 401 });
+  }
+
   const format = request.nextUrl.searchParams.get('format') || 'csv';
 
   try {
     // Get all latest holdings
     const holdings = await prisma.holding.findMany({
+      where: { account: { userId } },
       include: {
         security: true,
         account: { include: { broker: true } },
