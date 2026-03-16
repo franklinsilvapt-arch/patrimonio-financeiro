@@ -1,8 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getImporter } from '@/lib/importers';
+import { getAuthUserId } from '@/lib/auth/get-user';
 
 export async function POST(request: NextRequest) {
   try {
+    await getAuthUserId();
     const { content, brokerSlug } = await request.json();
     if (!content || !brokerSlug) {
       return NextResponse.json({ error: 'Content and brokerSlug required' }, { status: 400 });
@@ -33,6 +35,9 @@ export async function POST(request: NextRequest) {
       totalPositions: result.positions.length,
     });
   } catch (error) {
+    if (error instanceof Error && error.message === 'UNAUTHORIZED') {
+      return NextResponse.json({ error: 'Não autenticado' }, { status: 401 });
+    }
     console.error('Error previewing import:', error);
     return NextResponse.json({ error: 'Failed to preview import' }, { status: 500 });
   }

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Anthropic from '@anthropic-ai/sdk';
+import { getAuthUserId } from '@/lib/auth/get-user';
 
 const SYSTEM_PROMPT = `You are a financial data extraction assistant. You receive screenshots of brokerage/investment platforms and extract portfolio positions.
 
@@ -52,6 +53,8 @@ Be precise with numbers — extract them exactly as shown.`;
 
 export async function POST(request: NextRequest) {
   try {
+    await getAuthUserId();
+
     const apiKey = process.env.ANTHROPIC_API_KEY;
     if (!apiKey) {
       return NextResponse.json(
@@ -126,6 +129,9 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(extracted);
   } catch (error) {
+    if (error instanceof Error && error.message === 'UNAUTHORIZED') {
+      return NextResponse.json({ error: 'Não autenticado' }, { status: 401 });
+    }
     console.error('Error processing image:', error);
     const message = error instanceof Error ? error.message : 'Erro ao processar imagem';
     return NextResponse.json({ error: message }, { status: 500 });

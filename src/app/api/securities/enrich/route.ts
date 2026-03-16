@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { enrichSecurity, enrichAllSecurities } from '@/lib/exposures/enrich';
+import { getAuthUserId } from '@/lib/auth/get-user';
 
 /**
  * POST /api/securities/enrich
@@ -10,6 +11,7 @@ import { enrichSecurity, enrichAllSecurities } from '@/lib/exposures/enrich';
  */
 export async function POST(request: NextRequest) {
   try {
+    await getAuthUserId();
     const body = await request.json();
 
     if (body.securityId) {
@@ -37,6 +39,9 @@ export async function POST(request: NextRequest) {
       { status: 400 },
     );
   } catch (error) {
+    if (error instanceof Error && error.message === 'UNAUTHORIZED') {
+      return NextResponse.json({ error: 'Não autenticado' }, { status: 401 });
+    }
     console.error('Enrichment error:', error);
     return NextResponse.json(
       { error: 'Failed to enrich securities' },
