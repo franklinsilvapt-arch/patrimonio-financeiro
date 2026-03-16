@@ -316,7 +316,7 @@ export default function DashboardPage() {
               { label: '1 mês', value: performance.periodReturns['1m'] },
               { label: '3 meses', value: performance.periodReturns['3m'] },
               { label: 'YTD', value: performance.periodReturns.ytd },
-              { label: 'Max drawdown', value: performance.maxDrawdown ? -performance.maxDrawdown : 0 },
+              { label: 'Max drawdown', value: performance.maxDrawdown ? -performance.maxDrawdown : 0, tooltip: 'Maximum Drawdown — a maior queda percentual do portfolio desde um pico até ao ponto mais baixo seguinte. Exemplo: se o portfolio subiu a 100k€ e depois desceu a 90k€, o drawdown foi de -10%.' },
             ].map((m) => (
               <Card key={m.label}>
                 <CardContent className="pt-3 pb-3 px-4">

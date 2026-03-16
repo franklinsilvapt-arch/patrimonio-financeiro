@@ -37,6 +37,17 @@ interface Snapshot {
   brokerBreakdown: Record<string, number> | null;
 }
 
+interface BenchmarkPoint {
+  date: string;
+  portfolioReturn: number;
+  benchmarkReturn: number;
+}
+
+interface BenchmarkData {
+  comparison: BenchmarkPoint[];
+  benchmarkName: string;
+}
+
 export default function HistoryPage() {
   const [snapshots, setSnapshots] = useState<Snapshot[]>([]);
   const [loading, setLoading] = useState(true);
@@ -44,14 +55,24 @@ export default function HistoryPage() {
   const [viewMode, setViewMode] = useState<ViewMode>('absolute');
   const [creating, setCreating] = useState(false);
   const [createMessage, setCreateMessage] = useState<string | null>(null);
+  const [benchmark, setBenchmark] = useState<BenchmarkData | null>(null);
+  const [showBenchmark, setShowBenchmark] = useState(true);
 
   const fetchSnapshots = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await fetch('/api/snapshots');
-      if (res.ok) {
-        const data = await res.json();
-        setSnapshots(data);
+      const [snapshotsRes, benchmarkRes] = await Promise.all([
+        fetch('/api/snapshots'),
+        fetch('/api/benchmark'),
+      ]);
+      if (snapshotsRes.ok) {
+        setSnapshots(await snapshotsRes.json());
+      }
+      if (benchmarkRes.ok) {
+        const bData = await benchmarkRes.json();
+        if (bData.comparison?.length > 0) {
+          setBenchmark(bData);
+        }
       }
     } catch {
       // silently fail
@@ -141,16 +162,29 @@ export default function HistoryPage() {
     [sortedSnapshots]
   );
 
-  // Chart data — percent (base 100)
+  // Chart data — percent (base 100) with optional benchmark
   const chartDataPercent = useMemo(() => {
     if (sortedSnapshots.length === 0) return [];
     const baseValue = sortedSnapshots[0].totalValue;
     if (baseValue <= 0) return sortedSnapshots.map((s) => ({ date: formatDate(s.date), percent: 0 }));
-    return sortedSnapshots.map((s) => ({
-      date: formatDate(s.date),
-      percent: ((s.totalValue - baseValue) / baseValue) * 100,
-    }));
-  }, [sortedSnapshots]);
+
+    // Build benchmark lookup by date
+    const benchmarkMap = new Map<string, number>();
+    if (benchmark) {
+      for (const point of benchmark.comparison) {
+        benchmarkMap.set(point.date, point.benchmarkReturn * 100);
+      }
+    }
+
+    return sortedSnapshots.map((s) => {
+      const dateStr = s.date.split('T')[0];
+      return {
+        date: formatDate(s.date),
+        percent: ((s.totalValue - baseValue) / baseValue) * 100,
+        benchmark: benchmarkMap.get(dateStr) ?? undefined,
+      };
+    });
+  }, [sortedSnapshots, benchmark]);
 
   // Period stats
   const periodStats = useMemo(() => {
@@ -275,6 +309,22 @@ export default function HistoryPage() {
                 %
               </button>
             </div>
+            {viewMode === 'percent' && benchmark && (
+              <>
+                <div className="h-5 w-px bg-border" />
+                <button
+                  onClick={() => setShowBenchmark((v) => !v)}
+                  className={cn(
+                    'px-3 py-1 rounded-full text-xs font-medium transition-colors',
+                    showBenchmark
+                      ? 'bg-amber-100 text-amber-700'
+                      : 'bg-muted text-muted-foreground hover:bg-muted/80'
+                  )}
+                >
+                  {benchmark.benchmarkName}
+                </button>
+              </>
+            )}
           </div>
 
           {loading ? (
@@ -349,7 +399,10 @@ export default function HistoryPage() {
                 />
                 <ReferenceLine y={0} stroke="#9ca3af" strokeDasharray="3 3" />
                 <Tooltip
-                  formatter={(value: number) => [`${value >= 0 ? '+' : ''}${value.toFixed(2)}%`, 'Variação']}
+                  formatter={(value: number, name: string) => [
+                    `${value >= 0 ? '+' : ''}${value.toFixed(2)}%`,
+                    name === 'benchmark' ? (benchmark?.benchmarkName ?? 'Benchmark') : 'Portfolio',
+                  ]}
                   labelStyle={{ fontWeight: 'bold' }}
                   contentStyle={{
                     borderRadius: '8px',
@@ -364,7 +417,21 @@ export default function HistoryPage() {
                   strokeWidth={2}
                   dot={{ r: 3 }}
                   activeDot={{ r: 5 }}
+                  name="Portfolio"
                 />
+                {showBenchmark && benchmark && (
+                  <Line
+                    type="monotone"
+                    dataKey="benchmark"
+                    stroke="#f59e0b"
+                    strokeWidth={2}
+                    strokeDasharray="5 5"
+                    dot={{ r: 2 }}
+                    activeDot={{ r: 4 }}
+                    name={benchmark.benchmarkName}
+                    connectNulls
+                  />
+                )}
               </LineChart>
             </ResponsiveContainer>
           )}
