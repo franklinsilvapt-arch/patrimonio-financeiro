@@ -16,6 +16,9 @@ export function HeaderAuth() {
         <span className="text-sm text-muted-foreground">
           {session.user.name || session.user.email}
         </span>
+        <Button size="sm" asChild>
+          <a href="/dashboard">Dashboard</a>
+        </Button>
         <Button
           variant="outline"
           size="sm"
