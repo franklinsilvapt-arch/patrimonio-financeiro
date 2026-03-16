@@ -1,0 +1,4 @@
+Instrument,Ticker,ISIN,Shares,Current price,Market value,Currency code
+"Vanguard FTSE All-World UCITS ETF (USD) Accumulating",VWCE,IE00BK5BQT80,10,115.30,1153.00,EUR
+"Apple Inc",AAPL,US0378331005,8,178.50,1428.00,USD
+"Cash",,,,,300.00,EUR

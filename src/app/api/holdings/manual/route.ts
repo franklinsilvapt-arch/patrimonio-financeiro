@@ -1,0 +1,118 @@
+import { NextRequest, NextResponse } from 'next/server';
+import { prisma } from '@/lib/db';
+import { findMatchingSecurity, normalizeSecurityName } from '@/lib/normalization';
+
+interface ManualPosition {
+  name: string;
+  ticker?: string;
+  isin?: string;
+  quantity: number;
+  price?: number;
+  marketValue?: number;
+  currency: string;
+  assetClass?: string;
+  brokerSlug: string;
+}
+
+export async function POST(request: NextRequest) {
+  try {
+    const body: ManualPosition = await request.json();
+
+    if (!body.name || !body.quantity || !body.brokerSlug || !body.currency) {
+      return NextResponse.json(
+        { error: 'Nome, quantidade, moeda e corretora são obrigatórios' },
+        { status: 400 }
+      );
+    }
+
+    // Find or create broker
+    let broker = await prisma.broker.findUnique({ where: { slug: body.brokerSlug } });
+    if (!broker) {
+      const brokerNames: Record<string, string> = {
+        degiro: 'DEGIRO',
+        ibkr: 'Interactive Brokers',
+        lightyear: 'Lightyear',
+        trading212: 'Trading 212',
+      };
+      broker = await prisma.broker.create({
+        data: { name: brokerNames[body.brokerSlug] || body.brokerSlug, slug: body.brokerSlug },
+      });
+    }
+
+    // Find or create default account
+    let account = await prisma.account.findFirst({ where: { brokerId: broker.id } });
+    if (!account) {
+      account = await prisma.account.create({
+        data: { brokerId: broker.id, name: 'Principal', currency: 'EUR' },
+      });
+    }
+
+    // Find or create security
+    const existingSecurities = await prisma.security.findMany({
+      select: { id: true, isin: true, ticker: true, normalizedName: true, exchange: true },
+    });
+
+    const match = findMatchingSecurity(
+      {
+        isin: body.isin || undefined,
+        ticker: body.ticker || undefined,
+        name: body.name,
+        currency: body.currency,
+      },
+      existingSecurities
+    );
+
+    let securityId: string;
+    if (match.securityId && match.matchType !== 'new') {
+      securityId = match.securityId;
+    } else {
+      const newSecurity = await prisma.security.create({
+        data: {
+          isin: body.isin || null,
+          ticker: body.ticker || null,
+          name: body.name,
+          assetClass: (body.assetClass as any) || 'EQUITY',
+          currency: body.currency,
+          normalizedName: normalizeSecurityName(body.name),
+          dataSource: 'manual',
+        },
+      });
+      securityId = newSecurity.id;
+    }
+
+    // Create import batch for traceability
+    const batch = await prisma.importBatch.create({
+      data: {
+        brokerId: broker.id,
+        fileName: `manual_${new Date().toISOString().slice(0, 10)}`,
+        status: 'COMPLETED',
+        rowsImported: 1,
+        rowsFailed: 0,
+      },
+    });
+
+    // Calculate market value if not provided
+    const marketValue = body.marketValue ?? (body.price ? body.price * body.quantity : null);
+
+    // Create holding
+    const holding = await prisma.holding.create({
+      data: {
+        accountId: account.id,
+        securityId,
+        importBatchId: batch.id,
+        quantity: body.quantity,
+        marketValue,
+        currency: body.currency,
+        positionDate: new Date(),
+        priceAtPosition: body.price ?? null,
+        priceDate: body.price ? new Date() : null,
+        priceSource: 'manual',
+      },
+    });
+
+    return NextResponse.json({ success: true, holdingId: holding.id, batchId: batch.id });
+  } catch (error) {
+    console.error('Error creating manual holding:', error);
+    return NextResponse.json({ error: 'Erro ao criar posição manual' }, { status: 500 });
+  }
+}

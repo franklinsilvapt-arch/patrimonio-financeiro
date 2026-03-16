@@ -1,0 +1,249 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// --- Core entities ---
+
+model Broker {
+  id        String   @id @default(cuid())
+  name      String   @unique // e.g. "DEGIRO", "Interactive Brokers"
+  slug      String   @unique // e.g. "degiro", "ibkr"
+  createdAt DateTime @default(now())
+
+  accounts     Account[]
+  importBatches ImportBatch[]
+}
+
+model Account {
+  id          String   @id @default(cuid())
+  brokerId    String
+  name        String   // e.g. "Main", "ISA", "Custody"
+  currency    String   @default("EUR")
+  accountType String   @default("personal") // "personal" or "business"
+  createdAt   DateTime @default(now())
+
+  broker   Broker    @relation(fields: [brokerId], references: [id])
+  holdings Holding[]
+
+  @@unique([brokerId, name])
+}
+
+// --- Import tracking ---
+
+model ImportBatch {
+  id              String   @id @default(cuid())
+  brokerId        String
+  fileName        String
+  importedAt      DateTime @default(now())
+  referenceDate   DateTime? // date the data refers to
+  rowsImported    Int      @default(0)
+  rowsFailed      Int      @default(0)
+  status          ImportStatus @default(PENDING)
+  errors          String?  // JSON array of error messages
+  warnings        String?  // JSON array of warning messages
+
+  broker   Broker    @relation(fields: [brokerId], references: [id])
+  holdings Holding[]
+}
+
+enum ImportStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+}
+
+// --- Securities / Assets ---
+
+model Security {
+  id            String       @id @default(cuid())
+  isin          String?      @unique
+  ticker        String?
+  name          String
+  assetClass    AssetClass
+  currency      String
+  country       String?      // domicile country
+  sector        String?      // primary sector
+  exchange      String?
+  dataSource    String?      // where this info came from
+  lastUpdated   DateTime     @default(now())
+  createdAt     DateTime     @default(now())
+
+  holdings            Holding[]
+  priceSnapshots      PriceSnapshot[]
+  countryExposures    CountryExposure[]
+  sectorExposures     SectorExposure[]
+  factorExposures     FactorExposure[]
+  securityCategories  SecurityCategory[]
+
+  // For matching/dedup
+  normalizedName String?
+
+  @@index([ticker])
+  @@index([normalizedName])
+}
+
+enum AssetClass {
+  EQUITY
+  ETF
+  BOND
+  FUND
+  CASH
+  CRYPTO
+  COMMODITY
+  OTHER
+}
+
+// --- Holdings / Positions ---
+
+model Holding {
+  id              String   @id @default(cuid())
+  accountId       String
+  securityId      String
+  importBatchId   String?
+  quantity        Float
+  averageCost     Float?
+  marketValue     Float?
+  currency        String
+  positionDate    DateTime // date the position refers to
+  priceAtPosition Float?   // price at position date
+  priceDate       DateTime? // when the price was fetched
+  priceSource     String?  // e.g. "broker_export", "api_yahoo"
+  createdAt       DateTime @default(now())
+
+  account     Account     @relation(fields: [accountId], references: [id])
+  security    Security    @relation(fields: [securityId], references: [id])
+  importBatch ImportBatch? @relation(fields: [importBatchId], references: [id])
+
+  @@index([securityId])
+  @@index([accountId])
+  @@index([positionDate])
+}
+
+// --- Price data ---
+
+model PriceSnapshot {
+  id          String   @id @default(cuid())
+  securityId  String
+  price       Float
+  currency    String
+  date        DateTime
+  source      String   // e.g. "broker_export", "yahoo_finance"
+  createdAt   DateTime @default(now())
+
+  security Security @relation(fields: [securityId], references: [id])
+
+  @@unique([securityId, date, source])
+  @@index([securityId, date])
+}
+
+// --- Exposure breakdowns ---
+
+model CountryExposure {
+  id          String   @id @default(cuid())
+  securityId  String
+  country     String   // ISO country code
+  countryName String
+  weight      Float    // 0.0 to 1.0
+  date        DateTime // date of this breakdown
+  source      String   // where the data came from
+  confidence  Float    @default(1.0) // 0.0 to 1.0
+  coverage    Float    @default(1.0) // how much of the fund is covered
+  createdAt   DateTime @default(now())
+
+  security Security @relation(fields: [securityId], references: [id])
+
+  @@index([securityId])
+}
+
+model SectorExposure {
+  id          String   @id @default(cuid())
+  securityId  String
+  sector      String
+  weight      Float    // 0.0 to 1.0
+  date        DateTime
+  source      String
+  confidence  Float    @default(1.0)
+  coverage    Float    @default(1.0)
+  createdAt   DateTime @default(now())
+
+  security Security @relation(fields: [securityId], references: [id])
+
+  @@index([securityId])
+}
+
+model FactorExposure {
+  id          String   @id @default(cuid())
+  securityId  String
+  factor      String   // e.g. "value", "size", "momentum", "quality", "volatility", "growth"
+  score       Float    // normalized score, e.g. -1.0 to 1.0
+  method      String   // calculation methodology
+  date        DateTime
+  source      String
+  confidence  Float    @default(1.0)
+  coverage    Float    @default(1.0)
+  createdAt   DateTime @default(now())
+
+  security Security @relation(fields: [securityId], references: [id])
+
+  @@index([securityId])
+}
+
+// --- Custom taxonomies ---
+
+model Taxonomy {
+  id          String   @id @default(cuid())
+  name        String   @unique // e.g. "Região", "Estratégia", "Tema"
+  description String?
+  createdAt   DateTime @default(now())
+
+  categories TaxonomyCategory[]
+}
+
+model TaxonomyCategory {
+  id          String   @id @default(cuid())
+  taxonomyId  String
+  name        String   // e.g. "Europa Desenvolvida", "Growth"
+  color       String?  // hex color for charts
+  createdAt   DateTime @default(now())
+
+  taxonomy    Taxonomy          @relation(fields: [taxonomyId], references: [id], onDelete: Cascade)
+  securities  SecurityCategory[]
+
+  @@unique([taxonomyId, name])
+}
+
+model SecurityCategory {
+  id          String   @id @default(cuid())
+  securityId  String
+  categoryId  String
+  weight      Float    @default(1.0) // for partial allocation (0.0-1.0)
+  createdAt   DateTime @default(now())
+
+  security    Security          @relation(fields: [securityId], references: [id], onDelete: Cascade)
+  category    TaxonomyCategory  @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@unique([securityId, categoryId])
+}
+
+// --- Portfolio snapshots (for historical tracking) ---
+
+model PortfolioSnapshot {
+  id              String   @id @default(cuid())
+  date            DateTime
+  totalValue      Float
+  personalValue   Float?
+  businessValue   Float?
+  currency        String   @default("EUR")
+  brokerBreakdown String?  // JSON: { "degiro": 1234.56, "ibkr": 5678.90 }
+  assetBreakdown  String?  // JSON: { "EQUITY": 5000, "ETF": 3000, "CASH": 500 }
+  createdAt       DateTime @default(now())
+
+  @@unique([date, currency])
+  @@index([date])
+}

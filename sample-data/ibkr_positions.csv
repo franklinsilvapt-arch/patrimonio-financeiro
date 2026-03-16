@@ -1,0 +1,5 @@
+Symbol,Description,Asset Class,Currency,Quantity,Close Price,Value,ISIN
+VWCE,"Vanguard FTSE All-World UCITS ETF",STK,EUR,25,115.30,2882.50,IE00BK5BQT80
+MSFT,"Microsoft Corp",STK,USD,100,415.20,41520.00,US5949181045
+NESN,"Nestle SA",STK,CHF,20,98.50,1970.00,CH0038863350
+,Cash,,USD,,,1200.00,
