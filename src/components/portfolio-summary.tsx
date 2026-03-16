@@ -29,68 +29,50 @@ export function PortfolioSummary({ summary }: PortfolioSummaryProps) {
   return (
     <TooltipProvider>
       <div className="space-y-1">
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {/* Valor total — prominent */}
+        {/* Valor total — always prominent */}
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">
+              Valor total
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold tabular-nums">
+              {formatCurrency(summary.totalValue, summary.currency)}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Secondary metrics: 3-col on mobile, part of 4-col grid on sm+ */}
+        <div className="grid grid-cols-3 gap-2 sm:gap-4">
           <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">
-                Valor total
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold tabular-nums">
-                {formatCurrency(summary.totalValue, summary.currency)}
-              </div>
+            <CardContent className="pt-4 pb-3 px-3 sm:px-6">
+              <p className="text-xs font-medium text-muted-foreground">Ativos</p>
+              <p className="text-lg font-semibold tabular-nums">{summary.uniqueSecurities}</p>
             </CardContent>
           </Card>
 
-          {/* Nr. ativos */}
           <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">
-                Nr. ativos
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-xl font-semibold tabular-nums">
-                {summary.uniqueSecurities}
-              </div>
+            <CardContent className="pt-4 pb-3 px-3 sm:px-6">
+              <p className="text-xs font-medium text-muted-foreground">Corretoras</p>
+              <p className="text-lg font-semibold tabular-nums">{summary.brokerCount}</p>
             </CardContent>
           </Card>
 
-          {/* Nr. corretoras — subdued */}
           <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">
-                Nr. corretoras/bancos
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-xl font-semibold tabular-nums">
-                {summary.brokerCount}
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Cobertura média — with tooltip */}
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-1">
-                Cobertura média
+            <CardContent className="pt-4 pb-3 px-3 sm:px-6">
+              <p className="text-xs font-medium text-muted-foreground flex items-center gap-1">
+                Cobertura
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <Info className="h-3.5 w-3.5 text-muted-foreground/60 cursor-help" />
+                    <Info className="h-3 w-3 text-muted-foreground/60 cursor-help" />
                   </TooltipTrigger>
                   <TooltipContent side="top" className="max-w-xs text-xs bg-white border shadow-md">
                     Percentagem média dos dados de exposição geográfica e setorial disponíveis para os teus ativos (via JustETF). 100% significa que todos os ETFs têm dados completos de país e setor. Posições sem dados (como cash ou ações individuais) reduzem esta percentagem.
                   </TooltipContent>
                 </Tooltip>
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-xl font-semibold tabular-nums">
-                {formatPercent(summary.averageCoverage)}
-              </div>
+              </p>
+              <p className="text-lg font-semibold tabular-nums">{formatPercent(summary.averageCoverage)}</p>
             </CardContent>
           </Card>
         </div>
