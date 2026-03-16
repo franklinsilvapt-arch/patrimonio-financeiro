@@ -49,8 +49,8 @@ const features = [
   },
   {
     icon: ShieldCheck,
-    title: 'Open-source e privado',
-    description: 'Os teus dados ficam na tua base de dados. Código aberto, sem tracking.',
+    title: 'Seguro e privado',
+    description: 'Os teus dados ficam protegidos com autenticação e encriptação. Sem tracking.',
   },
 ];
 
@@ -102,7 +102,6 @@ export default function HomePage() {
           <a href="https://literaciafinanceira.pt" target="_blank" rel="noopener noreferrer" className="font-medium text-foreground hover:underline">
             LiteraciaFinanceira.pt
           </a>
-          {' '}· open-source · MIT License
         </div>
       </footer>
     </>
