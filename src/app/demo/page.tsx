@@ -9,12 +9,15 @@ import { ExposureBarChart } from '@/components/charts/exposure-bar-chart';
 import { HistoryLineChart } from '@/components/charts/history-line-chart';
 import { formatPercent } from '@/lib/utils';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { FactorRadarChart } from '@/components/charts/factor-radar-chart';
 import {
   demoSummary,
   demoHoldings,
   demoBrokerAllocation,
   demoCountryExposure,
   demoSectorExposure,
+  demoFactorScores,
+  demoCurrencyExposure,
   demoHistory,
   demoPerformance,
 } from '@/lib/demo-data';
@@ -74,6 +77,8 @@ export default function DemoPage() {
         <TabsList>
           <TabsTrigger value="overview">Visão geral</TabsTrigger>
           <TabsTrigger value="sectors">Setores</TabsTrigger>
+          <TabsTrigger value="factors">Fatores</TabsTrigger>
+          <TabsTrigger value="currency">Cambial</TabsTrigger>
           <TabsTrigger value="holdings">Posições</TabsTrigger>
           <TabsTrigger value="history">Histórico</TabsTrigger>
         </TabsList>
@@ -106,6 +111,29 @@ export default function DemoPage() {
             </CardHeader>
             <CardContent>
               <ExposureBarChart data={demoSectorExposure} title="Setores" />
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="factors">
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">Exposição a fatores</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <FactorRadarChart data={demoFactorScores} />
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="currency">
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">Exposição cambial real</CardTitle>
+              <CardDescription>Moedas subjacentes dos ativos (look-through via país)</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ExposureBarChart data={demoCurrencyExposure} title="Moedas" />
             </CardContent>
           </Card>
         </TabsContent>

@@ -210,11 +210,32 @@ export const demoCountryExposure = [
 ];
 
 export const demoSectorExposure = [
-  { name: 'Diversificado', value: 0.542 },
-  { name: 'Obrigações', value: 0.186 },
-  { name: 'Dividendos', value: 0.083 },
-  { name: 'Tecnologia', value: 0.079 },
-  { name: 'Outros', value: 0.110 },
+  { name: 'Tecnologia', value: 0.284 },
+  { name: 'Financeiro', value: 0.168 },
+  { name: 'Saúde', value: 0.122 },
+  { name: 'Consumo cíclico', value: 0.108 },
+  { name: 'Indústria', value: 0.094 },
+  { name: 'Comunicações', value: 0.072 },
+  { name: 'Consumo defensivo', value: 0.058 },
+  { name: 'Energia', value: 0.042 },
+  { name: 'Outros', value: 0.052 },
+];
+
+export const demoFactorScores = [
+  { factor: 'Qualidade', score: 72, fullMark: 100 },
+  { factor: 'Valor', score: 45, fullMark: 100 },
+  { factor: 'Momentum', score: 68, fullMark: 100 },
+  { factor: 'Tamanho', score: 35, fullMark: 100 },
+  { factor: 'Volatilidade', score: 58, fullMark: 100 },
+  { factor: 'Dividendo', score: 41, fullMark: 100 },
+];
+
+export const demoCurrencyExposure = [
+  { name: 'USD', value: 0.542 },
+  { name: 'EUR', value: 0.285 },
+  { name: 'GBP', value: 0.065 },
+  { name: 'JPY', value: 0.058 },
+  { name: 'Outros', value: 0.050 },
 ];
 
 // History: monthly snapshots for 12 months
