@@ -21,5 +21,6 @@ export const config = {
     '/history/:path*',
     '/holdings/:path*',
     '/import/:path*',
+    '/conta/:path*',
   ],
 };

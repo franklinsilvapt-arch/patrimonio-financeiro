@@ -7,6 +7,7 @@ const navLinks = [
   { href: '/history', label: 'Evolução' },
   { href: '/holdings', label: 'Posições' },
   { href: '/import', label: 'Importar' },
+  { href: '/conta', label: 'Conta' },
 ];
 
 export function AppNav() {
