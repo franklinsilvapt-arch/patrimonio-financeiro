@@ -48,7 +48,7 @@ model Account {
   broker   Broker    @relation(fields: [brokerId], references: [id])
   holdings Holding[]
 
-  @@unique([brokerId, name])
+  @@unique([brokerId, name, userId])
 }
 
 // --- Import tracking ---
