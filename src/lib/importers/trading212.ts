@@ -216,12 +216,8 @@ export class Trading212Importer implements BrokerImporter {
         const action = getColumnValue(row, ACTION_COLUMNS) || '';
         const actionUpper = action.toUpperCase();
 
-        // Only process buy/sell market orders
-        if (
-          !actionUpper.includes('BUY') &&
-          !actionUpper.includes('SELL') &&
-          !actionUpper.includes('MARKET')
-        ) {
+        // Only process buy/sell transactions (market buy, limit buy, market sell, limit sell)
+        if (!actionUpper.includes('BUY') && !actionUpper.includes('SELL')) {
           continue;
         }
 
@@ -230,11 +226,10 @@ export class Trading212Importer implements BrokerImporter {
         const isinRaw = getColumnValue(row, ISIN_COLUMNS);
         const sharesStr = getColumnValue(row, SHARES_COLUMNS);
         const priceStr = getColumnValue(row, PRICE_COLUMNS);
+        const totalStr = getColumnValue(row, ['Total']);
+        const totalCurrency = getColumnValue(row, ['Currency (Total)']) || 'EUR';
         const timeStr = getColumnValue(row, TIME_COLUMNS);
-        const currency =
-          getColumnValue(row, CURRENCY_COLUMNS) ||
-          getColumnValue(row, ['Currency (Price / share)']) ||
-          'EUR';
+        const currency = totalCurrency.trim().toUpperCase() || 'EUR';
 
         if (!name && !tickerRaw) {
           warnings.push(`Row ${rowNum}: skipping transaction with no name or ticker`);
@@ -247,7 +242,10 @@ export class Trading212Importer implements BrokerImporter {
           continue;
         }
 
+        // Use Total (in EUR) when available, otherwise fall back to Price * shares
+        const totalValue = parseNumber(totalStr);
         const price = parseNumber(priceStr) || 0;
+        const costForPosition = totalValue !== null ? totalValue : price * shares;
         const date = parseDate(timeStr);
 
         const key = (isinRaw || tickerRaw || name || '').trim().toUpperCase();
@@ -262,10 +260,12 @@ export class Trading212Importer implements BrokerImporter {
 
         const ticker = tickerRaw ? tickerRaw.trim() : null;
 
+        const signedCost = isSell ? -costForPosition : costForPosition;
+
         const existing = positionMap.get(key);
         if (existing) {
           existing.quantity += signedShares;
-          existing.totalCost += signedShares * price;
+          existing.totalCost += signedCost;
           if (date && (!existing.lastDate || date > existing.lastDate)) {
             existing.lastDate = date;
           }
@@ -275,8 +275,8 @@ export class Trading212Importer implements BrokerImporter {
             ticker,
             isin,
             quantity: signedShares,
-            totalCost: signedShares * price,
-            currency: currency.trim().toUpperCase(),
+            totalCost: signedCost,
+            currency,
             lastDate: date,
           });
         }
@@ -301,6 +301,7 @@ export class Trading212Importer implements BrokerImporter {
       }
 
       const avgPrice = entry.quantity !== 0 ? entry.totalCost / entry.quantity : null;
+      const marketValue = avgPrice !== null ? avgPrice * entry.quantity : null;
       const assetClass = detectAssetClass(entry.name, entry.ticker);
 
       positions.push({
@@ -309,7 +310,7 @@ export class Trading212Importer implements BrokerImporter {
         isin: entry.isin,
         quantity: entry.quantity,
         price: avgPrice,
-        marketValue: null,
+        marketValue,
         currency: entry.currency,
         assetClass,
         exchange: null,
