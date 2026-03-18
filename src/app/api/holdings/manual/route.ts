@@ -41,6 +41,7 @@ export async function POST(request: NextRequest) {
         ibkr: 'Interactive Brokers',
         lightyear: 'Lightyear',
         trading212: 'Trading 212',
+        investing: 'Investing.com',
       };
       broker = await prisma.broker.create({
         data: { name: brokerNames[body.brokerSlug] || body.brokerSlug, slug: body.brokerSlug },

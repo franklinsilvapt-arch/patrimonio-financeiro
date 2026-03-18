@@ -317,6 +317,7 @@ export default function ImportPage() {
       'trading 212': 'trading212', 'trading212': 'trading212',
       'revolut': 'revolut', 'freedom24': 'freedom24', 'freedom 24': 'freedom24',
       'etoro': 'etoro', 'novo banco': 'novobanco', 'novobanco': 'novobanco',
+      'investing.com': 'investing', 'investing': 'investing',
     };
     const detectedSlug = imageResult.brokerName
       ? brokerMap[imageResult.brokerName.toLowerCase()] || 'lightyear'
