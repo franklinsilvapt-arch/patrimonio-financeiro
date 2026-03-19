@@ -471,7 +471,7 @@ export default function DashboardPage() {
               <CardTitle className="text-base">Evolução do património</CardTitle>
             </CardHeader>
             <CardContent>
-              <HistoryLineChart data={data.history} brokers={data.brokerNames} />
+              <HistoryLineChart data={data.history} />
             </CardContent>
           </Card>
         </TabsContent>
