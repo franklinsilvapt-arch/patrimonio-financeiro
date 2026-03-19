@@ -92,15 +92,19 @@ export function HistoryLineChart({ data, brokers }: HistoryLineChartProps) {
     });
   }, [data, period, lastDate]);
 
-  // Y-axis domain for absolute: start near the minimum value, not 0
+  // Y-axis domain for absolute: tight range around actual data
   const yDomain = useMemo(() => {
     if (filteredData.length === 0) return [0, 0];
     const values = filteredData.map((d) => d.value as number);
     const min = Math.min(...values);
     const max = Math.max(...values);
-    const padding = (max - min) * 0.1 || max * 0.05;
-    const floorMin = Math.floor((min - padding) / 50000) * 50000;
-    return [Math.max(0, floorMin), max + padding];
+    const range = max - min;
+    const padding = range > 0 ? range * 0.15 : max * 0.05;
+    // Pick a nice rounding step based on the range
+    const step = range > 500000 ? 50000 : range > 100000 ? 10000 : range > 10000 ? 5000 : 1000;
+    const domainMin = Math.floor((min - padding) / step) * step;
+    const domainMax = Math.ceil((max + padding) / step) * step;
+    return [Math.max(0, domainMin), domainMax];
   }, [filteredData]);
 
   // Percent variation data for percent view
