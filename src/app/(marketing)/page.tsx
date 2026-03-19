@@ -1,109 +1,239 @@
-import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import {
-  BarChart3,
-  PieChart,
-  TrendingUp,
-  Upload,
-  Globe,
-  Building2,
-  ShieldCheck,
-  LineChart,
-} from 'lucide-react';
-
-const features = [
-  {
-    icon: Upload,
-    title: 'Importação multi-corretora',
-    description: 'DEGIRO, Interactive Brokers, Trading 212, Lightyear e outras, via CSV ou screenshot.',
-  },
-  {
-    icon: PieChart,
-    title: 'Dashboard completo',
-    description: 'Valor total, alocação por corretora, exposição por país, setor e moeda.',
-  },
-  {
-    icon: TrendingUp,
-    title: 'Rentabilidade real',
-    description: 'TWR, retorno anualizado, YTD, mensal, trimestral e máximo drawdown.',
-  },
-  {
-    icon: LineChart,
-    title: 'Evolução do património',
-    description: 'Gráficos em valor absoluto (€) e percentual (%), com filtros por período.',
-  },
-  {
-    icon: Building2,
-    title: 'Pessoal e empresarial',
-    description: 'Separa contas pessoais e empresariais e alterna entre elas facilmente.',
-  },
-  {
-    icon: Globe,
-    title: 'Conversão cambial',
-    description: 'Posições em USD convertidas automaticamente para EUR com taxas BCE.',
-  },
-  {
-    icon: BarChart3,
-    title: 'Enriquecimento de ETFs',
-    description: 'Dados de país, setor e fatores obtidos automaticamente via JustETF.',
-  },
-  {
-    icon: ShieldCheck,
-    title: 'Seguro e privado',
-    description: 'Os teus dados ficam protegidos com autenticação e encriptação. Sem tracking.',
-  },
-];
-
 export default function HomePage() {
   return (
     <>
-      {/* Hero */}
-      <section className="mx-auto w-full max-w-7xl px-6 py-20 text-center">
-        <h1 className="text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl">
-          O teu património financeiro,
-          <br />
-          <span className="text-primary">numa única vista.</span>
-        </h1>
-        <p className="mx-auto mt-6 max-w-2xl text-lg text-muted-foreground">
-          Agrega posições de todas as tuas corretoras e bancos num só dashboard.
-          Visualiza alocação, rentabilidade e evolução, sem partilhar dados com terceiros.
-        </p>
-        <div className="mt-10 flex items-center justify-center gap-4">
-          <Button size="lg" asChild>
-            <a href="/demo">Experimentar demo</a>
-          </Button>
-          <Button size="lg" variant="outline" asChild>
-            <a href="/dashboard">Começar agora</a>
-          </Button>
+      {/* Hero Section */}
+      <section className="relative overflow-hidden pt-24 pb-16 px-6">
+        <div className="max-w-7xl mx-auto text-center">
+          <h1 className="text-5xl md:text-7xl font-extrabold tracking-tighter text-black mb-6 leading-tight font-[family-name:var(--font-manrope)]">
+            O teu património financeiro,
+            <br />
+            <span className="text-slate-500">numa única vista.</span>
+          </h1>
+          <p className="max-w-2xl mx-auto text-lg md:text-xl text-slate-600 mb-10 leading-relaxed">
+            Agrega posições de todas as tuas corretoras e bancos num só dashboard.
+            Visualiza alocação, rentabilidade e evolução, sem partilhar dados com terceiros.
+          </p>
+          <div className="flex flex-col sm:flex-row justify-center gap-4 mb-20">
+            <a
+              href="/dashboard"
+              className="px-8 py-4 bg-black text-white font-bold rounded-lg shadow-lg hover:bg-opacity-90 active:scale-95 transition-all duration-200 inline-flex items-center justify-center gap-2"
+            >
+              Começar agora
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+            </a>
+            <a
+              href="/demo"
+              className="px-8 py-4 bg-slate-200 text-black font-bold rounded-lg active:scale-95 transition-all duration-200 inline-flex items-center justify-center"
+            >
+              Experimentar demo
+            </a>
+          </div>
+
+          {/* Dashboard Preview Mockup */}
+          <div className="relative max-w-6xl mx-auto">
+            <div className="bg-white rounded-2xl shadow-2xl p-4 md:p-8 border border-slate-200/50 overflow-hidden">
+              <div className="flex items-center justify-between mb-8 border-b border-slate-100 pb-4">
+                <div className="flex items-center gap-4">
+                  <div className="w-10 h-10 bg-black rounded-lg flex items-center justify-center text-white">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2.5"/><path d="M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4"/></svg>
+                  </div>
+                  <div className="text-left">
+                    <p className="text-xs font-bold uppercase tracking-widest text-slate-500">Património Total</p>
+                    <p className="text-2xl font-black text-black">€142.580,22</p>
+                  </div>
+                </div>
+                <div className="hidden md:flex gap-4">
+                  <div className="px-3 py-1 bg-emerald-100 rounded-full text-xs font-bold text-emerald-800 flex items-center gap-1">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m22 7-8.5 8.5-5-5L2 17"/><path d="M16 7h6v6"/></svg>
+                    +12.4% YTD
+                  </div>
+                  <div className="px-3 py-1 bg-slate-100 rounded-full text-xs font-bold text-slate-600">EUR/USD 1.08</div>
+                </div>
+              </div>
+
+              {/* Charts Bento Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
+                <div className="md:col-span-8 bg-slate-50 rounded-xl p-6 h-80 relative overflow-hidden">
+                  <div className="flex justify-between items-center mb-4">
+                    <h3 className="font-bold text-black font-[family-name:var(--font-manrope)]">Evolução do Património</h3>
+                    <div className="flex gap-2">
+                      <div className="w-2 h-2 rounded-full bg-emerald-600" />
+                      <div className="w-2 h-2 rounded-full bg-slate-300" />
+                    </div>
+                  </div>
+                  <div className="absolute inset-x-0 bottom-0 h-48 px-4">
+                    <svg className="w-full h-full" viewBox="0 0 1000 200">
+                      <defs>
+                        <linearGradient id="chartGradient" x1="0" x2="0" y1="0" y2="1">
+                          <stop offset="0%" stopColor="#009668" stopOpacity="0.3" />
+                          <stop offset="100%" stopColor="#009668" stopOpacity="0" />
+                        </linearGradient>
+                      </defs>
+                      <path d="M0,180 Q100,160 200,170 T400,140 T600,100 T800,60 T1000,40 L1000,200 L0,200 Z" fill="url(#chartGradient)" />
+                      <path d="M0,180 Q100,160 200,170 T400,140 T600,100 T800,60 T1000,40" fill="none" stroke="#009668" strokeLinecap="round" strokeWidth="4" />
+                    </svg>
+                  </div>
+                  <div className="grid grid-cols-6 mt-32 text-[10px] font-bold text-slate-400 uppercase tracking-tighter">
+                    <span>Jan</span><span>Mar</span><span>Mai</span><span>Jul</span><span>Set</span><span>Nov</span>
+                  </div>
+                </div>
+
+                <div className="md:col-span-4 bg-slate-50 rounded-xl p-6 h-80 flex flex-col items-center justify-center">
+                  <h3 className="font-bold text-black mb-6 w-full text-left font-[family-name:var(--font-manrope)]">Alocação de Ativos</h3>
+                  <div className="relative w-40 h-40">
+                    <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
+                      <circle cx="18" cy="18" fill="none" r="16" stroke="#eceef0" strokeWidth="4" />
+                      <circle cx="18" cy="18" fill="none" r="16" stroke="#000000" strokeDasharray="65, 100" strokeWidth="4" />
+                      <circle cx="18" cy="18" fill="none" r="16" stroke="#505f76" strokeDasharray="20, 100" strokeDashoffset="-65" strokeWidth="4" />
+                      <circle cx="18" cy="18" fill="none" r="16" stroke="#009668" strokeDasharray="15, 100" strokeDashoffset="-85" strokeWidth="4" />
+                    </svg>
+                    <div className="absolute inset-0 flex flex-col items-center justify-center">
+                      <span className="text-xl font-black">65%</span>
+                      <span className="text-[10px] font-bold uppercase text-slate-500">Ações</span>
+                    </div>
+                  </div>
+                  <div className="mt-6 w-full space-y-2">
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-black" /> ETFs &amp; Ações</span>
+                      <span className="font-bold">65%</span>
+                    </div>
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-slate-500" /> Crypto</span>
+                      <span className="font-bold">20%</span>
+                    </div>
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-emerald-600" /> Cash</span>
+                      <span className="font-bold">15%</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
-      {/* Features */}
-      <section className="mx-auto w-full max-w-7xl px-6 pb-20">
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {features.map((f) => (
-            <Card key={f.title}>
-              <CardContent className="pt-6">
-                <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
-                  <f.icon className="h-5 w-5 text-primary" />
-                </div>
-                <h3 className="font-semibold">{f.title}</h3>
-                <p className="mt-1 text-sm text-muted-foreground">{f.description}</p>
-              </CardContent>
-            </Card>
-          ))}
+      {/* Features Grid */}
+      <section className="py-24 px-6 bg-slate-50">
+        <div className="max-w-7xl mx-auto">
+          <div className="mb-16">
+            <span className="text-xs font-black uppercase tracking-[0.3em] text-slate-300 bg-black px-3 py-1 rounded">
+              Funcionalidades
+            </span>
+            <h2 className="text-4xl font-extrabold text-black mt-6 tracking-tight font-[family-name:var(--font-manrope)]">
+              Tudo o que precisas para gerir a tua riqueza.
+            </h2>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {features.map((f) => (
+              <div key={f.title} className="bg-white p-8 rounded-xl transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
+                <span className="material-symbols-outlined text-black text-3xl mb-4">{f.icon}</span>
+                <h3 className="text-lg font-bold mb-3 font-[family-name:var(--font-manrope)]">{f.title}</h3>
+                <p className="text-sm text-slate-500 leading-relaxed">{f.description}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="py-24 px-6 relative bg-black text-white overflow-hidden">
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute top-0 left-0 w-96 h-96 bg-emerald-400 rounded-full blur-[120px]" />
+          <div className="absolute bottom-0 right-0 w-96 h-96 bg-blue-400 rounded-full blur-[120px]" />
+        </div>
+        <div className="max-w-4xl mx-auto text-center relative z-10">
+          <h2 className="text-4xl md:text-5xl font-extrabold mb-8 tracking-tighter font-[family-name:var(--font-manrope)]">
+            Pronto para ter controlo total sobre os teus investimentos?
+          </h2>
+          <a
+            href="/registar"
+            className="inline-block px-10 py-5 bg-emerald-400 text-black font-black rounded-lg shadow-xl hover:scale-105 active:scale-95 transition-all duration-300 text-lg"
+          >
+            Criar conta grátis
+          </a>
+          <p className="mt-6 text-slate-400 text-sm font-medium">
+            Sem cartão de crédito necessário. Configuração em 2 minutos.
+          </p>
+        </div>
+      </section>
+
+      {/* Credits Section */}
+      <section className="py-12 bg-white">
+        <div className="max-w-7xl mx-auto px-8 flex flex-col items-center justify-center border-t border-slate-100 pt-12">
+          <div className="text-center">
+            <p className="text-sm font-bold text-black leading-tight">
+              Criado por Franklin Carneiro da Silva
+            </p>
+            <p className="text-xs text-slate-500 font-medium">
+              Cofundador do{' '}
+              <a
+                href="https://literaciafinanceira.pt"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-semibold text-black hover:underline"
+              >
+                LiteraciaFinanceira.pt
+              </a>
+            </p>
+          </div>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="border-t py-8 text-center text-sm text-muted-foreground">
-        <div className="mx-auto w-full max-w-7xl px-6">
-          Criado por Franklin Carneiro da Silva, cofundador do{' '}
-          <a href="https://literaciafinanceira.pt" target="_blank" rel="noopener noreferrer" className="font-medium text-foreground hover:underline">
-            LiteraciaFinanceira.pt
-          </a>
+      <footer className="w-full py-12 bg-slate-50">
+        <div className="flex flex-col md:flex-row justify-between items-center max-w-7xl mx-auto px-8 gap-8">
+          <div className="text-lg font-black text-black">
+            Património Financeiro
+          </div>
+          <div className="text-[10px] font-medium text-slate-400 text-center md:text-right max-w-xs">
+            © PatrimonioFinanceiro.pt - Por Franklin Carneiro da Silva &amp; LiteraciaFinanceira.pt
+          </div>
         </div>
       </footer>
     </>
   );
 }
+
+const features = [
+  {
+    icon: 'upload_file',
+    title: 'Importação multi-corretora',
+    description: 'DEGIRO, Interactive Brokers, Trading 212, Lightyear, via CSV ou screenshot inteligente.',
+  },
+  {
+    icon: 'dashboard',
+    title: 'Dashboard completo',
+    description: 'Valor total, alocação por corretora, exposição por país, setor e moeda num relance.',
+  },
+  {
+    icon: 'insights',
+    title: 'Rentabilidade real',
+    description: 'TWR, retorno anualizado, YTD, mensal, trimestral e métricas de risco máximo drawdown.',
+  },
+  {
+    icon: 'show_chart',
+    title: 'Evolução do património',
+    description: 'Gráficos dinâmicos em valor absoluto (€) e percentual (%) para análise histórica.',
+  },
+  {
+    icon: 'corporate_fare',
+    title: 'Pessoal e empresarial',
+    description: 'Alterna entre as tuas contas pessoais e de empresa com um único clique intuitivo.',
+  },
+  {
+    icon: 'currency_exchange',
+    title: 'Conversão cambial',
+    description: 'Atualização automática de posições em USD para EUR via taxas oficiais do BCE.',
+  },
+  {
+    icon: 'database',
+    title: 'Enriquecimento de ETFs',
+    description: 'Dados integrados via JustETF para análise profunda de composição e rácios.',
+  },
+  {
+    icon: 'encrypted',
+    title: 'Seguro e privado',
+    description: 'Encriptação de ponta a ponta. Não guardamos credenciais e nunca vendemos dados.',
+  },
+];
