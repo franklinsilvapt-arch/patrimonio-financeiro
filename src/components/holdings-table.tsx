@@ -28,6 +28,7 @@ export interface HoldingRow {
   positionDate: string | null;
   priceDate: string | null;
   source: string | null;
+  assetClass: string;
 }
 
 interface HoldingsTableProps {

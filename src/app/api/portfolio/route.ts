@@ -159,6 +159,7 @@ export async function GET(request: NextRequest) {
         positionDate: h.positionDate?.toISOString() ?? null,
         priceDate: h.priceDate?.toISOString() ?? null,
         source: h.priceSource,
+        assetClass: h.security.assetClass,
       };
     });
 
@@ -209,6 +210,7 @@ export async function GET(request: NextRequest) {
       sectorExposure: Object.entries(bySector)
         .map(([name, value]) => ({ name, value: totalValue > 0 ? value / totalValue : 0 }))
         .sort((a, b) => b.value - a.value),
+      assetClassAllocation: Object.entries(byAssetClass).map(([name, value]) => ({ name, value })),
       factorScores,
       history,
       brokerNames,

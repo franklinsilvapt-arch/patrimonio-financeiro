@@ -29,6 +29,7 @@ export const demoHoldings: HoldingRow[] = [
     positionDate: '2026-02-28',
     priceDate: '2026-02-28',
     source: 'demo',
+    assetClass: 'ETF',
   },
   {
     securityId: 'd2',
@@ -47,6 +48,7 @@ export const demoHoldings: HoldingRow[] = [
     positionDate: '2026-02-28',
     priceDate: '2026-02-28',
     source: 'demo',
+    assetClass: 'ETF',
   },
   {
     securityId: 'd3',
@@ -65,6 +67,7 @@ export const demoHoldings: HoldingRow[] = [
     positionDate: '2026-02-28',
     priceDate: '2026-02-28',
     source: 'demo',
+    assetClass: 'ETF',
   },
   {
     securityId: 'd4',
@@ -83,6 +86,7 @@ export const demoHoldings: HoldingRow[] = [
     positionDate: '2026-02-28',
     priceDate: '2026-02-28',
     source: 'demo',
+    assetClass: 'ETF',
   },
   {
     securityId: 'd5',
@@ -101,6 +105,7 @@ export const demoHoldings: HoldingRow[] = [
     positionDate: '2026-02-28',
     priceDate: '2026-02-28',
     source: 'demo',
+    assetClass: 'ETF',
   },
   {
     securityId: 'd6',
@@ -119,6 +124,7 @@ export const demoHoldings: HoldingRow[] = [
     positionDate: '2026-02-28',
     priceDate: '2026-02-28',
     source: 'demo',
+    assetClass: 'ETF',
   },
   {
     securityId: 'd7',
@@ -137,6 +143,7 @@ export const demoHoldings: HoldingRow[] = [
     positionDate: '2026-02-28',
     priceDate: '2026-02-28',
     source: 'demo',
+    assetClass: 'ETF',
   },
   {
     securityId: 'd8',
@@ -155,6 +162,7 @@ export const demoHoldings: HoldingRow[] = [
     positionDate: '2026-02-28',
     priceDate: '2026-02-28',
     source: 'demo',
+    assetClass: 'CASH',
   },
   {
     securityId: 'd9',
@@ -173,6 +181,7 @@ export const demoHoldings: HoldingRow[] = [
     positionDate: '2026-02-28',
     priceDate: '2026-02-28',
     source: 'demo',
+    assetClass: 'ETF',
   },
   {
     securityId: 'd10',
@@ -191,6 +200,7 @@ export const demoHoldings: HoldingRow[] = [
     positionDate: '2026-02-28',
     priceDate: '2026-02-28',
     source: 'demo',
+    assetClass: 'CASH',
   },
 ];
 
@@ -219,6 +229,14 @@ export const demoSectorExposure = [
   { name: 'Consumo defensivo', value: 0.058 },
   { name: 'Energia', value: 0.042 },
   { name: 'Outros', value: 0.052 },
+];
+
+export const demoAssetClassAllocation = [
+  { name: 'ETFs', value: 52430.45 },
+  { name: 'Ações', value: 14890.00 },
+  { name: 'Obrigações', value: 3500.00 },
+  { name: 'Liquidez', value: 2750.00 },
+  { name: 'Crypto', value: 1750.00 },
 ];
 
 export const demoFactorScores = [

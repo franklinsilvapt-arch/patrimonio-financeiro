@@ -14,6 +14,7 @@ import {
   demoSummary,
   demoHoldings,
   demoBrokerAllocation,
+  demoAssetClassAllocation,
   demoCountryExposure,
   demoSectorExposure,
   demoFactorScores,
@@ -99,6 +100,22 @@ export default function DemoPage() {
               </CardHeader>
               <CardContent>
                 <ExposureBarChart data={demoCountryExposure} title="Países" limit={10} />
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-base">Alocação por classe de ativo</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <BrokerPieChart data={demoAssetClassAllocation} />
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-base">Exposição por setor</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ExposureBarChart data={demoSectorExposure} title="Setores" />
               </CardContent>
             </Card>
           </div>
