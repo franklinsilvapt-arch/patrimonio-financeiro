@@ -26,8 +26,17 @@ const FACTOR_LABELS: Record<string, string> = {
 export function FactorRadarChart({ data }: FactorRadarChartProps) {
   if (data.length === 0) {
     return (
-      <div className="flex items-center justify-center h-64 text-muted-foreground text-sm">
-        Sem dados de fatores
+      <div className="flex flex-col items-center justify-center h-64 text-center gap-3 px-4">
+        <p className="text-muted-foreground text-sm">Sem dados de fatores</p>
+        <p className="text-muted-foreground/70 text-xs max-w-md leading-relaxed">
+          Para ver os fatores dos teus ETFs, acede à{' '}
+          <a href="https://www.morningstar.com" target="_blank" rel="noopener noreferrer" className="underline font-medium text-muted-foreground">
+            Morningstar
+          </a>{' '}
+          (cria conta grátis), abre a página do ETF, vai a &quot;Portfolio&quot; &rarr; &quot;Factor Profile&quot;,
+          tira um screenshot e importa-o na tab{' '}
+          <a href="/import" className="underline font-medium text-muted-foreground">Importar</a>.
+        </p>
       </div>
     );
   }
