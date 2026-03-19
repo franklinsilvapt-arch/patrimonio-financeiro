@@ -304,78 +304,70 @@ export default function DashboardPage() {
       <PortfolioSummary summary={filteredChartData?.summary ?? data.summary} />
 
       {/* Scope toggle + Action bar */}
-      <div className="flex flex-wrap items-center gap-3">
-        <div className="flex items-center gap-1 rounded-md border p-1">
+      <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between">
+        <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-lg">
           {([
             { value: 'all', label: 'Tudo' },
             { value: 'personal', label: 'Pessoal' },
             { value: 'business', label: 'Empresarial' },
           ] as const).map((s) => (
-            <Button
+            <button
               key={s.value}
-              variant={scope === s.value ? 'default' : 'ghost'}
-              size="sm"
+              className={`px-4 py-1.5 text-sm font-semibold rounded-md transition-all ${
+                scope === s.value
+                  ? 'bg-white shadow-sm text-black'
+                  : 'text-slate-500 hover:text-black'
+              }`}
               onClick={() => setScope(s.value)}
             >
               {s.label}
-            </Button>
+            </button>
           ))}
         </div>
-        <div className="h-6 w-px bg-border" />
-        <Button variant="outline" size="sm" onClick={handleEnrich} disabled={enriching}>
-          {enriching ? 'A enriquecer...' : 'Atualizar exposições (JustETF)'}
-        </Button>
-        {eurUsdRate && (
-          <span className="text-xs text-muted-foreground/70 tabular-nums">
-            EUR/USD {eurUsdRate.rate.toFixed(4)} ({eurUsdRate.date})
-          </span>
-        )}
-        {enrichResult && (
-          <span className="text-sm text-muted-foreground">{enrichResult}</span>
-        )}
-      </div>
-
-      {/* Performance metrics — compact bar */}
-      {performance && performance.snapshotCount >= 2 && (
-        <div className="space-y-1">
-          <div className="flex flex-wrap gap-3">
-            <div className="flex items-center bg-slate-100 px-4 py-2 rounded-lg gap-3">
+        <div className="flex flex-wrap gap-3 items-center">
+          {/* Performance compact pill — shown here next to actions */}
+          {performance && performance.snapshotCount >= 2 && (
+            <div className="flex items-center bg-slate-800 text-white px-4 py-2 rounded-lg gap-3">
               {[
-                { label: 'TWR', value: performance.ttwror, tooltip: 'Time-Weighted Return — mede a rentabilidade real do portfolio, eliminando o efeito de depósitos e levantamentos.' },
-                { label: 'Anualizado', value: performance.annualizedReturn },
-                { label: '1 mês', value: performance.periodReturns['1m'] },
-                { label: '3 meses', value: performance.periodReturns['3m'] },
+                { label: 'TWR', value: performance.ttwror },
                 { label: 'YTD', value: performance.periodReturns.ytd },
-                { label: 'Drawdown', value: performance.maxDrawdown ? -performance.maxDrawdown : 0, tooltip: 'Maximum Drawdown — a maior queda percentual do portfolio desde um pico até ao ponto mais baixo seguinte.' },
+                { label: 'Drawdown', value: performance.maxDrawdown ? -performance.maxDrawdown : 0 },
               ].map((m, i, arr) => (
                 <div key={m.label} className="flex items-center gap-2">
-                  {'tooltip' in m && m.tooltip ? (
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <span className="text-xs font-medium text-slate-500 cursor-help">{m.label}</span>
-                      </TooltipTrigger>
-                      <TooltipContent className="max-w-xs">
-                        <p className="text-xs">{m.tooltip}</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  ) : (
-                    <span className="text-xs font-medium text-slate-500">{m.label}</span>
-                  )}
-                  <span className={`text-sm font-bold tabular-nums ${returnColor(m.value)}`}>
+                  <span className="text-xs font-medium text-slate-400">{m.label}</span>
+                  <span className={`text-sm font-bold tabular-nums ${
+                    m.value === null ? 'text-slate-400' :
+                    m.label === 'Drawdown' ? 'text-red-400' :
+                    (m.value ?? 0) >= 0 ? 'text-emerald-400' : 'text-red-400'
+                  }`}>
                     {returnSign(m.value)}
                   </span>
-                  {i < arr.length - 1 && <div className="w-px h-4 bg-slate-300 ml-1" />}
+                  {i < arr.length - 1 && <div className="w-px h-4 bg-slate-600 ml-1" />}
                 </div>
               ))}
             </div>
-          </div>
-          {performance.lastDate && (
-            <p className="text-[11px] text-slate-400 tabular-nums">
-              Dados até {new Date(performance.lastDate).toLocaleDateString('pt-PT')}
-            </p>
+          )}
+          <button
+            className="flex items-center gap-2 bg-black text-white px-4 py-2 rounded-lg text-sm font-semibold hover:opacity-90 transition-opacity disabled:opacity-50"
+            onClick={handleEnrich}
+            disabled={enriching}
+          >
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+            {enriching ? 'A enriquecer...' : 'Atualizar exposições'}
+          </button>
+          {eurUsdRate && (
+            <div className="flex items-center bg-white border border-slate-200 px-4 py-2 rounded-lg gap-2">
+              <span className="text-xs font-medium text-slate-500 uppercase">EUR/USD</span>
+              <span className="text-sm font-bold text-black tabular-nums">{eurUsdRate.rate.toFixed(4)}</span>
+            </div>
           )}
         </div>
-      )}
+        {enrichResult && (
+          <span className="text-sm text-slate-500">{enrichResult}</span>
+        )}
+      </div>
 
       <div className="flex flex-wrap gap-4 border-b border-slate-200 pb-4">
         <FilterBar

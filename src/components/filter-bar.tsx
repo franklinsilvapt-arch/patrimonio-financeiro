@@ -35,20 +35,22 @@ function FilterSelect({
   if (options.length === 0) return null;
 
   return (
-    <div className="flex flex-col gap-1">
-      <label className="text-xs font-medium text-muted-foreground">{label}</label>
+    <div className="relative min-w-[160px]">
       <select
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="h-9 rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors focus:outline-none focus:ring-1 focus:ring-ring"
+        className="w-full bg-slate-100 border-none rounded-lg py-2.5 pl-3 pr-10 text-sm font-medium text-slate-700 focus:ring-2 focus:ring-black/10 appearance-none cursor-pointer"
       >
-        <option value="">Todos</option>
+        <option value="">{label}</option>
         {options.map((opt) => (
           <option key={opt} value={opt}>
             {opt}
           </option>
         ))}
       </select>
+      <svg className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+      </svg>
     </div>
   );
 }
@@ -107,9 +109,9 @@ export function FilterBar({
         onChange={onCurrencyChange}
       />
       {hasFilters && (
-        <Button variant="ghost" size="sm" onClick={onClear} className="text-muted-foreground">
+        <button onClick={onClear} className="text-xs font-medium text-slate-400 hover:text-slate-700 transition-colors underline">
           Limpar filtros
-        </Button>
+        </button>
       )}
     </div>
   );
