@@ -77,6 +77,7 @@ export default function DemoPage() {
       <Tabs defaultValue="overview">
         <TabsList>
           <TabsTrigger value="overview">Geral</TabsTrigger>
+          <TabsTrigger value="countries">Países</TabsTrigger>
           <TabsTrigger value="sectors">Setores</TabsTrigger>
           <TabsTrigger value="factors">Fatores</TabsTrigger>
           <TabsTrigger value="currency">Cambial</TabsTrigger>
@@ -96,29 +97,24 @@ export default function DemoPage() {
             </Card>
             <Card>
               <CardHeader>
-                <CardTitle className="text-base">Exposição por país</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <ExposureBarChart data={demoCountryExposure} title="Países" limit={10} />
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-base">Alocação por classe de ativo</CardTitle>
+                <CardTitle className="text-base">Alocação por tipo de ativo</CardTitle>
               </CardHeader>
               <CardContent>
                 <BrokerPieChart data={demoAssetClassAllocation} />
               </CardContent>
             </Card>
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-base">Exposição por setor</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <ExposureBarChart data={demoSectorExposure} title="Setores" />
-              </CardContent>
-            </Card>
           </div>
+        </TabsContent>
+
+        <TabsContent value="countries">
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">Exposição por país</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ExposureBarChart data={demoCountryExposure} title="Países" limit={10} />
+            </CardContent>
+          </Card>
         </TabsContent>
 
         <TabsContent value="sectors">
