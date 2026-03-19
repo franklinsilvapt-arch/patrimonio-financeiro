@@ -108,6 +108,7 @@ export default function ImportPage() {
       currency: string; assetClass: string;
     }>;
     error?: string;
+    morningstarResult?: string;
   } | null>(null);
   const [imageImporting, setImageImporting] = useState(false);
   const [imageImportResult, setImageImportResult] = useState<{ success: boolean; message: string } | null>(null);
@@ -293,6 +294,16 @@ export default function ImportPage() {
       const data = await res.json();
       if (data.error) {
         setImageResult({ positions: [], error: data.error });
+      } else if (data.type === 'morningstar_factors') {
+        if (data.saved) {
+          setImageResult({
+            positions: [],
+            error: undefined,
+            morningstarResult: `Fatores do ${data.securityName || data.etfName} (${data.isin}) importados com sucesso! ${data.factorsCount} fatores guardados. Refresca o dashboard para ver os dados na tab "Fatores".`,
+          });
+        } else {
+          setImageResult({ positions: [], error: data.error || 'Erro ao guardar fatores' });
+        }
       } else {
         setImageResult(data);
       }
@@ -673,6 +684,17 @@ export default function ImportPage() {
                   <span className="text-sm">{imageResult.error}</span>
                   <Button variant="outline" size="sm" className="ml-auto" onClick={resetImage}>
                     Tentar novamente
+                  </Button>
+                </div>
+              )}
+
+              {/* Morningstar factor success */}
+              {imageResult?.morningstarResult && (
+                <div className="flex items-center gap-3 p-4 rounded-lg border bg-green-50 border-green-200 text-green-800">
+                  <CheckCircle className="h-5 w-5 shrink-0" />
+                  <span className="text-sm">{imageResult.morningstarResult}</span>
+                  <Button variant="outline" size="sm" className="ml-auto" onClick={resetImage}>
+                    Importar outro
                   </Button>
                 </div>
               )}

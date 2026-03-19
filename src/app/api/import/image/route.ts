@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Anthropic from '@anthropic-ai/sdk';
 import { getAuthUserId } from '@/lib/auth/get-user';
+import { prisma } from '@/lib/db';
 
 const SYSTEM_PROMPT = `You are a financial data extraction assistant. You receive screenshots of brokerage/investment platforms and extract portfolio positions.
 
@@ -47,6 +48,36 @@ Return ONLY valid JSON in this exact format:
       "assetClass": "string"
     }
   ]
+}
+
+SPECIAL CASE — Morningstar Factor Profile / Portfolio page:
+If you detect a Morningstar page (morningstar.com branding, "Factor Profile" section, "Portfolio" tab, etc.), this is NOT a portfolio position import. Instead, extract factor data for the ETF shown.
+
+Look for:
+- The ETF name and ISIN at the top (e.g., "iShares Core MSCI World UCITS ETF USD (Acc) IE00B4L5Y983")
+- The "Factor Profile" section with factor bars/dots for: Style, Yield, Momentum, Quality, Volatility, Liquidity, Size
+- Each factor has a position on a scale from Low to High (or Value to Growth for Style, Small to Large for Size)
+- The position labels below each bar (e.g., "Value", "Low", "Low", "Low", "Low", "Low", "Small")
+
+Convert the position to a numeric score:
+- For Style: Value=-1, Blend=0, Growth=1 (Gwth=1)
+- For Yield/Momentum/Quality/Volatility/Liquidity: Low=-1, Below Avg=-0.5, Average=0, Above Avg=0.5, High=1
+- For Size: Small=-1, Mid=0, Large=1
+
+Return this format for Morningstar:
+{
+  "type": "morningstar_factors",
+  "etfName": "string",
+  "isin": "string or null",
+  "factors": {
+    "style": number,
+    "yield": number,
+    "momentum": number,
+    "quality": number,
+    "volatility": number,
+    "liquidity": number,
+    "size": number
+  }
 }
 
 If you cannot read the image clearly, return: {"error": "description of the problem"}
@@ -126,6 +157,45 @@ export async function POST(request: NextRequest) {
 
     if (extracted.error) {
       return NextResponse.json({ error: extracted.error }, { status: 422 });
+    }
+
+    // Handle Morningstar factor data — save directly to DB
+    if (extracted.type === 'morningstar_factors' && extracted.isin && extracted.factors) {
+      const security = await prisma.security.findFirst({ where: { isin: extracted.isin } });
+      if (!security) {
+        return NextResponse.json({
+          type: 'morningstar_factors',
+          saved: false,
+          error: `Nenhum ativo encontrado com ISIN ${extracted.isin}. Importa primeiro as posições.`,
+          ...extracted,
+        });
+      }
+      const now = new Date();
+      const dateOnly = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      // Delete existing factor exposures for this security to avoid duplicates
+      await prisma.factorExposure.deleteMany({ where: { securityId: security.id } });
+      // Create new factor exposures
+      const factorEntries = Object.entries(extracted.factors as Record<string, number>);
+      await prisma.factorExposure.createMany({
+        data: factorEntries.map(([factor, score]) => ({
+          securityId: security.id,
+          factor,
+          score: score as number,
+          method: 'morningstar_screenshot',
+          date: dateOnly,
+          source: 'morningstar',
+          confidence: 0.9,
+          coverage: 1,
+        })),
+      });
+      return NextResponse.json({
+        type: 'morningstar_factors',
+        saved: true,
+        etfName: extracted.etfName,
+        isin: extracted.isin,
+        factorsCount: factorEntries.length,
+        securityName: security.name,
+      });
     }
 
     return NextResponse.json(extracted);

@@ -23,6 +23,7 @@ interface PortfolioApiResponse {
   summary: PortfolioSummaryData;
   holdings: HoldingRow[];
   brokerAllocation: Array<{ name: string; value: number }>;
+  assetClassAllocation: Array<{ name: string; value: number }>;
   countryExposure: Array<{ name: string; value: number }>;
   sectorExposure: Array<{ name: string; value: number }>;
   factorScores: Array<{ factor: string; score: number; fullMark?: number }>;
@@ -56,6 +57,25 @@ interface AnalyticsData {
     assets: string[];
     matrix: Array<{ asset1: string; asset2: string; correlation: number }>;
   };
+}
+
+// ---------------------------------------------------------------------------
+// Helpers
+// ---------------------------------------------------------------------------
+
+const ASSET_CLASS_LABELS: Record<string, string> = {
+  ETF: 'ETFs',
+  EQUITY: 'Ações',
+  BOND: 'Obrigações',
+  FUND: 'Fundos',
+  CASH: 'Liquidez',
+  CRYPTO: 'Crypto',
+  COMMODITY: 'Matérias-primas',
+  OTHER: 'Outros',
+};
+
+function translateAssetClasses(data: Array<{ name: string; value: number }>) {
+  return data.map((d) => ({ ...d, name: ASSET_CLASS_LABELS[d.name] || d.name }));
 }
 
 // ---------------------------------------------------------------------------
@@ -183,7 +203,15 @@ export default function DashboardPage() {
       uniqueSecurities: uniqueSecIds.size,
       brokerCount: brokerMap.size,
     };
-    return { brokerAllocation, countryExposure, sectorExposure, summary };
+    // Asset class allocation
+    const assetClassMap = new Map<string, number>();
+    for (const h of filteredHoldings) {
+      if (h.assetClass) assetClassMap.set(h.assetClass, (assetClassMap.get(h.assetClass) || 0) + h.marketValue);
+    }
+    const assetClassAllocation = Array.from(assetClassMap.entries())
+      .map(([name, value]) => ({ name, value }))
+      .sort((a, b) => b.value - a.value);
+    return { brokerAllocation, assetClassAllocation, countryExposure, sectorExposure, summary };
   }, [data, hasFilters, filteredHoldings]);
 
   const handleEnrich = useCallback(async () => {
@@ -375,6 +403,7 @@ export default function DashboardPage() {
       <Tabs defaultValue="overview">
         <TabsList>
           <TabsTrigger value="overview">Geral</TabsTrigger>
+          <TabsTrigger value="countries">Países</TabsTrigger>
           <TabsTrigger value="sectors">Setores</TabsTrigger>
           <TabsTrigger value="factors">Fatores</TabsTrigger>
           <TabsTrigger value="currency">Cambial</TabsTrigger>
@@ -394,13 +423,24 @@ export default function DashboardPage() {
             </Card>
             <Card>
               <CardHeader>
-                <CardTitle className="text-base">Exposição por país</CardTitle>
+                <CardTitle className="text-base">Alocação por tipo de ativo</CardTitle>
               </CardHeader>
               <CardContent>
-                <ExposureBarChart data={filteredChartData?.countryExposure ?? data.countryExposure} title="Países" limit={10} />
+                <BrokerPieChart data={translateAssetClasses(filteredChartData?.assetClassAllocation ?? data.assetClassAllocation)} />
               </CardContent>
             </Card>
           </div>
+        </TabsContent>
+
+        <TabsContent value="countries">
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">Exposição por país</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ExposureBarChart data={filteredChartData?.countryExposure ?? data.countryExposure} title="Países" limit={10} />
+            </CardContent>
+          </Card>
         </TabsContent>
 
         <TabsContent value="sectors">
@@ -431,7 +471,7 @@ export default function DashboardPage() {
               <CardTitle className="text-base">Evolução do património</CardTitle>
             </CardHeader>
             <CardContent>
-              <HistoryLineChart data={data.history} brokers={data.brokerNames} />
+              <HistoryLineChart data={data.history} />
             </CardContent>
           </Card>
         </TabsContent>
