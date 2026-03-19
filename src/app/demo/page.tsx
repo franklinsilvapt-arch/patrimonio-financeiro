@@ -5,6 +5,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { PortfolioSummary } from '@/components/portfolio-summary';
 import { HoldingsTable } from '@/components/holdings-table';
 import { BrokerPieChart } from '@/components/charts/broker-pie-chart';
+import { DonutChart } from '@/components/charts/donut-chart';
 import { ExposureBarChart } from '@/components/charts/exposure-bar-chart';
 import { HistoryLineChart } from '@/components/charts/history-line-chart';
 import { formatPercent } from '@/lib/utils';
@@ -87,22 +88,14 @@ export default function DemoPage() {
 
         <TabsContent value="overview">
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-base">Alocação por corretora</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <BrokerPieChart data={demoBrokerAllocation} />
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-base">Alocação por tipo de ativo</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <BrokerPieChart data={demoAssetClassAllocation} />
-              </CardContent>
-            </Card>
+            <div className="bg-white p-8 rounded-xl shadow-[0_20px_40px_rgba(25,28,30,0.06)]">
+              <h3 className="text-xl font-bold font-[family-name:var(--font-manrope)] text-black tracking-tight mb-8">Alocação por corretora</h3>
+              <DonutChart data={demoBrokerAllocation} colorScheme="slate" />
+            </div>
+            <div className="bg-white p-8 rounded-xl shadow-[0_20px_40px_rgba(25,28,30,0.06)]">
+              <h3 className="text-xl font-bold font-[family-name:var(--font-manrope)] text-black tracking-tight mb-8">Alocação por tipo de ativo</h3>
+              <DonutChart data={demoAssetClassAllocation} colorScheme="green" />
+            </div>
           </div>
         </TabsContent>
 

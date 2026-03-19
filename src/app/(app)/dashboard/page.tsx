@@ -8,6 +8,7 @@ import { PortfolioSummary, type PortfolioSummaryData } from '@/components/portfo
 import { FilterBar } from '@/components/filter-bar';
 import { HoldingsTable, type HoldingRow } from '@/components/holdings-table';
 import { BrokerPieChart } from '@/components/charts/broker-pie-chart';
+import { DonutChart } from '@/components/charts/donut-chart';
 import { ExposureBarChart } from '@/components/charts/exposure-bar-chart';
 import { HistoryLineChart } from '@/components/charts/history-line-chart';
 import { FactorRadarChart } from '@/components/charts/factor-radar-chart';
@@ -334,43 +335,42 @@ export default function DashboardPage() {
         )}
       </div>
 
-      {/* Performance metrics */}
+      {/* Performance metrics — compact bar */}
       {performance && performance.snapshotCount >= 2 && (
         <div className="space-y-1">
-          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
-            {[
-              { label: 'TWR', value: performance.ttwror, tooltip: 'Time-Weighted Return — mede a rentabilidade real do portfolio, eliminando o efeito de depósitos e levantamentos.' },
-              { label: 'Anualizado', value: performance.annualizedReturn },
-              { label: '1 mês', value: performance.periodReturns['1m'] },
-              { label: '3 meses', value: performance.periodReturns['3m'] },
-              { label: 'YTD', value: performance.periodReturns.ytd },
-              { label: 'Max drawdown', value: performance.maxDrawdown ? -performance.maxDrawdown : 0, tooltip: 'Maximum Drawdown — a maior queda percentual do portfolio desde um pico até ao ponto mais baixo seguinte. Exemplo: se o portfolio subiu a 100k€ e depois desceu a 90k€, o drawdown foi de -10%.' },
-            ].map((m) => (
-              <Card key={m.label}>
-                <CardContent className="pt-3 pb-3 px-4">
-                  <div className="flex items-baseline justify-between gap-2">
-                    {'tooltip' in m && m.tooltip ? (
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <span className="text-xs font-medium text-muted-foreground underline decoration-dotted cursor-help">{m.label}</span>
-                        </TooltipTrigger>
-                        <TooltipContent className="max-w-xs">
-                          <p className="text-xs">{m.tooltip}</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    ) : (
-                      <span className="text-xs font-medium text-muted-foreground">{m.label}</span>
-                    )}
-                    <span className={`text-sm font-bold tabular-nums ${returnColor(m.value)}`}>
-                      {returnSign(m.value)}
-                    </span>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+          <div className="flex flex-wrap gap-3">
+            <div className="flex items-center bg-slate-100 px-4 py-2 rounded-lg gap-3">
+              {[
+                { label: 'TWR', value: performance.ttwror, tooltip: 'Time-Weighted Return — mede a rentabilidade real do portfolio, eliminando o efeito de depósitos e levantamentos.' },
+                { label: 'Anualizado', value: performance.annualizedReturn },
+                { label: '1 mês', value: performance.periodReturns['1m'] },
+                { label: '3 meses', value: performance.periodReturns['3m'] },
+                { label: 'YTD', value: performance.periodReturns.ytd },
+                { label: 'Drawdown', value: performance.maxDrawdown ? -performance.maxDrawdown : 0, tooltip: 'Maximum Drawdown — a maior queda percentual do portfolio desde um pico até ao ponto mais baixo seguinte.' },
+              ].map((m, i, arr) => (
+                <div key={m.label} className="flex items-center gap-2">
+                  {'tooltip' in m && m.tooltip ? (
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <span className="text-xs font-medium text-slate-500 cursor-help">{m.label}</span>
+                      </TooltipTrigger>
+                      <TooltipContent className="max-w-xs">
+                        <p className="text-xs">{m.tooltip}</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  ) : (
+                    <span className="text-xs font-medium text-slate-500">{m.label}</span>
+                  )}
+                  <span className={`text-sm font-bold tabular-nums ${returnColor(m.value)}`}>
+                    {returnSign(m.value)}
+                  </span>
+                  {i < arr.length - 1 && <div className="w-px h-4 bg-slate-300 ml-1" />}
+                </div>
+              ))}
+            </div>
           </div>
           {performance.lastDate && (
-            <p className="text-[11px] text-muted-foreground/60 tabular-nums">
+            <p className="text-[11px] text-slate-400 tabular-nums">
               Dados até {new Date(performance.lastDate).toLocaleDateString('pt-PT')}
             </p>
           )}
@@ -413,22 +413,14 @@ export default function DashboardPage() {
 
         <TabsContent value="overview">
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-base">Alocação por corretora</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <BrokerPieChart data={filteredChartData?.brokerAllocation ?? data.brokerAllocation} />
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-base">Alocação por tipo de ativo</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <BrokerPieChart data={translateAssetClasses(filteredChartData?.assetClassAllocation ?? data.assetClassAllocation)} />
-              </CardContent>
-            </Card>
+            <div className="bg-white p-8 rounded-xl shadow-[0_20px_40px_rgba(25,28,30,0.06)]">
+              <h3 className="text-xl font-bold font-[family-name:var(--font-manrope)] text-black tracking-tight mb-8">Alocação por corretora</h3>
+              <DonutChart data={filteredChartData?.brokerAllocation ?? data.brokerAllocation} colorScheme="slate" />
+            </div>
+            <div className="bg-white p-8 rounded-xl shadow-[0_20px_40px_rgba(25,28,30,0.06)]">
+              <h3 className="text-xl font-bold font-[family-name:var(--font-manrope)] text-black tracking-tight mb-8">Alocação por tipo de ativo</h3>
+              <DonutChart data={translateAssetClasses(filteredChartData?.assetClassAllocation ?? data.assetClassAllocation)} colorScheme="green" />
+            </div>
           </div>
         </TabsContent>
 
