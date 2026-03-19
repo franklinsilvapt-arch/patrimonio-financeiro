@@ -11,19 +11,21 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="mx-auto w-full max-w-7xl px-6 flex h-14 items-center justify-between">
-          <div className="flex items-center">
-            <a className="mr-6 flex items-center space-x-2" href="/">
-              <span className="font-bold text-xl">Património financeiro</span>
+    <div className="min-h-screen bg-background flex flex-col">
+      <nav className="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-xl shadow-sm">
+        <div className="flex items-center justify-between px-6 h-16 w-full max-w-screen-2xl mx-auto">
+          <div className="flex items-center gap-8">
+            <a className="text-xl font-bold tracking-tighter text-black" href="/">
+              Património Financeiro
             </a>
-            <AppNav />
+            <div className="hidden md:block">
+              <AppNav />
+            </div>
           </div>
           <HeaderAuth />
         </div>
-      </header>
-      <main className="mx-auto w-full max-w-7xl px-6 py-6">{children}</main>
+      </nav>
+      <main className="flex-grow pt-24 pb-12 px-6 max-w-screen-2xl mx-auto w-full">{children}</main>
     </div>
   );
 }

@@ -1,7 +1,6 @@
 'use client';
 
 import { Info } from 'lucide-react';
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import {
   Tooltip,
   TooltipTrigger,
@@ -26,107 +25,63 @@ interface PortfolioSummaryProps {
 }
 
 export function PortfolioSummary({ summary }: PortfolioSummaryProps) {
+  const coveragePct = Math.round(summary.averageCoverage * 100);
+
   return (
     <TooltipProvider>
-      <div className="space-y-1">
-        {/* Desktop: 4 equal cards in a row */}
-        <div className="hidden sm:grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Valor total</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold tabular-nums">
-                {formatCurrency(summary.totalValue, summary.currency)}
-              </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Nr. ativos</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-xl font-semibold tabular-nums">{summary.uniqueSecurities}</div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Nr. corretoras/bancos</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-xl font-semibold tabular-nums">{summary.brokerCount}</div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-1">
-                Cobertura média
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Info className="h-3.5 w-3.5 text-muted-foreground/60 cursor-help" />
-                  </TooltipTrigger>
-                  <TooltipContent side="top" className="max-w-xs text-xs bg-white border shadow-md">
-                    Percentagem média dos dados de exposição geográfica e setorial disponíveis para os teus ativos (via JustETF). 100% significa que todos os ETFs têm dados completos de país e setor. Posições sem dados (como cash ou ações individuais) reduzem esta percentagem.
-                  </TooltipContent>
-                </Tooltip>
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-xl font-semibold tabular-nums">{formatPercent(summary.averageCoverage)}</div>
-            </CardContent>
-          </Card>
-        </div>
+      <div className="space-y-2">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {/* Valor total */}
+          <div className="bg-white p-6 rounded-xl shadow-[0_20px_40px_rgba(25,28,30,0.06)]">
+            <p className="text-slate-500 text-sm font-medium mb-1">Valor total</p>
+            <h2 className="text-3xl font-extrabold font-[family-name:var(--font-manrope)] tracking-tight text-black tabular-nums">
+              {formatCurrency(summary.totalValue, summary.currency)}
+            </h2>
+          </div>
 
-        {/* Mobile: valor total prominent + 3 compact cards */}
-        <div className="sm:hidden space-y-2">
-          <Card>
-            <CardContent className="pt-4 pb-3 px-4">
-              <p className="text-xs font-medium text-muted-foreground">Valor total</p>
-              <p className="text-2xl font-bold tabular-nums">
-                {formatCurrency(summary.totalValue, summary.currency)}
-              </p>
-            </CardContent>
-          </Card>
-          <div className="grid grid-cols-3 gap-2">
-            <Card>
-              <CardContent className="pt-3 pb-2 px-3">
-                <p className="text-xs font-medium text-muted-foreground">Ativos</p>
-                <p className="text-lg font-semibold tabular-nums">{summary.uniqueSecurities}</p>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="pt-3 pb-2 px-3">
-                <p className="text-xs font-medium text-muted-foreground">Corretoras</p>
-                <p className="text-lg font-semibold tabular-nums">{summary.brokerCount}</p>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="pt-3 pb-2 px-3">
-                <p className="text-xs font-medium text-muted-foreground flex items-center gap-1">
-                  Cobertura
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Info className="h-3 w-3 text-muted-foreground/60 cursor-help" />
-                    </TooltipTrigger>
-                    <TooltipContent side="top" className="max-w-xs text-xs bg-white border shadow-md">
-                      Percentagem média dos dados de exposição geográfica e setorial disponíveis para os teus ativos (via JustETF). 100% significa que todos os ETFs têm dados completos de país e setor. Posições sem dados (como cash ou ações individuais) reduzem esta percentagem.
-                    </TooltipContent>
-                  </Tooltip>
-                </p>
-                <p className="text-lg font-semibold tabular-nums">{formatPercent(summary.averageCoverage)}</p>
-              </CardContent>
-            </Card>
+          {/* Nr. ativos */}
+          <div className="bg-white p-6 rounded-xl shadow-[0_20px_40px_rgba(25,28,30,0.06)]">
+            <p className="text-slate-500 text-sm font-medium mb-1">Nr. ativos</p>
+            <h2 className="text-3xl font-extrabold font-[family-name:var(--font-manrope)] tracking-tight text-black tabular-nums">
+              {summary.uniqueSecurities}
+            </h2>
+          </div>
+
+          {/* Nr. corretoras */}
+          <div className="bg-white p-6 rounded-xl shadow-[0_20px_40px_rgba(25,28,30,0.06)]">
+            <p className="text-slate-500 text-sm font-medium mb-1">Nr. corretoras/bancos</p>
+            <h2 className="text-3xl font-extrabold font-[family-name:var(--font-manrope)] tracking-tight text-black tabular-nums">
+              {summary.brokerCount}
+            </h2>
+          </div>
+
+          {/* Cobertura */}
+          <div className="bg-white p-6 rounded-xl shadow-[0_20px_40px_rgba(25,28,30,0.06)]">
+            <p className="text-slate-500 text-sm font-medium mb-1 flex items-center gap-1">
+              Cobertura média
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Info className="h-3.5 w-3.5 text-slate-400 cursor-help" />
+                </TooltipTrigger>
+                <TooltipContent side="top" className="max-w-xs text-xs bg-white border shadow-md">
+                  Percentagem média dos dados de exposição geográfica e setorial disponíveis para os teus ativos (via JustETF). 100% significa que todos os ETFs têm dados completos de país e setor. Posições sem dados (como cash ou ações individuais) reduzem esta percentagem.
+                </TooltipContent>
+              </Tooltip>
+            </p>
+            <h2 className="text-3xl font-extrabold font-[family-name:var(--font-manrope)] tracking-tight text-black tabular-nums">
+              {formatPercent(summary.averageCoverage)}
+            </h2>
+            <div className="mt-3 w-full bg-slate-100 rounded-full h-1.5 overflow-hidden">
+              <div className="bg-emerald-600 h-full transition-all" style={{ width: `${coveragePct}%` }} />
+            </div>
           </div>
         </div>
 
-        {/* Single date indicator for all cards */}
-        <div>
-          <DateIndicator
-            date={summary.lastUpdate}
-            label="Atualizado"
-            source={summary.lastUpdateSource}
-          />
-        </div>
+        <DateIndicator
+          date={summary.lastUpdate}
+          label="Atualizado"
+          source={summary.lastUpdateSource}
+        />
       </div>
     </TooltipProvider>
   );
