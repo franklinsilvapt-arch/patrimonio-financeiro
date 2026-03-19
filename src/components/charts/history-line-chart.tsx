@@ -181,26 +181,30 @@ export function HistoryLineChart({ data, brokers }: HistoryLineChartProps) {
       {viewMode === 'absolute' ? (
         <ResponsiveContainer width="100%" height={380}>
           <AreaChart data={filteredData} margin={{ top: 10, right: 30, left: 10, bottom: 5 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+            <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
             <XAxis
               dataKey="date"
               tickFormatter={formatDateTick}
               fontSize={12}
-              tick={{ fill: '#6b7280' }}
+              tick={{ fill: '#94a3b8' }}
+              axisLine={{ stroke: '#e2e8f0' }}
+              tickLine={{ stroke: '#e2e8f0' }}
             />
             <YAxis
               tickFormatter={(v: number) => `${(v / 1000).toFixed(0)}k €`}
               fontSize={12}
-              tick={{ fill: '#6b7280' }}
+              tick={{ fill: '#94a3b8' }}
               width={65}
               domain={yDomain}
+              axisLine={false}
+              tickLine={false}
             />
             <Tooltip
               labelFormatter={(label: string) =>
                 new Date(label).toLocaleDateString('pt-PT')
               }
               formatter={(value: number, name: string) => [formatCurrency(value), name === 'value' ? 'Total' : name]}
-              contentStyle={{ fontSize: '0.875rem' }}
+              contentStyle={{ fontSize: '0.875rem', borderRadius: '0.5rem', border: '1px solid #e2e8f0', boxShadow: '0 4px 12px rgba(0,0,0,0.08)' }}
             />
             {showBrokers ? (
               <>
@@ -221,9 +225,9 @@ export function HistoryLineChart({ data, brokers }: HistoryLineChartProps) {
               <Area
                 type="monotone"
                 dataKey="value"
-                stroke="#3b82f6"
-                fill="#3b82f6"
-                fillOpacity={0.15}
+                stroke="#1e293b"
+                fill="#1e293b"
+                fillOpacity={0.08}
                 strokeWidth={2}
               />
             )}
@@ -232,32 +236,36 @@ export function HistoryLineChart({ data, brokers }: HistoryLineChartProps) {
       ) : (
         <ResponsiveContainer width="100%" height={380}>
           <LineChart data={percentData} margin={{ top: 10, right: 30, left: 10, bottom: 5 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+            <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
             <XAxis
               dataKey="date"
               tickFormatter={formatDateTick}
               fontSize={12}
-              tick={{ fill: '#6b7280' }}
+              tick={{ fill: '#94a3b8' }}
+              axisLine={{ stroke: '#e2e8f0' }}
+              tickLine={{ stroke: '#e2e8f0' }}
             />
             <YAxis
               tickFormatter={(v: number) => `${v >= 0 ? '+' : ''}${v.toFixed(1)}%`}
               fontSize={12}
-              tick={{ fill: '#6b7280' }}
+              tick={{ fill: '#94a3b8' }}
               width={65}
               domain={['dataMin - 1', 'dataMax + 1']}
+              axisLine={false}
+              tickLine={false}
             />
             <Tooltip
               labelFormatter={(label: string) =>
                 new Date(label).toLocaleDateString('pt-PT')
               }
               formatter={(value: number) => [`${value >= 0 ? '+' : ''}${value.toFixed(2)}%`, 'Variação']}
-              contentStyle={{ fontSize: '0.875rem' }}
+              contentStyle={{ fontSize: '0.875rem', borderRadius: '0.5rem', border: '1px solid #e2e8f0', boxShadow: '0 4px 12px rgba(0,0,0,0.08)' }}
             />
-            <ReferenceLine y={0} stroke="#9ca3af" strokeDasharray="3 3" />
+            <ReferenceLine y={0} stroke="#cbd5e1" strokeDasharray="3 3" />
             <Line
               type="monotone"
               dataKey="percent"
-              stroke="#3b82f6"
+              stroke="#1e293b"
               strokeWidth={2}
               dot={false}
             />
@@ -267,25 +275,25 @@ export function HistoryLineChart({ data, brokers }: HistoryLineChartProps) {
 
       {/* Period stats */}
       {periodStats && (
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 border-t pt-4">
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 border-t border-slate-200 pt-4">
           <div className="space-y-0.5">
-            <p className="text-xs text-muted-foreground">Valor inicial</p>
-            <p className="text-sm font-semibold tabular-nums">
+            <p className="text-xs text-slate-500">Valor inicial</p>
+            <p className="text-sm font-bold tabular-nums text-black">
               {formatCurrency(periodStats.initialValue)}
             </p>
           </div>
           <div className="space-y-0.5">
-            <p className="text-xs text-muted-foreground">Valor final</p>
-            <p className="text-sm font-semibold tabular-nums">
+            <p className="text-xs text-slate-500">Valor final</p>
+            <p className="text-sm font-bold tabular-nums text-black">
               {formatCurrency(periodStats.finalValue)}
             </p>
           </div>
           <div className="space-y-0.5">
-            <p className="text-xs text-muted-foreground">Variação (€)</p>
+            <p className="text-xs text-slate-500">Variação (€)</p>
             <p
               className={cn(
-                'text-sm font-semibold tabular-nums',
-                periodStats.variationEur >= 0 ? 'text-green-600' : 'text-red-600'
+                'text-sm font-bold tabular-nums',
+                periodStats.variationEur >= 0 ? 'text-emerald-600' : 'text-red-600'
               )}
             >
               {periodStats.variationEur >= 0 ? '+' : ''}
@@ -293,11 +301,11 @@ export function HistoryLineChart({ data, brokers }: HistoryLineChartProps) {
             </p>
           </div>
           <div className="space-y-0.5">
-            <p className="text-xs text-muted-foreground">Variação (%)</p>
+            <p className="text-xs text-slate-500">Variação (%)</p>
             <p
               className={cn(
-                'text-sm font-semibold tabular-nums',
-                periodStats.variationPct >= 0 ? 'text-green-600' : 'text-red-600'
+                'text-sm font-bold tabular-nums',
+                periodStats.variationPct >= 0 ? 'text-emerald-600' : 'text-red-600'
               )}
             >
               {periodStats.variationPct >= 0 ? '+' : ''}

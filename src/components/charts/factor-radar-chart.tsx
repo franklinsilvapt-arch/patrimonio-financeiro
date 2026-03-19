@@ -50,28 +50,28 @@ export function FactorRadarChart({ data }: FactorRadarChartProps) {
   return (
     <ResponsiveContainer width="100%" height={400}>
       <RadarChart cx="50%" cy="50%" outerRadius="75%" data={chartData}>
-        <PolarGrid stroke="#e5e7eb" />
+        <PolarGrid stroke="#e2e8f0" />
         <PolarAngleAxis
           dataKey="factor"
-          tick={{ fontSize: 12, fill: '#6b7280' }}
+          tick={{ fontSize: 13, fill: '#1e293b', fontWeight: 600 }}
         />
         <PolarRadiusAxis
           angle={90}
           domain={[-1, 1]}
-          tick={{ fontSize: 10, fill: '#9ca3af' }}
+          tick={{ fontSize: 10, fill: '#94a3b8' }}
           tickCount={5}
         />
         <Radar
           name="Score"
           dataKey="score"
-          stroke="#3b82f6"
-          fill="#3b82f6"
-          fillOpacity={0.25}
+          stroke="#1e293b"
+          fill="#1e293b"
+          fillOpacity={0.15}
           strokeWidth={2}
         />
         <Tooltip
           formatter={(value: number) => value.toFixed(2)}
-          contentStyle={{ fontSize: '0.875rem' }}
+          contentStyle={{ fontSize: '0.875rem', borderRadius: '0.5rem', border: '1px solid #e2e8f0', boxShadow: '0 4px 12px rgba(0,0,0,0.08)' }}
         />
       </RadarChart>
     </ResponsiveContainer>
