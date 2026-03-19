@@ -100,70 +100,46 @@ export default function DemoPage() {
         </TabsContent>
 
         <TabsContent value="countries">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">Exposição por país</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ExposureBarChart data={demoCountryExposure} title="Países" limit={10} />
-            </CardContent>
-          </Card>
+          <div className="bg-white p-8 rounded-xl shadow-[0_20px_40px_rgba(25,28,30,0.06)]">
+            <h3 className="text-xl font-bold font-[family-name:var(--font-manrope)] text-black tracking-tight mb-6">Exposição por país</h3>
+            <ExposureBarChart data={demoCountryExposure} title="Países" limit={10} />
+          </div>
         </TabsContent>
 
         <TabsContent value="sectors">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">Exposição por setor</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ExposureBarChart data={demoSectorExposure} title="Setores" />
-            </CardContent>
-          </Card>
+          <div className="bg-white p-8 rounded-xl shadow-[0_20px_40px_rgba(25,28,30,0.06)]">
+            <h3 className="text-xl font-bold font-[family-name:var(--font-manrope)] text-black tracking-tight mb-6">Exposição por setor</h3>
+            <ExposureBarChart data={demoSectorExposure} title="Setores" />
+          </div>
         </TabsContent>
 
         <TabsContent value="factors">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">Exposição a fatores</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <FactorRadarChart data={demoFactorScores} />
-            </CardContent>
-          </Card>
+          <div className="bg-white p-8 rounded-xl shadow-[0_20px_40px_rgba(25,28,30,0.06)]">
+            <h3 className="text-xl font-bold font-[family-name:var(--font-manrope)] text-black tracking-tight mb-6">Exposição a fatores</h3>
+            <FactorRadarChart data={demoFactorScores} />
+          </div>
         </TabsContent>
 
         <TabsContent value="currency">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">Exposição cambial real</CardTitle>
-              <CardDescription>Moedas subjacentes dos ativos (look-through via país)</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <ExposureBarChart data={demoCurrencyExposure} title="Moedas" />
-            </CardContent>
-          </Card>
+          <div className="bg-white p-8 rounded-xl shadow-[0_20px_40px_rgba(25,28,30,0.06)]">
+            <h3 className="text-xl font-bold font-[family-name:var(--font-manrope)] text-black tracking-tight mb-1">Exposição cambial real</h3>
+            <p className="text-sm text-slate-500 mb-6">Moedas subjacentes dos ativos (look-through via país)</p>
+            <ExposureBarChart data={demoCurrencyExposure} title="Moedas" />
+          </div>
         </TabsContent>
 
         <TabsContent value="holdings">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">Posições ({demoHoldings.length})</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <HoldingsTable holdings={demoHoldings} />
-            </CardContent>
-          </Card>
+          <div className="bg-white p-8 rounded-xl shadow-[0_20px_40px_rgba(25,28,30,0.06)]">
+            <h3 className="text-xl font-bold font-[family-name:var(--font-manrope)] text-black tracking-tight mb-6">Posições ({demoHoldings.length})</h3>
+            <HoldingsTable holdings={demoHoldings} />
+          </div>
         </TabsContent>
 
         <TabsContent value="history">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">Evolução do património</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <HistoryLineChart data={demoHistory} />
-            </CardContent>
-          </Card>
+          <div className="bg-white p-8 rounded-xl shadow-[0_20px_40px_rgba(25,28,30,0.06)]">
+            <h3 className="text-xl font-bold font-[family-name:var(--font-manrope)] text-black tracking-tight mb-6">Evolução do património</h3>
+            <HistoryLineChart data={demoHistory} />
+          </div>
         </TabsContent>
       </Tabs>
     </div>

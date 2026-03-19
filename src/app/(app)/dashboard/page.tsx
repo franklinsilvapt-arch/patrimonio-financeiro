@@ -377,28 +377,26 @@ export default function DashboardPage() {
         </div>
       )}
 
-      <Card>
-        <CardContent className="pt-6">
-          <FilterBar
-            brokers={filterOptions.brokers}
-            assetClasses={filterOptions.assetClasses}
-            countries={filterOptions.countries}
-            sectors={filterOptions.sectors}
-            currencies={filterOptions.currencies}
-            selectedBroker={selectedBroker}
-            selectedAssetClass={selectedAssetClass}
-            selectedCountry={selectedCountry}
-            selectedSector={selectedSector}
-            selectedCurrency={selectedCurrency}
-            onBrokerChange={setSelectedBroker}
-            onAssetClassChange={setSelectedAssetClass}
-            onCountryChange={setSelectedCountry}
-            onSectorChange={setSelectedSector}
-            onCurrencyChange={setSelectedCurrency}
-            onClear={clearFilters}
-          />
-        </CardContent>
-      </Card>
+      <div className="flex flex-wrap gap-4 border-b border-slate-200 pb-4">
+        <FilterBar
+          brokers={filterOptions.brokers}
+          assetClasses={filterOptions.assetClasses}
+          countries={filterOptions.countries}
+          sectors={filterOptions.sectors}
+          currencies={filterOptions.currencies}
+          selectedBroker={selectedBroker}
+          selectedAssetClass={selectedAssetClass}
+          selectedCountry={selectedCountry}
+          selectedSector={selectedSector}
+          selectedCurrency={selectedCurrency}
+          onBrokerChange={setSelectedBroker}
+          onAssetClassChange={setSelectedAssetClass}
+          onCountryChange={setSelectedCountry}
+          onSectorChange={setSelectedSector}
+          onCurrencyChange={setSelectedCurrency}
+          onClear={clearFilters}
+        />
+      </div>
 
       <Tabs defaultValue="overview">
         <TabsList>
@@ -425,92 +423,60 @@ export default function DashboardPage() {
         </TabsContent>
 
         <TabsContent value="countries">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">Exposição por país</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ExposureBarChart data={filteredChartData?.countryExposure ?? data.countryExposure} title="Países" limit={10} />
-            </CardContent>
-          </Card>
+          <div className="bg-white p-8 rounded-xl shadow-[0_20px_40px_rgba(25,28,30,0.06)]">
+            <h3 className="text-xl font-bold font-[family-name:var(--font-manrope)] text-black tracking-tight mb-6">Exposição por país</h3>
+            <ExposureBarChart data={filteredChartData?.countryExposure ?? data.countryExposure} title="Países" limit={10} />
+          </div>
         </TabsContent>
 
         <TabsContent value="sectors">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">Exposição por setor</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ExposureBarChart data={filteredChartData?.sectorExposure ?? data.sectorExposure} title="Setores" />
-            </CardContent>
-          </Card>
+          <div className="bg-white p-8 rounded-xl shadow-[0_20px_40px_rgba(25,28,30,0.06)]">
+            <h3 className="text-xl font-bold font-[family-name:var(--font-manrope)] text-black tracking-tight mb-6">Exposição por setor</h3>
+            <ExposureBarChart data={filteredChartData?.sectorExposure ?? data.sectorExposure} title="Setores" />
+          </div>
         </TabsContent>
 
         <TabsContent value="factors">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">Exposição a fatores</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <FactorRadarChart data={data.factorScores} />
-            </CardContent>
-          </Card>
+          <div className="bg-white p-8 rounded-xl shadow-[0_20px_40px_rgba(25,28,30,0.06)]">
+            <h3 className="text-xl font-bold font-[family-name:var(--font-manrope)] text-black tracking-tight mb-6">Exposição a fatores</h3>
+            <FactorRadarChart data={data.factorScores} />
+          </div>
         </TabsContent>
 
         <TabsContent value="history">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">Evolução do património</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <HistoryLineChart data={data.history} />
-            </CardContent>
-          </Card>
+          <div className="bg-white p-8 rounded-xl shadow-[0_20px_40px_rgba(25,28,30,0.06)]">
+            <h3 className="text-xl font-bold font-[family-name:var(--font-manrope)] text-black tracking-tight mb-6">Evolução do património</h3>
+            <HistoryLineChart data={data.history} />
+          </div>
         </TabsContent>
 
         <TabsContent value="holdings">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">
-                Posições ({filteredHoldings.length})
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <HoldingsTable holdings={filteredHoldings} />
-            </CardContent>
-          </Card>
+          <div className="bg-white p-8 rounded-xl shadow-[0_20px_40px_rgba(25,28,30,0.06)]">
+            <h3 className="text-xl font-bold font-[family-name:var(--font-manrope)] text-black tracking-tight mb-6">Posições ({filteredHoldings.length})</h3>
+            <HoldingsTable holdings={filteredHoldings} />
+          </div>
         </TabsContent>
 
         <TabsContent value="currency">
           {analytics ? (
             <div className="space-y-6">
-              {/* Currency exposure */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-base">Exposição cambial real</CardTitle>
-                  <CardDescription>Moedas subjacentes dos ativos (look-through via país)</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <ExposureBarChart data={analytics.currencyExposure} title="Moedas" />
-                </CardContent>
-              </Card>
+              <div className="bg-white p-8 rounded-xl shadow-[0_20px_40px_rgba(25,28,30,0.06)]">
+                <h3 className="text-xl font-bold font-[family-name:var(--font-manrope)] text-black tracking-tight mb-1">Exposição cambial real</h3>
+                <p className="text-sm text-slate-500 mb-6">Moedas subjacentes dos ativos (look-through via país)</p>
+                <ExposureBarChart data={analytics.currencyExposure} title="Moedas" />
+              </div>
 
-              {/* Correlation matrix */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-base">Correlação entre ativos</CardTitle>
-                  <CardDescription>Baseada nos retornos históricos dos preços</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <CorrelationMatrix
-                    assets={analytics.correlation.assets}
-                    matrix={analytics.correlation.matrix}
-                  />
-                </CardContent>
-              </Card>
+              <div className="bg-white p-8 rounded-xl shadow-[0_20px_40px_rgba(25,28,30,0.06)]">
+                <h3 className="text-xl font-bold font-[family-name:var(--font-manrope)] text-black tracking-tight mb-1">Correlação entre ativos</h3>
+                <p className="text-sm text-slate-500 mb-6">Baseada nos retornos históricos dos preços</p>
+                <CorrelationMatrix
+                  assets={analytics.correlation.assets}
+                  matrix={analytics.correlation.matrix}
+                />
+              </div>
             </div>
           ) : (
-            <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">
+            <div className="flex items-center justify-center h-32 text-slate-400 text-sm">
               A carregar análise...
             </div>
           )}
