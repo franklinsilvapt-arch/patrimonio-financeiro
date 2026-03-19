@@ -22,9 +22,10 @@ export interface PortfolioSummaryData {
 
 interface PortfolioSummaryProps {
   summary: PortfolioSummaryData;
+  monthlyChange?: number | null;
 }
 
-export function PortfolioSummary({ summary }: PortfolioSummaryProps) {
+export function PortfolioSummary({ summary, monthlyChange }: PortfolioSummaryProps) {
   const coveragePct = Math.round(summary.averageCoverage * 100);
 
   return (
@@ -37,6 +38,18 @@ export function PortfolioSummary({ summary }: PortfolioSummaryProps) {
             <h2 className="text-3xl font-extrabold font-[family-name:var(--font-manrope)] tracking-tight text-black tabular-nums">
               {formatCurrency(summary.totalValue, summary.currency)}
             </h2>
+            {monthlyChange != null && (
+              <div className="mt-3 flex items-center gap-2">
+                <span className={`text-xs px-2 py-0.5 rounded-full font-semibold ${
+                  monthlyChange >= 0
+                    ? 'bg-emerald-100 text-emerald-700'
+                    : 'bg-red-100 text-red-700'
+                }`}>
+                  {monthlyChange >= 0 ? '+' : ''}{formatPercent(monthlyChange)}
+                </span>
+                <span className="text-xs text-slate-400">vs. último mês</span>
+              </div>
+            )}
           </div>
 
           {/* Nr. ativos */}

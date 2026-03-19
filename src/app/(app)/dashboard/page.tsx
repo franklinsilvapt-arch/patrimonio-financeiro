@@ -301,7 +301,10 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-6">
-      <PortfolioSummary summary={filteredChartData?.summary ?? data.summary} />
+      <PortfolioSummary
+        summary={filteredChartData?.summary ?? data.summary}
+        monthlyChange={performance?.periodReturns['1m'] ?? null}
+      />
 
       {/* Scope toggle + Action bar */}
       <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between">
@@ -325,24 +328,24 @@ export default function DashboardPage() {
           ))}
         </div>
         <div className="flex flex-wrap gap-3 items-center">
-          {/* Performance compact pill — shown here next to actions */}
+          {/* Performance compact pill */}
           {performance && performance.snapshotCount >= 2 && (
-            <div className="flex items-center bg-slate-800 text-white px-4 py-2 rounded-lg gap-3">
+            <div className="flex items-center bg-slate-200 px-4 py-2 rounded-lg gap-3">
               {[
-                { label: 'TWR', value: performance.ttwror },
+                { label: 'TWR', value: performance.ttwror, bold: true },
                 { label: 'YTD', value: performance.periodReturns.ytd },
                 { label: 'Drawdown', value: performance.maxDrawdown ? -performance.maxDrawdown : 0 },
               ].map((m, i, arr) => (
                 <div key={m.label} className="flex items-center gap-2">
-                  <span className="text-xs font-medium text-slate-400">{m.label}</span>
+                  <span className={`text-xs text-slate-600 ${m.bold ? 'font-bold uppercase tracking-widest' : 'font-medium'}`}>{m.label}</span>
                   <span className={`text-sm font-bold tabular-nums ${
-                    m.value === null ? 'text-slate-400' :
-                    m.label === 'Drawdown' ? 'text-red-400' :
-                    (m.value ?? 0) >= 0 ? 'text-emerald-400' : 'text-red-400'
+                    m.value === null ? 'text-slate-500' :
+                    m.label === 'Drawdown' ? 'text-red-600' :
+                    (m.value ?? 0) >= 0 ? 'text-emerald-600' : 'text-red-600'
                   }`}>
                     {returnSign(m.value)}
                   </span>
-                  {i < arr.length - 1 && <div className="w-px h-4 bg-slate-600 ml-1" />}
+                  {i < arr.length - 1 && <div className="w-px h-4 bg-slate-300 ml-1" />}
                 </div>
               ))}
             </div>
