@@ -44,7 +44,7 @@ export default function DemoPage() {
       {/* Performance metrics */}
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
         {[
-          { label: 'TWR', value: perf.ttwror, tooltip: 'Time-Weighted Return — mede a rentabilidade real do portfolio, eliminando o efeito de depósitos e levantamentos.' },
+          { label: 'Retorno total', value: perf.ttwror, tooltip: 'Time-Weighted Return — mede a rentabilidade real do portfolio, eliminando o efeito de depósitos e levantamentos.' },
           { label: 'Anualizado', value: perf.annualizedReturn },
           { label: '1 mês', value: perf.periodReturns['1m'] },
           { label: '3 meses', value: perf.periodReturns['3m'] },

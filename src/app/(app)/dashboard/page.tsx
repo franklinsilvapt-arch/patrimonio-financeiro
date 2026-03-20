@@ -332,7 +332,7 @@ export default function DashboardPage() {
           {performance && performance.snapshotCount >= 2 && (
             <div className="flex items-center bg-slate-200 px-4 py-2 rounded-lg gap-3">
               {[
-                { label: 'TWR', value: performance.ttwror, bold: true },
+                { label: 'Retorno total', value: performance.ttwror, bold: true },
                 { label: 'YTD', value: performance.periodReturns.ytd },
                 { label: 'Drawdown', value: performance.maxDrawdown ? -performance.maxDrawdown : 0 },
               ].map((m, i, arr) => (
