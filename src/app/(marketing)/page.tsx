@@ -39,15 +39,15 @@ export default function HomePage() {
                   </div>
                   <div className="text-left">
                     <p className="text-xs font-bold uppercase tracking-widest text-slate-500">Património Total</p>
-                    <p className="text-2xl font-black text-black">€142.580,22</p>
+                    <p className="text-2xl font-black text-black">€626.227,74</p>
                   </div>
                 </div>
                 <div className="hidden md:flex gap-4">
                   <div className="px-3 py-1 bg-emerald-100 rounded-full text-xs font-bold text-emerald-800 flex items-center gap-1">
                     <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m22 7-8.5 8.5-5-5L2 17"/><path d="M16 7h6v6"/></svg>
-                    +12.4% YTD
+                    +7.7% YTD
                   </div>
-                  <div className="px-3 py-1 bg-slate-100 rounded-full text-xs font-bold text-slate-600">EUR/USD 1.08</div>
+                  <div className="px-3 py-1 bg-slate-100 rounded-full text-xs font-bold text-slate-600">EUR/USD 1.15</div>
                 </div>
               </div>
 
@@ -79,31 +79,36 @@ export default function HomePage() {
                 </div>
 
                 <div className="md:col-span-4 bg-slate-50 rounded-xl p-6 h-80 flex flex-col items-center justify-center">
-                  <h3 className="font-bold text-black mb-6 w-full text-left font-[family-name:var(--font-manrope)]">Alocação de Ativos</h3>
+                  <h3 className="font-bold text-black mb-6 w-full text-left font-[family-name:var(--font-manrope)]">Alocação por tipo de ativo</h3>
                   <div className="relative w-40 h-40">
                     <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
                       <circle cx="18" cy="18" fill="none" r="16" stroke="#eceef0" strokeWidth="4" />
-                      <circle cx="18" cy="18" fill="none" r="16" stroke="#000000" strokeDasharray="65, 100" strokeWidth="4" />
-                      <circle cx="18" cy="18" fill="none" r="16" stroke="#505f76" strokeDasharray="20, 100" strokeDashoffset="-65" strokeWidth="4" />
-                      <circle cx="18" cy="18" fill="none" r="16" stroke="#009668" strokeDasharray="15, 100" strokeDashoffset="-85" strokeWidth="4" />
+                      <circle cx="18" cy="18" fill="none" r="16" stroke="#009668" strokeDasharray="91, 100" strokeWidth="4" />
+                      <circle cx="18" cy="18" fill="none" r="16" stroke="#10b981" strokeDasharray="5, 100" strokeDashoffset="-91" strokeWidth="4" />
+                      <circle cx="18" cy="18" fill="none" r="16" stroke="#34d399" strokeDasharray="3, 100" strokeDashoffset="-96" strokeWidth="4" />
+                      <circle cx="18" cy="18" fill="none" r="16" stroke="#6ee7b7" strokeDasharray="1, 100" strokeDashoffset="-99" strokeWidth="4" />
                     </svg>
                     <div className="absolute inset-0 flex flex-col items-center justify-center">
-                      <span className="text-xl font-black">65%</span>
-                      <span className="text-[10px] font-bold uppercase text-slate-500">Ações</span>
+                      <span className="text-[10px] font-bold uppercase text-slate-500">ETFs</span>
+                      <span className="text-xl font-black">91%</span>
                     </div>
                   </div>
                   <div className="mt-6 w-full space-y-2">
                     <div className="flex items-center justify-between text-xs">
-                      <span className="flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-black" /> ETFs &amp; Ações</span>
-                      <span className="font-bold">65%</span>
+                      <span className="flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-emerald-600" /> ETFs</span>
+                      <span className="font-bold">91.3%</span>
                     </div>
                     <div className="flex items-center justify-between text-xs">
-                      <span className="flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-slate-500" /> Crypto</span>
-                      <span className="font-bold">20%</span>
+                      <span className="flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-emerald-500" /> Liquidez</span>
+                      <span className="font-bold">4.6%</span>
                     </div>
                     <div className="flex items-center justify-between text-xs">
-                      <span className="flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-emerald-600" /> Cash</span>
-                      <span className="font-bold">15%</span>
+                      <span className="flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-emerald-400" /> Ações</span>
+                      <span className="font-bold">2.6%</span>
+                    </div>
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-emerald-300" /> Matérias-primas</span>
+                      <span className="font-bold">1.3%</span>
                     </div>
                   </div>
                 </div>
@@ -161,21 +166,29 @@ export default function HomePage() {
       {/* Credits Section */}
       <section className="py-12 bg-white">
         <div className="max-w-7xl mx-auto px-8 flex flex-col items-center justify-center border-t border-slate-100 pt-12">
-          <div className="text-center">
-            <p className="text-sm font-bold text-black leading-tight">
-              Criado por Franklin Carneiro da Silva
-            </p>
-            <p className="text-xs text-slate-500 font-medium">
-              Cofundador do{' '}
-              <a
-                href="https://literaciafinanceira.pt"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="font-semibold text-black hover:underline"
-              >
-                LiteraciaFinanceira.pt
-              </a>
-            </p>
+          <div className="flex items-center gap-4">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              alt="Franklin Carneiro da Silva"
+              src="/franklin-silva.jpg"
+              className="w-12 h-12 rounded-full object-cover border-2 border-black"
+            />
+            <div className="text-left">
+              <p className="text-sm font-bold text-black leading-tight">
+                Criado por Franklin Carneiro da Silva
+              </p>
+              <p className="text-xs text-slate-500 font-medium">
+                Cofundador do{' '}
+                <a
+                  href="https://literaciafinanceira.pt"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-semibold text-black hover:underline"
+                >
+                  LiteraciaFinanceira.pt
+                </a>
+              </p>
+            </div>
           </div>
         </div>
       </section>
