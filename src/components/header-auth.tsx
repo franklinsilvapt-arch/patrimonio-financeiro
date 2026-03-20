@@ -13,6 +13,9 @@ export function HeaderAuth() {
   if (session?.user) {
     return (
       <div className="flex items-center gap-3">
+        <span className="text-sm text-muted-foreground">
+          {session.user.name || session.user.email}
+        </span>
         <Button size="sm" asChild>
           <a href="/dashboard">Dashboard</a>
         </Button>
