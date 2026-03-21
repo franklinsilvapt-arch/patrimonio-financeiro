@@ -2,18 +2,18 @@ export default function HomePage() {
   return (
     <>
       {/* Hero Section */}
-      <section className="relative overflow-hidden pt-24 pb-16 px-6">
+      <section className="relative overflow-hidden pt-16 pb-12 px-6">
         <div className="max-w-7xl mx-auto text-center">
-          <h1 className="text-5xl md:text-7xl font-extrabold tracking-tighter text-black mb-6 leading-tight font-[family-name:var(--font-manrope)]">
+          <h1 className="text-5xl md:text-6xl font-extrabold tracking-tighter text-black mb-4 leading-tight font-[family-name:var(--font-manrope)]">
             O teu património financeiro,
             <br />
             <span className="text-slate-500">numa única vista.</span>
           </h1>
-          <p className="max-w-2xl mx-auto text-lg md:text-xl text-slate-600 mb-10 leading-relaxed">
+          <p className="max-w-2xl mx-auto text-lg md:text-xl text-slate-600 mb-8 leading-relaxed">
             Agrega posições de todas as tuas corretoras e bancos num só dashboard.
             Visualiza alocação, rentabilidade e evolução, sem partilhar dados com terceiros.
           </p>
-          <div className="flex flex-col sm:flex-row justify-center gap-4 mb-20">
+          <div className="flex flex-col sm:flex-row justify-center gap-4 mb-14">
             <a
               href="/dashboard"
               className="px-8 py-4 bg-black text-white font-bold rounded-lg shadow-lg hover:bg-opacity-90 active:scale-95 transition-all duration-200 inline-flex items-center justify-center gap-2"
