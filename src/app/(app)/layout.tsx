@@ -25,7 +25,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
           <HeaderAuth />
         </div>
       </nav>
-      <main className="flex-grow pt-24 pb-12 px-6 max-w-screen-2xl mx-auto w-full">{children}</main>
+      <main className="flex-grow pt-24 pb-12 px-6 max-w-7xl mx-auto w-full">{children}</main>
     </div>
   );
 }
