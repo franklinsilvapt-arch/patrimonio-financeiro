@@ -38,10 +38,13 @@ export async function POST(request: NextRequest) {
     let broker = await prisma.broker.findUnique({ where: { slug: body.brokerSlug } });
     if (!broker) {
       const brokerNames: Record<string, string> = {
+        coverflex: 'Coverflex',
         degiro: 'DEGIRO',
         ibkr: 'Interactive Brokers',
         lightyear: 'Lightyear',
         trading212: 'Trading 212',
+        traderepublic: 'Trade Republic',
+        xtb: 'XTB',
         investing: 'Investing.com',
       };
       broker = await prisma.broker.create({

@@ -18,6 +18,7 @@ import { formatDateTime, formatCurrency } from '@/lib/utils';
 
 const BROKERS = [
   { slug: 'bancoctt', label: 'Banco CTT' },
+  { slug: 'coverflex', label: 'Coverflex' },
   { slug: 'degiro', label: 'DEGIRO' },
   { slug: 'etoro', label: 'eToro' },
   { slug: 'freedom24', label: 'Freedom24' },
@@ -25,7 +26,9 @@ const BROKERS = [
   { slug: 'lightyear', label: 'Lightyear' },
   { slug: 'novobanco', label: 'Novo Banco' },
   { slug: 'revolut', label: 'Revolut' },
+  { slug: 'traderepublic', label: 'Trade Republic' },
   { slug: 'trading212', label: 'Trading 212' },
+  { slug: 'xtb', label: 'XTB' },
 ];
 
 const ASSET_CLASSES = [
@@ -832,7 +835,7 @@ export default function ImportPage() {
                 </div>
                 {/* Broker */}
                 <div>
-                  <label className="text-sm font-medium block mb-1">Corretora *</label>
+                  <label className="text-sm font-medium block mb-1">Corretora/Banco *</label>
                   <select
                     value={manualForm.brokerSlug}
                     onChange={(e) => updateManualField('brokerSlug', e.target.value)}
