@@ -112,6 +112,7 @@ export default function ImportPage() {
   } | null>(null);
   const [imageImporting, setImageImporting] = useState(false);
   const [imageImportResult, setImageImportResult] = useState<{ success: boolean; message: string } | null>(null);
+  const [imageAccountType, setImageAccountType] = useState<'personal' | 'business'>('personal');
 
   const fetchHistory = useCallback(async () => {
     setHistoryLoading(true);
@@ -354,6 +355,7 @@ export default function ImportPage() {
             currency: pos.currency,
             assetClass: pos.assetClass,
             brokerSlug: detectedSlug,
+            accountName: imageAccountType === 'business' ? 'Empresarial' : undefined,
           }),
         });
         if (res.ok) imported++;
@@ -743,9 +745,22 @@ export default function ImportPage() {
                     </TableBody>
                   </Table>
 
-                  {/* Import button */}
+                  {/* Account type selector + Import button */}
                   {!imageImportResult && (
-                    <div className="flex gap-2">
+                    <div className="flex flex-wrap items-center gap-3">
+                      {imageResult.brokerName && ['interactive brokers', 'ibkr', 'lightyear'].includes(imageResult.brokerName.toLowerCase()) && (
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm font-medium">Tipo de conta:</span>
+                          <select
+                            value={imageAccountType}
+                            onChange={(e) => setImageAccountType(e.target.value as 'personal' | 'business')}
+                            className="h-9 rounded-md border border-input bg-background px-3 text-sm"
+                          >
+                            <option value="personal">Pessoal</option>
+                            <option value="business">Empresarial</option>
+                          </select>
+                        </div>
+                      )}
                       <Button onClick={handleImageImport} disabled={imageImporting}>
                         {imageImporting ? 'A importar...' : 'Importar posições'}
                       </Button>

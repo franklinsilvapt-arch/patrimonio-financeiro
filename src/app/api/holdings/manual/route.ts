@@ -13,6 +13,7 @@ interface ManualPosition {
   currency: string;
   assetClass?: string;
   brokerSlug: string;
+  accountName?: string;
 }
 
 export async function POST(request: NextRequest) {
@@ -48,11 +49,18 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // Find or create default account for this user
-    let account = await prisma.account.findFirst({ where: { brokerId: broker.id, userId } });
+    // Find or create account for this user (use accountName if provided)
+    const targetAccountName = body.accountName || 'Principal';
+    let account = await prisma.account.findFirst({
+      where: { brokerId: broker.id, userId, name: targetAccountName },
+    });
+    if (!account) {
+      // Fallback: try any account for this broker
+      account = await prisma.account.findFirst({ where: { brokerId: broker.id, userId } });
+    }
     if (!account) {
       account = await prisma.account.create({
-        data: { brokerId: broker.id, name: 'Principal', currency: 'EUR', userId },
+        data: { brokerId: broker.id, name: targetAccountName, currency: 'EUR', userId },
       });
     }
 
