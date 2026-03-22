@@ -11,7 +11,7 @@ export default function TermosPage() {
           <h2 className="text-lg font-bold text-black">1. Identificação do responsável</h2>
           <p>
             A plataforma Património Financeiro (acessível em patrimoniofinanceiro.pt) é operada por
-            Franklin Carneiro da Silva, com residência em Portugal.
+            Franklin Carneiro da Silva.
           </p>
         </section>
 

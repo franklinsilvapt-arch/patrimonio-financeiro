@@ -11,8 +11,7 @@ export default function PrivacidadePage() {
           <h2 className="text-lg font-bold text-black">1. Responsável pelo tratamento</h2>
           <p>
             O responsável pelo tratamento dos dados pessoais recolhidos através da plataforma
-            Património Financeiro (patrimoniofinanceiro.pt) é Franklin Carneiro da Silva, com
-            residência em Portugal.
+            Património Financeiro (patrimoniofinanceiro.pt) é Franklin Carneiro da Silva.
           </p>
         </section>
 
