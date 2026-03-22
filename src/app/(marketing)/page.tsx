@@ -101,7 +101,7 @@ export default function HomePage() {
             </p>
             <p className="mt-3 text-xs text-slate-400">
               Criado por{' '}
-              <a href="https://literaciafinanceira.pt" target="_blank" rel="noopener noreferrer" className="font-medium text-slate-600 hover:underline">
+              <a href="https://www.linkedin.com/in/franklin-carneiro-silva/" target="_blank" rel="noopener noreferrer" className="font-medium text-slate-600 hover:underline">
                 Franklin Carneiro da Silva
               </a>
               , cofundador do{' '}
@@ -118,14 +118,6 @@ export default function HomePage() {
               <a href="/termos" className="block text-sm text-slate-500 hover:text-black transition-colors">Termos e Condições</a>
               <a href="/privacidade" className="block text-sm text-slate-500 hover:text-black transition-colors">Política de privacidade</a>
             </div>
-          </div>
-
-          {/* Contact */}
-          <div>
-            <p className="text-sm font-semibold text-slate-800 mb-3">Contacto</p>
-            <a href="mailto:suporte@patrimoniofinanceiro.pt" className="text-sm text-slate-500 hover:text-black transition-colors">
-              suporte@patrimoniofinanceiro.pt
-            </a>
           </div>
         </div>
       </footer>
