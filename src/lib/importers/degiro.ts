@@ -119,13 +119,42 @@ export class DegiroImporter implements BrokerImporter {
           quantity = parseNumber(quantityStr);
         }
 
+        const price = parseNumber(priceStr);
+        const marketValue = parseNumber(valueStr);
+
+        // Detect CASH lines (e.g., "CASH & CASH FUND & FTX CASH (EUR)")
+        const isCashLine = /^CASH\s*[&]/i.test(name.trim());
+
+        if (isCashLine) {
+          // For cash lines, use the EUR value as market value; skip if zero
+          const cashValue = marketValue;
+          if (cashValue === null || cashValue === 0) {
+            warnings.push(`Row ${rowNum}: skipping "${name}" — cash balance is zero`);
+            continue;
+          }
+          // Extract currency from name like "CASH & CASH FUND & FTX CASH (EUR)"
+          const cashCurrencyMatch = name.match(/\(([A-Z]{3})\)/);
+          const cashCurrency = cashCurrencyMatch ? cashCurrencyMatch[1] : currency;
+          positions.push({
+            name: `Cash DEGIRO (${cashCurrency})`,
+            ticker: null,
+            isin: null,
+            quantity: 1,
+            price: cashValue,
+            marketValue: cashValue,
+            currency: 'EUR', // Value in EUR column
+            assetClass: 'CASH',
+            exchange: null,
+            positionDate: null,
+            priceDate: null,
+          });
+          continue;
+        }
+
         if (quantity === null || quantity === 0) {
           warnings.push(`Row ${rowNum}: skipping "${name}" with zero/invalid quantity`);
           continue;
         }
-
-        const price = parseNumber(priceStr);
-        const marketValue = parseNumber(valueStr);
 
         // Extract ISIN (should be in format like US0378331005 or similar)
         let isin: string | null = null;
