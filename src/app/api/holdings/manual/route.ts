@@ -89,6 +89,22 @@ export async function POST(request: NextRequest) {
       securityId = newSecurity.id;
     }
 
+    // For CASH positions: delete previous cash holdings for this account so the new value replaces the old
+    if (body.assetClass === 'CASH') {
+      const existingCashHoldings = await prisma.holding.findMany({
+        where: {
+          accountId: account.id,
+          security: { assetClass: 'CASH' },
+        },
+        select: { id: true },
+      });
+      if (existingCashHoldings.length > 0) {
+        await prisma.holding.deleteMany({
+          where: { id: { in: existingCashHoldings.map(h => h.id) } },
+        });
+      }
+    }
+
     // Create import batch for traceability
     const batch = await prisma.importBatch.create({
       data: {
