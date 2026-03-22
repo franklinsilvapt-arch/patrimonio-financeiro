@@ -236,7 +236,12 @@ export default function ImportPage() {
   };
 
   const handleManualSubmit = async () => {
-    if (!manualForm.name || !manualForm.quantity || !manualForm.brokerSlug) return;
+    const isCash = manualForm.assetClass === 'CASH';
+    if (isCash) {
+      if (!manualForm.marketValue || !manualForm.brokerSlug) return;
+    } else {
+      if (!manualForm.name || !manualForm.quantity || !manualForm.brokerSlug) return;
+    }
     setManualSubmitting(true);
     setManualResult(null);
     try {
@@ -244,11 +249,11 @@ export default function ImportPage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          name: manualForm.name,
-          ticker: manualForm.ticker || undefined,
-          isin: manualForm.isin || undefined,
-          quantity: parseFloat(manualForm.quantity),
-          price: manualForm.price ? parseFloat(manualForm.price) : undefined,
+          name: isCash ? `Cash ${BROKERS.find(b => b.slug === manualForm.brokerSlug)?.label || manualForm.brokerSlug}` : manualForm.name,
+          ticker: isCash ? undefined : (manualForm.ticker || undefined),
+          isin: isCash ? undefined : (manualForm.isin || undefined),
+          quantity: isCash ? 1 : parseFloat(manualForm.quantity),
+          price: isCash ? parseFloat(manualForm.marketValue) : (manualForm.price ? parseFloat(manualForm.price) : undefined),
           marketValue: manualForm.marketValue ? parseFloat(manualForm.marketValue) : undefined,
           currency: manualForm.currency,
           assetClass: manualForm.assetClass,
@@ -825,32 +830,11 @@ export default function ImportPage() {
                 </div>
               </div>
 
+              {/* Class + Currency row (always visible) */}
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                {/* Ticker */}
-                <div>
-                  <label className="text-sm font-medium block mb-1">Ticker</label>
-                  <input
-                    type="text"
-                    placeholder="Ex: IWDA"
-                    value={manualForm.ticker}
-                    onChange={(e) => updateManualField('ticker', e.target.value)}
-                    className="h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                  />
-                </div>
-                {/* ISIN */}
-                <div>
-                  <label className="text-sm font-medium block mb-1">ISIN</label>
-                  <input
-                    type="text"
-                    placeholder="Ex: IE00B4L5Y983"
-                    value={manualForm.isin}
-                    onChange={(e) => updateManualField('isin', e.target.value)}
-                    className="h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                  />
-                </div>
                 {/* Asset Class */}
                 <div>
-                  <label className="text-sm font-medium block mb-1">Classe</label>
+                  <label className="text-sm font-medium block mb-1">Classe *</label>
                   <select
                     value={manualForm.assetClass}
                     onChange={(e) => updateManualField('assetClass', e.target.value)}
@@ -876,51 +860,91 @@ export default function ImportPage() {
                     <option value="CAD">CAD</option>
                   </select>
                 </div>
+                {/* Market Value — shown for CASH here, for others below */}
+                {manualForm.assetClass === 'CASH' && (
+                  <div className="md:col-span-2">
+                    <label className="text-sm font-medium block mb-1">Valor (saldo) *</label>
+                    <input
+                      type="number"
+                      step="any"
+                      placeholder="Ex: 2756.48"
+                      value={manualForm.marketValue}
+                      onChange={(e) => updateManualField('marketValue', e.target.value)}
+                      className="h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                    />
+                  </div>
+                )}
               </div>
 
-              <div className="grid grid-cols-3 gap-4">
-                {/* Quantity */}
-                <div>
-                  <label className="text-sm font-medium block mb-1">Quantidade *</label>
-                  <input
-                    type="number"
-                    step="any"
-                    placeholder="Ex: 30"
-                    value={manualForm.quantity}
-                    onChange={(e) => updateManualField('quantity', e.target.value)}
-                    className="h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                  />
-                </div>
-                {/* Price */}
-                <div>
-                  <label className="text-sm font-medium block mb-1">Preço unitário</label>
-                  <input
-                    type="number"
-                    step="any"
-                    placeholder="Ex: 82.45"
-                    value={manualForm.price}
-                    onChange={(e) => updateManualField('price', e.target.value)}
-                    className="h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                  />
-                </div>
-                {/* Market Value */}
-                <div>
-                  <label className="text-sm font-medium block mb-1">Valor de mercado</label>
-                  <input
-                    type="number"
-                    step="any"
-                    placeholder="Ex: 2473.50"
-                    value={manualForm.marketValue}
-                    onChange={(e) => updateManualField('marketValue', e.target.value)}
-                    className="h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                  />
-                </div>
-              </div>
+              {/* Non-cash fields */}
+              {manualForm.assetClass !== 'CASH' && (
+                <>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    {/* Ticker */}
+                    <div>
+                      <label className="text-sm font-medium block mb-1">Ticker</label>
+                      <input
+                        type="text"
+                        placeholder="Ex: IWDA"
+                        value={manualForm.ticker}
+                        onChange={(e) => updateManualField('ticker', e.target.value)}
+                        className="h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                      />
+                    </div>
+                    {/* ISIN */}
+                    <div>
+                      <label className="text-sm font-medium block mb-1">ISIN</label>
+                      <input
+                        type="text"
+                        placeholder="Ex: IE00B4L5Y983"
+                        value={manualForm.isin}
+                        onChange={(e) => updateManualField('isin', e.target.value)}
+                        className="h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                      />
+                    </div>
+                    {/* Quantity */}
+                    <div>
+                      <label className="text-sm font-medium block mb-1">Quantidade *</label>
+                      <input
+                        type="number"
+                        step="any"
+                        placeholder="Ex: 30"
+                        value={manualForm.quantity}
+                        onChange={(e) => updateManualField('quantity', e.target.value)}
+                        className="h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                      />
+                    </div>
+                    {/* Price */}
+                    <div>
+                      <label className="text-sm font-medium block mb-1">Preço unitário</label>
+                      <input
+                        type="number"
+                        step="any"
+                        placeholder="Ex: 82.45"
+                        value={manualForm.price}
+                        onChange={(e) => updateManualField('price', e.target.value)}
+                        className="h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium block mb-1">Valor de mercado</label>
+                    <input
+                      type="number"
+                      step="any"
+                      placeholder="Ex: 2473.50"
+                      value={manualForm.marketValue}
+                      onChange={(e) => updateManualField('marketValue', e.target.value)}
+                      className="h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                    />
+                  </div>
+                </>
+              )}
 
               <div className="flex items-center gap-3">
                 <Button
                   onClick={handleManualSubmit}
-                  disabled={manualSubmitting || !manualForm.name || !manualForm.quantity}
+                  disabled={manualSubmitting || (manualForm.assetClass === 'CASH' ? !manualForm.marketValue : (!manualForm.name || !manualForm.quantity))}
                 >
                   {manualSubmitting ? 'A guardar...' : 'Guardar posição'}
                 </Button>
