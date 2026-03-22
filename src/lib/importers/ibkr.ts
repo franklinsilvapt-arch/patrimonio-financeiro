@@ -86,14 +86,35 @@ export class IbkrImporter implements BrokerImporter {
     // Strategy 2: Try plain CSV format, but skip title/metadata lines
     // IBKR exports can have a title line like "Portfolio" before the actual header
     const cleanedLines = this.skipMetadataLines(lines);
-    return this.parseRows(cleanedLines.join('\n'), errors, warnings, referenceDate);
+    const result = await this.parseRows(cleanedLines.join('\n'), errors, warnings, referenceDate);
+
+    // Add cash position if found in "Cash Balances" section
+    if (this.cashTotalEur && this.cashTotalEur !== 0) {
+      result.positions.push({
+        name: 'Cash Interactive Brokers',
+        ticker: null,
+        isin: null,
+        quantity: 1,
+        price: this.cashTotalEur,
+        marketValue: this.cashTotalEur,
+        currency: 'EUR',
+        assetClass: 'CASH',
+        exchange: null,
+        positionDate: referenceDate,
+        priceDate: referenceDate,
+      });
+    }
+
+    return result;
   }
 
   /**
    * Skip leading title/metadata lines that aren't part of the CSV table.
    * The real header is the first line containing known column names.
-   * Also strips trailing sections like "Cash Balances".
+   * Also strips trailing sections like "Cash Balances" but extracts cash total.
    */
+  private cashTotalEur: number | null = null;
+
   private skipMetadataLines(lines: string[]): string[] {
     const HEADER_MARKERS = [
       'FINANCIAL INSTRUMENT', 'SYMBOL', 'DESCRIPTION', 'POSITION',
@@ -111,22 +132,29 @@ export class IbkrImporter implements BrokerImporter {
       }
     }
 
-    // Find where data ends (stop at blank lines or non-data sections like "Cash Balances")
+    // Find where data ends and extract cash total
     let endIndex = lines.length;
+    this.cashTotalEur = null;
     for (let i = headerIndex + 1; i < lines.length; i++) {
       const trimmed = lines[i].trim();
       if (trimmed === '') {
-        endIndex = i;
-        break;
+        endIndex = Math.min(endIndex, i);
+        continue;
       }
-      // Detect section headers that aren't data (no commas in data-like pattern)
       const upper = trimmed.toUpperCase();
+      // Extract "Total (in EUR),911,EUR" line
+      if (upper.startsWith('TOTAL (IN EUR)') || upper.startsWith('TOTAL(IN EUR)')) {
+        const parts = trimmed.split(',');
+        const val = parseNumber(parts[1]);
+        if (val !== null && val !== 0) {
+          this.cashTotalEur = val;
+        }
+      }
       if (
-        (upper === 'CASH BALANCES' || upper === 'TOTALS' || upper.startsWith('TOTAL (')) ||
+        (upper === 'CASH BALANCES' || upper === 'TOTALS' || upper.startsWith('TOTAL (') || upper.startsWith('TOTAL(')) ||
         (upper.match(/^[A-Z ]+$/) && !trimmed.includes(','))
       ) {
-        endIndex = i;
-        break;
+        endIndex = Math.min(endIndex, i);
       }
     }
 
