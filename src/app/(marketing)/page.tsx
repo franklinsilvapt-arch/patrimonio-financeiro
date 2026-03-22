@@ -89,18 +89,45 @@ export default function HomePage() {
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-slate-200 py-8 px-6 text-center text-sm text-slate-500">
-        <p>
-          Criado por Franklin Carneiro da Silva, cofundador do{' '}
-          <a
-            href="https://literaciafinanceira.pt"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="font-semibold text-black hover:underline"
-          >
-            LiteraciaFinanceira.pt
-          </a>
-        </p>
+      <footer className="border-t border-slate-200 bg-slate-50 py-12 px-6">
+        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
+          {/* Brand */}
+          <div>
+            <p className="text-lg font-bold text-black font-[family-name:var(--font-manrope)] tracking-tight">Património Financeiro</p>
+            <p className="mt-2 text-sm text-slate-500">
+              © {new Date().getFullYear()} Património Financeiro.
+              <br />
+              Todos os direitos reservados.
+            </p>
+            <p className="mt-3 text-xs text-slate-400">
+              Criado por{' '}
+              <a href="https://literaciafinanceira.pt" target="_blank" rel="noopener noreferrer" className="font-medium text-slate-600 hover:underline">
+                Franklin Carneiro da Silva
+              </a>
+              , cofundador do{' '}
+              <a href="https://literaciafinanceira.pt" target="_blank" rel="noopener noreferrer" className="font-medium text-slate-600 hover:underline">
+                LiteraciaFinanceira.pt
+              </a>
+            </p>
+          </div>
+
+          {/* Legal */}
+          <div>
+            <p className="text-sm font-semibold text-slate-800 mb-3">Legal</p>
+            <div className="space-y-2">
+              <a href="/termos" className="block text-sm text-slate-500 hover:text-black transition-colors">Termos e Condições</a>
+              <a href="/privacidade" className="block text-sm text-slate-500 hover:text-black transition-colors">Política de privacidade</a>
+            </div>
+          </div>
+
+          {/* Contact */}
+          <div>
+            <p className="text-sm font-semibold text-slate-800 mb-3">Contacto</p>
+            <a href="mailto:suporte@patrimoniofinanceiro.pt" className="text-sm text-slate-500 hover:text-black transition-colors">
+              suporte@patrimoniofinanceiro.pt
+            </a>
+          </div>
+        </div>
       </footer>
     </>
   );
