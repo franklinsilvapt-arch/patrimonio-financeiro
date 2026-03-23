@@ -636,8 +636,8 @@ export default function ImportPage() {
         </CardContent>
       </Card>
 
-      {/* Image Import */}
-      <Card>
+      {/* Image Import — hidden until ANTHROPIC_API_KEY is configured */}
+      {false && <Card>
         <CardHeader>
           <CardTitle>Importar por imagem</CardTitle>
           <CardDescription>Carregue uma captura de ecrã do seu portfólio para extrair posições automaticamente</CardDescription>
@@ -798,7 +798,7 @@ export default function ImportPage() {
             </div>
           )}
         </CardContent>
-      </Card>
+      </Card>}
 
       {/* Manual Entry */}
       <Card>

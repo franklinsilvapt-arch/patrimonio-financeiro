@@ -133,7 +133,7 @@ const features = [
   {
     icon: 'upload_file',
     title: 'Importação multi-corretora',
-    description: 'DEGIRO, Interactive Brokers, Trading 212, Lightyear, via CSV ou screenshot inteligente.',
+    description: 'DEGIRO, Interactive Brokers, Trading 212, Lightyear, via CSV ou por entrada manual.',
   },
   {
     icon: 'dashboard',
