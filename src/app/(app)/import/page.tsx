@@ -244,7 +244,7 @@ export default function ImportPage() {
     if (isCash) {
       if (!manualForm.marketValue || !manualForm.brokerSlug) return;
     } else {
-      if (!manualForm.name || !manualForm.quantity || !manualForm.brokerSlug) return;
+      if (!manualForm.name || !manualForm.marketValue || !manualForm.brokerSlug) return;
     }
     setManualSubmitting(true);
     setManualResult(null);
@@ -256,7 +256,7 @@ export default function ImportPage() {
           name: isCash ? `Cash ${BROKERS.find(b => b.slug === manualForm.brokerSlug)?.label || manualForm.brokerSlug}` : manualForm.name,
           ticker: isCash ? undefined : (manualForm.ticker || undefined),
           isin: isCash ? undefined : (manualForm.isin || undefined),
-          quantity: isCash ? 1 : parseFloat(manualForm.quantity),
+          quantity: isCash ? 1 : (manualForm.quantity ? parseFloat(manualForm.quantity) : 1),
           price: isCash ? parseFloat(manualForm.marketValue) : (manualForm.price ? parseFloat(manualForm.price) : undefined),
           marketValue: manualForm.marketValue ? parseFloat(manualForm.marketValue) : undefined,
           currency: manualForm.currency,
@@ -897,7 +897,7 @@ export default function ImportPage() {
               {/* Non-cash fields */}
               {manualForm.assetClass !== 'CASH' && (
                 <>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                     {/* Ticker */}
                     <div>
                       <label className="text-sm font-medium block mb-1">Ticker</label>
@@ -920,9 +920,23 @@ export default function ImportPage() {
                         className="h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                       />
                     </div>
-                    {/* Quantity */}
+                    {/* Market Value — primary */}
                     <div>
-                      <label className="text-sm font-medium block mb-1">Quantidade *</label>
+                      <label className="text-sm font-medium block mb-1">Valor da posição *</label>
+                      <input
+                        type="number"
+                        step="any"
+                        placeholder="Ex: 2473.50"
+                        value={manualForm.marketValue}
+                        onChange={(e) => updateManualField('marketValue', e.target.value)}
+                        className="h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                      />
+                    </div>
+                  </div>
+                  {/* Quantity + Price — secondary/optional */}
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="text-sm font-medium text-muted-foreground block mb-1">Quantidade <span className="text-xs">(opcional)</span></label>
                       <input
                         type="number"
                         step="any"
@@ -932,9 +946,8 @@ export default function ImportPage() {
                         className="h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                       />
                     </div>
-                    {/* Price */}
                     <div>
-                      <label className="text-sm font-medium block mb-1">Preço unitário</label>
+                      <label className="text-sm font-medium text-muted-foreground block mb-1">Preço unitário <span className="text-xs">(opcional)</span></label>
                       <input
                         type="number"
                         step="any"
@@ -945,24 +958,13 @@ export default function ImportPage() {
                       />
                     </div>
                   </div>
-                  <div>
-                    <label className="text-sm font-medium block mb-1">Valor de mercado</label>
-                    <input
-                      type="number"
-                      step="any"
-                      placeholder="Ex: 2473.50"
-                      value={manualForm.marketValue}
-                      onChange={(e) => updateManualField('marketValue', e.target.value)}
-                      className="h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                    />
-                  </div>
                 </>
               )}
 
               <div className="flex items-center gap-3">
                 <Button
                   onClick={handleManualSubmit}
-                  disabled={manualSubmitting || (manualForm.assetClass === 'CASH' ? !manualForm.marketValue : (!manualForm.name || !manualForm.quantity))}
+                  disabled={manualSubmitting || (manualForm.assetClass === 'CASH' ? !manualForm.marketValue : (!manualForm.name || !manualForm.marketValue))}
                 >
                   {manualSubmitting ? 'A guardar...' : 'Guardar posição'}
                 </Button>
