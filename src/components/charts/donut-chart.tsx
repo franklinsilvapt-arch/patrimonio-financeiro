@@ -109,8 +109,8 @@ export function DonutChart({ data, colorScheme = 'slate' }: DonutChartProps) {
                 <span className="text-sm font-medium text-slate-600">{item.name}</span>
               </div>
               <div className="flex items-center gap-3">
-                <span className="text-sm font-bold text-black tabular-nums">{pct}%</span>
-                <span className="text-xs text-slate-400 tabular-nums hidden sm:inline">
+                <span className="text-sm font-bold text-black tabular-nums text-right w-14">{pct}%</span>
+                <span className="text-xs text-slate-400 tabular-nums hidden sm:inline text-right w-24">
                   {formatCurrency(item.value)}
                 </span>
               </div>
