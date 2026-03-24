@@ -87,11 +87,32 @@ export default function HoldingsPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [sortField, setSortField] = useState<SortField>('value');
   const [sortDir, setSortDir] = useState<SortDir>('desc');
+  const [scope, setScope] = useState<'all' | 'personal' | 'business'>('all');
+  const [availableScopes, setAvailableScopes] = useState<{ hasPersonal: boolean; hasBusiness: boolean }>({ hasPersonal: true, hasBusiness: false });
+
+  // Fetch available scopes once on mount
+  useEffect(() => {
+    async function fetchScopes() {
+      try {
+        const res = await fetch('/api/holdings');
+        if (res.ok) {
+          const data = await res.json();
+          const h = data.holdings ?? [];
+          setAvailableScopes({
+            hasPersonal: h.some((x: { accountType?: string }) => x.accountType === 'personal'),
+            hasBusiness: h.some((x: { accountType?: string }) => x.accountType === 'business'),
+          });
+        }
+      } catch {}
+    }
+    fetchScopes();
+  }, []);
 
   const fetchHoldings = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await fetch('/api/holdings');
+      const scopeParam = scope !== 'all' ? `?scope=${scope}` : '';
+      const res = await fetch(`/api/holdings${scopeParam}`);
       if (res.ok) {
         const data = await res.json();
         setHoldings(data.holdings ?? []);
@@ -102,7 +123,7 @@ export default function HoldingsPage() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [scope]);
 
   useEffect(() => {
     fetchHoldings();
@@ -236,6 +257,29 @@ export default function HoldingsPage() {
           </Button>
         )}
       </div>
+
+      {/* Scope toggle — only show if user has both personal and business */}
+      {availableScopes.hasPersonal && availableScopes.hasBusiness && (
+        <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-lg w-fit">
+          {([
+            { value: 'all', label: 'Tudo' },
+            { value: 'personal', label: 'Pessoal' },
+            { value: 'business', label: 'Empresarial' },
+          ] as const).map((s) => (
+            <button
+              key={s.value}
+              className={`px-4 py-1.5 text-sm font-semibold rounded-md transition-all ${
+                scope === s.value
+                  ? 'bg-white shadow-sm text-black'
+                  : 'text-slate-500 hover:text-black'
+              }`}
+              onClick={() => setScope(s.value)}
+            >
+              {s.label}
+            </button>
+          ))}
+        </div>
+      )}
 
       {/* Filter Bar */}
       <Card>

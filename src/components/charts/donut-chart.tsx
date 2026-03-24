@@ -87,15 +87,10 @@ export function DonutChart({ data, colorScheme = 'slate' }: DonutChartProps) {
               fill="transparent"
               r={radius}
               stroke={seg.color}
-              strokeWidth={hoveredIndex === seg.sortedIndex ? '5.5' : '4'}
+              strokeWidth="4"
               strokeDasharray={`${seg.dashArray} ${circumference - seg.dashArray}`}
               strokeDashoffset={seg.dashOffset}
               strokeLinecap="butt"
-              opacity={hoveredIndex !== null && hoveredIndex !== seg.sortedIndex ? 0.4 : 1}
-              className="transition-all duration-200"
-              onMouseEnter={() => setHoveredIndex(seg.sortedIndex)}
-              onMouseLeave={() => setHoveredIndex(null)}
-              style={{ cursor: 'pointer' }}
             />
           ))}
         </svg>

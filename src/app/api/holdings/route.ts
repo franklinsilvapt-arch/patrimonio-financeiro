@@ -17,6 +17,7 @@ export async function GET(request: NextRequest) {
     const country = searchParams.get('country');
     const sector = searchParams.get('sector');
     const currency = searchParams.get('currency');
+    const scope = searchParams.get('scope');
 
     // Get the most recent holding for each security+account combination
     const holdings = await prisma.holding.findMany({
@@ -24,6 +25,7 @@ export async function GET(request: NextRequest) {
         account: {
           userId,
           ...(broker && { broker: { slug: broker } }),
+          ...(scope && { accountType: scope }),
         },
         ...(assetClass && {
           security: { assetClass: assetClass as any },
@@ -77,6 +79,7 @@ export async function GET(request: NextRequest) {
       broker: h.account.broker.name,
       brokerSlug: h.account.broker.slug,
       accountName: h.account.name,
+      accountType: h.account.accountType,
       quantity: h.quantity,
       price: h.priceAtPosition,
       currency: h.currency,
