@@ -533,6 +533,18 @@ export default function ImportPage() {
       : null;
     const detectedSlug = autoSlug || imageManualBroker || 'other';
 
+    // Clear existing holdings for this account before importing new ones
+    const accountName = imageAccountType === 'business' ? 'Empresarial' : 'Principal';
+    try {
+      await fetch('/api/holdings/clear', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ brokerSlug: detectedSlug, accountName }),
+      });
+    } catch {
+      // If clear fails, continue anyway
+    }
+
     for (const pos of editablePositions) {
       try {
         const res = await fetch('/api/holdings/manual', {
