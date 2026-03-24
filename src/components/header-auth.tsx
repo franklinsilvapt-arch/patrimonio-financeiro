@@ -13,7 +13,7 @@ export function HeaderAuth() {
   if (session?.user) {
     return (
       <div className="flex items-center gap-3">
-        <span className="text-sm text-muted-foreground">
+        <span className="text-sm text-muted-foreground hidden sm:inline">
           {session.user.name || session.user.email}
         </span>
         <Button size="sm" asChild>
