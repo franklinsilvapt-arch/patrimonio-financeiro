@@ -148,7 +148,7 @@ export default function DashboardPage() {
     const holdings = data.holdings;
     return {
       brokers: Array.from(new Set(holdings.map((h) => h.broker))).sort(),
-      assetClasses: Array.from(new Set(holdings.map((h) => h.currency))).sort(), // placeholder
+      assetClasses: Array.from(new Set(holdings.map((h) => h.assetClass).filter(Boolean))).sort(),
       countries: Array.from(new Set(holdings.map((h) => h.country).filter(Boolean) as string[])).sort(),
       sectors: Array.from(new Set(holdings.map((h) => h.sector).filter(Boolean) as string[])).sort(),
       currencies: Array.from(new Set(holdings.map((h) => h.currency))).sort(),
