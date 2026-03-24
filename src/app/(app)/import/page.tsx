@@ -422,7 +422,8 @@ export default function ImportPage() {
         <p className="text-muted-foreground">Carregue ficheiros CSV das suas corretoras para importar posições.</p>
       </div>
 
-      {/* Upload Area */}
+      {/* Upload Area + Image Import side by side on desktop */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
       <Card>
         <CardHeader>
           <CardTitle>Carregar ficheiro</CardTitle>
@@ -799,6 +800,7 @@ export default function ImportPage() {
           )}
         </CardContent>
       </Card>
+      </div>
 
       {/* Manual Entry */}
       <Card>
