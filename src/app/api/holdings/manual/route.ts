@@ -128,6 +128,14 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    // Check if a holding for this security already exists in this account — replace it
+    const existingHolding = await prisma.holding.findFirst({
+      where: { accountId: account.id, securityId },
+    });
+    if (existingHolding) {
+      await prisma.holding.delete({ where: { id: existingHolding.id } });
+    }
+
     // Create import batch for traceability
     const batch = await prisma.importBatch.create({
       data: {
