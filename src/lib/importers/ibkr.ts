@@ -91,7 +91,7 @@ export class IbkrImporter implements BrokerImporter {
     // Add cash position if found in "Cash Balances" section
     if (this.cashTotalEur && this.cashTotalEur !== 0) {
       result.positions.push({
-        name: 'Cash Interactive Brokers',
+        name: 'Liquidez',
         ticker: null,
         isin: null,
         quantity: 1,

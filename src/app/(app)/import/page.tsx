@@ -66,6 +66,16 @@ const IMAGE_BROKER_MAP: Record<string, string> = {
   'revolut': 'revolut', 'freedom24': 'freedom24', 'freedom 24': 'freedom24',
   'etoro': 'etoro', 'novo banco': 'novobanco', 'novobanco': 'novobanco',
   'investing.com': 'investing', 'investing': 'investing',
+  'coverflex': 'coverflex',
+  'xtb': 'xtb',
+  'trade republic': 'traderepublic', 'traderepublic': 'traderepublic',
+  'millennium bcp': 'millenniumbcp', 'millenniumbcp': 'millenniumbcp', 'bcp': 'millenniumbcp',
+  'bpi': 'bpi', 'banco bpi': 'bpi',
+  'montepio': 'montepio',
+  'santander': 'santander', 'banco santander': 'santander',
+  'bankinter': 'bankinter',
+  'activobank': 'activobank',
+  'caixa geral de depósitos': 'cgd', 'cgd': 'cgd', 'caixa geral': 'cgd',
 };
 
 function ImageImportActions({ brokerName, imageManualBroker, setImageManualBroker, imageAccountType, setImageAccountType, imageImporting, onImport, onCancel }: {
@@ -407,7 +417,7 @@ export default function ImportPage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          name: isCash ? `Cash ${BROKERS.find(b => b.slug === manualForm.brokerSlug)?.label || manualForm.brokerSlug}` : manualForm.name,
+          name: isCash ? 'Liquidez' : manualForm.name,
           ticker: isCash ? undefined : (manualForm.ticker || undefined),
           isin: isCash ? undefined : (manualForm.isin || undefined),
           quantity: isCash ? 1 : (manualForm.quantity ? parseFloat(manualForm.quantity) : 1),

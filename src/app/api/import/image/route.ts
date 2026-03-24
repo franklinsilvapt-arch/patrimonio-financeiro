@@ -15,9 +15,13 @@ Extract ALL positions visible in the image. For each position, extract:
 - currency: currency code (EUR, USD, GBP, etc.)
 - assetClass: one of EQUITY, ETF, BOND, FUND, CASH, CRYPTO, COMMODITY
 
+IMPORTANT RULES:
+- SKIP options (puts, calls, spreads). If you see "Put", "Call", "P" suffix in option format (e.g., "NKE Apr 10 $51 Put", "MSTR Jul 125/100"), DO NOT include them.
+- For ALL cash/balance positions (Available Cash, Cash Balance, Conta à Ordem, Saldo, Main Pot, Spending Pot, etc.), use name="Liquidez" and assetClass="CASH". If there are multiple cash entries in different currencies, create separate positions: "Liquidez EUR", "Liquidez USD", etc.
+
 Also extract:
 - brokerName: the broker/platform name (e.g., "Lightyear", "DEGIRO", "Interactive Brokers", "Banco CTT")
-- accountCash: any cash balance shown (as a position with assetClass=CASH)
+- accountCash: any cash balance shown (as a position with assetClass=CASH, name="Liquidez")
 
 Known platforms to identify:
 - "Banco CTT" (bancoctt logo, Portuguese bank): look for "Conta à Ordem", "Saldo disponível", "Saldo contabilístico". Extract the balance as a CASH position.
@@ -30,6 +34,10 @@ Known platforms to identify:
 - "eToro": Green branding with green chart area. Home screen shows "Account value" (total), "Available Cash" and "Invested & P/L" cards, plus market indices (NQ100, SPX500, BTC, DJ30) and "Daily Highlights" section. The "Available Cash" is CASH. If this is the HOME screen (not Portfolio tab), extract cash as a CASH position and set "investmentsWarning": "eToro mostra investimentos de $X. Tira um screenshot da tab 'Portfolio' para importar as posições." where X is the Invested value. The PORTFOLIO tab shows "My Portfolio" with columns: Asset, Change, P/L, Net Value — extract each asset with ticker, Net Value as marketValue, and assetClass (EQUITY for stocks, ETF for ETFs like SXR8.DE/VTI, CRYPTO for BTC). "Total Available Cash" at the bottom is also CASH. Ignore "Daily Highlights", "Watchlist", and market indices — those are NOT positions.
 - "Trading 212": look for "INVEST" branding, "ACCOUNT VALUE", and cards for "INVESTMENTS", "MAIN POT", "SPENDING POT". Cash = "MAIN POT" + "SPENDING POT" values (sum both as a single CASH position). The "INVESTMENTS" card shows total invested value. Items in "Short list", "Most owned", "New on T212" sections are watchlist items, NOT positions — ignore them. If "INVESTMENTS" value is greater than €0.00, add a warning in the response: set "investmentsWarning": "Trading 212 mostra investimentos de X€. Tira um segundo screenshot da tab de investimentos para importar essas posições." where X is the investments value.
 - "Investing.com": look for a portfolio table with columns like "Nome", "Símbolo", "Tipo" (Compra/Venda), "Valor" (quantity), "Preço Méd.", "Preço atual", "Valor Merc.", "G/P Diários", "Resultado Líquido (%)", "G/P Líquido". Extract name, ticker (from "Símbolo"), quantity (from "Valor"), price (from "Preço atual"), marketValue (from "Valor Merc."), assetClass=EQUITY. Currency is usually EUR unless marked otherwise ($ means USD). Flags next to names indicate country of origin, not currency.
+- "Coverflex": Portuguese meal/benefits card. Look for "Coverflex" branding, "Cartão Refeição", "Saldo", balance amounts. Extract the total balance as a single CASH position with name="Liquidez", brokerName="Coverflex". This is a meal card — always classify as CASH/Liquidez regardless of the card type (refeição, flexível, etc.).
+- "XTB": look for "XTB" branding, portfolio positions with ticker/name, quantity, value. Extract all positions.
+- "Trade Republic": look for "Trade Republic" branding, portfolio overview with positions and cash balance.
+- Portuguese banks (Millennium BCP, BPI, Montepio, Santander, Bankinter, ActivoBank, Caixa Geral de Depósitos): look for account balances, "Saldo", "Conta à Ordem". Extract balances as CASH positions with the bank name as brokerName.
 
 If you see a total portfolio value, extract it as "totalValue".
 

@@ -136,7 +136,7 @@ export class DegiroImporter implements BrokerImporter {
           const cashCurrencyMatch = name.match(/\(([A-Z]{3})\)/);
           const cashCurrency = cashCurrencyMatch ? cashCurrencyMatch[1] : currency;
           positions.push({
-            name: `Cash DEGIRO (${cashCurrency})`,
+            name: 'Liquidez',
             ticker: null,
             isin: null,
             quantity: 1,
