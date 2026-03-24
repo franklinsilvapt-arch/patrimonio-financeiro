@@ -28,6 +28,7 @@ Known platforms to identify:
 - "Revolut": look for "Investments", stock/crypto positions, and cash balances.
 - "Freedom24" / "Freedom Finance": look for portfolio positions.
 - "eToro": look for portfolio with positions and available balance.
+- "Trading 212": look for "INVEST" branding, "ACCOUNT VALUE", and cards for "INVESTMENTS", "MAIN POT", "SPENDING POT". Cash = "MAIN POT" + "SPENDING POT" values (sum both as a single CASH position). The "INVESTMENTS" card shows total invested value. Items in "Short list", "Most owned", "New on T212" sections are watchlist items, NOT positions — ignore them. If "INVESTMENTS" value is greater than €0.00, add a warning in the response: set "investmentsWarning": "Trading 212 mostra investimentos de X€. Tira um segundo screenshot da tab de investimentos para importar essas posições." where X is the investments value.
 - "Investing.com": look for a portfolio table with columns like "Nome", "Símbolo", "Tipo" (Compra/Venda), "Valor" (quantity), "Preço Méd.", "Preço atual", "Valor Merc.", "G/P Diários", "Resultado Líquido (%)", "G/P Líquido". Extract name, ticker (from "Símbolo"), quantity (from "Valor"), price (from "Preço atual"), marketValue (from "Valor Merc."), assetClass=EQUITY. Currency is usually EUR unless marked otherwise ($ means USD). Flags next to names indicate country of origin, not currency.
 
 If you see a total portfolio value, extract it as "totalValue".

@@ -179,6 +179,7 @@ export default function ImportPage() {
     }>;
     error?: string;
     morningstarResult?: string;
+    investmentsWarning?: string;
   } | null>(null);
   const [imageImporting, setImageImporting] = useState(false);
   const [imageImportResult, setImageImportResult] = useState<{ success: boolean; message: string } | null>(null);
@@ -785,6 +786,14 @@ export default function ImportPage() {
                   <Button variant="outline" size="sm" className="ml-auto" onClick={resetImage}>
                     Importar outro
                   </Button>
+                </div>
+              )}
+
+              {/* Trading 212 investments warning */}
+              {imageResult?.investmentsWarning && (
+                <div className="flex items-center gap-3 p-4 rounded-lg border bg-amber-50 border-amber-200 text-amber-800">
+                  <AlertTriangle className="h-5 w-5 shrink-0" />
+                  <span className="text-sm">{imageResult.investmentsWarning}</span>
                 </div>
               )}
 
