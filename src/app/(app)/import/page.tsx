@@ -184,6 +184,11 @@ export default function ImportPage() {
   const [imageImportResult, setImageImportResult] = useState<{ success: boolean; message: string } | null>(null);
   const [imageAccountType, setImageAccountType] = useState<'personal' | 'business'>('personal');
   const [imageManualBroker, setImageManualBroker] = useState('');
+  const [editablePositions, setEditablePositions] = useState<Array<{
+    name: string; ticker: string; isin: string;
+    quantity: number; price: number; marketValue: number;
+    currency: string; assetClass: string;
+  }>>([]);
 
   const fetchHistory = useCallback(async () => {
     setHistoryLoading(true);
@@ -383,6 +388,18 @@ export default function ImportPage() {
         }
       } else {
         setImageResult(data);
+        if (data.positions?.length > 0) {
+          setEditablePositions(data.positions.map((p: { name: string; ticker?: string; isin?: string; quantity: number; price?: number; marketValue: number; currency: string; assetClass: string }) => ({
+            name: p.name,
+            ticker: p.ticker || '',
+            isin: p.isin || '',
+            quantity: p.quantity,
+            price: p.price || 0,
+            marketValue: p.marketValue,
+            currency: p.currency,
+            assetClass: p.assetClass,
+          })));
+        }
       }
     } catch {
       setImageResult({ positions: [], error: 'Erro ao processar imagem' });
@@ -392,18 +409,18 @@ export default function ImportPage() {
   };
 
   const handleImageImport = async () => {
-    if (!imageResult || imageResult.positions.length === 0) return;
+    if (editablePositions.length === 0) return;
     setImageImporting(true);
     setImageImportResult(null);
     let imported = 0;
     let failed = 0;
     // Determine broker slug from detected name or manual selection
-    const autoSlug = imageResult.brokerName
+    const autoSlug = imageResult?.brokerName
       ? IMAGE_BROKER_MAP[imageResult.brokerName.toLowerCase()] || null
       : null;
     const detectedSlug = autoSlug || imageManualBroker || 'other';
 
-    for (const pos of imageResult.positions) {
+    for (const pos of editablePositions) {
       try {
         const res = await fetch('/api/holdings/manual', {
           method: 'POST',
@@ -441,6 +458,7 @@ export default function ImportPage() {
     setImagePreviewUrl(null);
     setImageResult(null);
     setImageImportResult(null);
+    setEditablePositions([]);
   };
 
   const resetUpload = () => {
@@ -770,16 +788,26 @@ export default function ImportPage() {
                 </div>
               )}
 
-              {/* Extracted positions */}
-              {imageResult && !imageResult.error && imageResult.positions.length > 0 && (
+              {/* Extracted positions — editable */}
+              {imageResult && !imageResult.error && editablePositions.length > 0 && (
                 <div className="space-y-4">
-                  <div className="flex items-center gap-3">
-                    <CheckCircle className="h-5 w-5 text-green-600" />
-                    <span className="text-sm font-medium">
-                      {imageResult.positions.length} posição(ões) extraída(s)
-                      {imageResult.brokerName && ` — ${imageResult.brokerName}`}
-                      {imageResult.totalValue != null && ` — Total: ${formatCurrency(imageResult.totalValue, 'EUR')}`}
-                    </span>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <CheckCircle className="h-5 w-5 text-green-600" />
+                      <span className="text-sm font-medium">
+                        {editablePositions.length} posição(ões) extraída(s)
+                        {imageResult.brokerName && ` — ${imageResult.brokerName}`}
+                      </span>
+                    </div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setEditablePositions([...editablePositions, {
+                        name: '', ticker: '', isin: '', quantity: 1, price: 0, marketValue: 0, currency: 'EUR', assetClass: 'ETF',
+                      }])}
+                    >
+                      <Plus className="mr-1 h-3 w-3" /> Adicionar posição
+                    </Button>
                   </div>
 
                   <Table>
@@ -791,19 +819,98 @@ export default function ImportPage() {
                         <TableHead className="text-right">Qtd</TableHead>
                         <TableHead className="text-right">Valor</TableHead>
                         <TableHead>Moeda</TableHead>
+                        <TableHead></TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {imageResult.positions.map((p, i) => (
+                      {editablePositions.map((p, i) => (
                         <TableRow key={i}>
-                          <TableCell className="font-medium">{p.name}</TableCell>
-                          <TableCell>{p.ticker || '-'}</TableCell>
-                          <TableCell>{p.assetClass}</TableCell>
-                          <TableCell className="text-right">{p.quantity}</TableCell>
-                          <TableCell className="text-right">
-                            {formatCurrency(p.marketValue, p.currency)}
+                          <TableCell>
+                            <input
+                              className="w-full bg-transparent border-b border-transparent hover:border-slate-300 focus:border-black focus:outline-none text-sm font-medium"
+                              value={p.name}
+                              onChange={(e) => {
+                                const updated = [...editablePositions];
+                                updated[i] = { ...updated[i], name: e.target.value };
+                                setEditablePositions(updated);
+                              }}
+                            />
                           </TableCell>
-                          <TableCell>{p.currency}</TableCell>
+                          <TableCell>
+                            <input
+                              className="w-20 bg-transparent border-b border-transparent hover:border-slate-300 focus:border-black focus:outline-none text-sm"
+                              value={p.ticker}
+                              onChange={(e) => {
+                                const updated = [...editablePositions];
+                                updated[i] = { ...updated[i], ticker: e.target.value };
+                                setEditablePositions(updated);
+                              }}
+                            />
+                          </TableCell>
+                          <TableCell>
+                            <select
+                              className="bg-transparent text-sm border-none focus:outline-none"
+                              value={p.assetClass}
+                              onChange={(e) => {
+                                const updated = [...editablePositions];
+                                updated[i] = { ...updated[i], assetClass: e.target.value };
+                                setEditablePositions(updated);
+                              }}
+                            >
+                              {ASSET_CLASSES.map((ac) => (
+                                <option key={ac.value} value={ac.value}>{ac.label}</option>
+                              ))}
+                            </select>
+                          </TableCell>
+                          <TableCell className="text-right">
+                            <input
+                              className="w-20 bg-transparent border-b border-transparent hover:border-slate-300 focus:border-black focus:outline-none text-sm text-right tabular-nums"
+                              type="number"
+                              value={p.quantity}
+                              onChange={(e) => {
+                                const updated = [...editablePositions];
+                                updated[i] = { ...updated[i], quantity: parseFloat(e.target.value) || 0 };
+                                setEditablePositions(updated);
+                              }}
+                            />
+                          </TableCell>
+                          <TableCell className="text-right">
+                            <input
+                              className="w-28 bg-transparent border-b border-transparent hover:border-slate-300 focus:border-black focus:outline-none text-sm text-right tabular-nums"
+                              type="number"
+                              step="0.01"
+                              value={p.marketValue}
+                              onChange={(e) => {
+                                const updated = [...editablePositions];
+                                updated[i] = { ...updated[i], marketValue: parseFloat(e.target.value) || 0 };
+                                setEditablePositions(updated);
+                              }}
+                            />
+                          </TableCell>
+                          <TableCell>
+                            <select
+                              className="bg-transparent text-sm border-none focus:outline-none"
+                              value={p.currency}
+                              onChange={(e) => {
+                                const updated = [...editablePositions];
+                                updated[i] = { ...updated[i], currency: e.target.value };
+                                setEditablePositions(updated);
+                              }}
+                            >
+                              <option value="EUR">EUR</option>
+                              <option value="USD">USD</option>
+                              <option value="GBP">GBP</option>
+                            </select>
+                          </TableCell>
+                          <TableCell>
+                            <button
+                              className="text-slate-400 hover:text-red-500 transition-colors"
+                              onClick={() => setEditablePositions(editablePositions.filter((_, j) => j !== i))}
+                              title="Remover posição"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </button>
+                          </TableCell>
                         </TableRow>
                       ))}
                     </TableBody>
