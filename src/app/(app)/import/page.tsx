@@ -613,9 +613,9 @@ export default function ImportPage() {
         <p className="text-muted-foreground">Carrega ficheiros CSV das tuas corretoras para importar posições.</p>
       </div>
 
-      {/* Upload Area + Image Import side by side on desktop */}
+      {/* Image Import + Upload Area side by side on desktop */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
-      <Card className="flex flex-col">
+      <Card className="flex flex-col order-2 lg:order-2">
         <CardHeader>
           <CardTitle>Carregar ficheiro</CardTitle>
           <CardDescription>Arrasta um ficheiro CSV ou clica para selecionar</CardDescription>
@@ -829,7 +829,7 @@ export default function ImportPage() {
       </Card>
 
       {/* Image Import */}
-      <Card className="flex flex-col">
+      <Card className="flex flex-col order-1 lg:order-1">
         <CardHeader>
           <CardTitle>Importar por imagem</CardTitle>
           <CardDescription>Carrega uma captura de ecrã do teu portfólio para extrair posições automaticamente</CardDescription>
