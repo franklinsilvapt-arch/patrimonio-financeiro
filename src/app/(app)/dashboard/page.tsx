@@ -99,6 +99,7 @@ export default function DashboardPage() {
 
   // Scope: personal / business / all
   const [scope, setScope] = useState<'all' | 'personal' | 'business'>('all');
+  const [availableScopes, setAvailableScopes] = useState<{ hasPersonal: boolean; hasBusiness: boolean }>({ hasPersonal: true, hasBusiness: false });
 
   // Filters
   const [selectedBroker, setSelectedBroker] = useState('');
@@ -106,6 +107,22 @@ export default function DashboardPage() {
   const [selectedCountry, setSelectedCountry] = useState('');
   const [selectedSector, setSelectedSector] = useState('');
   const [selectedCurrency, setSelectedCurrency] = useState('');
+
+  // Fetch available account types once on mount
+  useEffect(() => {
+    async function fetchScopes() {
+      try {
+        const res = await fetch('/api/portfolio');
+        if (res.ok) {
+          const d = await res.json();
+          const hasP = d.holdings?.some((h: { accountType?: string }) => h.accountType === 'personal') ?? true;
+          const hasB = d.holdings?.some((h: { accountType?: string }) => h.accountType === 'business') ?? false;
+          setAvailableScopes({ hasPersonal: hasP, hasBusiness: hasB });
+        }
+      } catch {}
+    }
+    fetchScopes();
+  }, []);
 
   useEffect(() => {
     async function fetchAll() {
@@ -314,9 +331,7 @@ export default function DashboardPage() {
             { value: 'personal', label: 'Pessoal' },
             { value: 'business', label: 'Empresarial' },
           ] as const).map((s) => {
-            const hasPersonal = data?.holdings.some((h) => h.accountType === 'personal') ?? true;
-            const hasBusiness = data?.holdings.some((h) => h.accountType === 'business') ?? false;
-            const isDisabled = (s.value === 'personal' && !hasPersonal) || (s.value === 'business' && !hasBusiness);
+            const isDisabled = (s.value === 'personal' && !availableScopes.hasPersonal) || (s.value === 'business' && !availableScopes.hasBusiness);
             return (
               <button
                 key={s.value}
