@@ -246,7 +246,7 @@ export default function HistoryPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Histórico</h1>
-          <p className="text-muted-foreground">Evolução do valor do seu património ao longo do tempo.</p>
+          <p className="text-muted-foreground">Evolução do valor do teu património ao longo do tempo.</p>
         </div>
         <div className="flex items-center gap-2">
           {createMessage && (
@@ -333,7 +333,7 @@ export default function HistoryPage() {
             <div className="text-center py-12">
               <p className="text-muted-foreground">Sem dados de histórico.</p>
               <p className="text-sm text-muted-foreground mt-1">
-                Importe um ficheiro CSV para criar o primeiro snapshot automaticamente.
+                Importa um ficheiro CSV para criar o primeiro snapshot automaticamente.
               </p>
             </div>
           ) : chartData.length === 1 ? (
@@ -342,7 +342,7 @@ export default function HistoryPage() {
                 Apenas 1 snapshot disponível ({chartData[0].date}).
               </p>
               <p className="text-sm text-muted-foreground mt-1">
-                Importe novamente no próximo mês para visualizar a evolução.
+                Importa novamente no próximo mês para visualizar a evolução.
               </p>
               <p className="text-2xl font-bold mt-4">{formatCurrency(chartData[0].valor)}</p>
             </div>
@@ -491,7 +491,7 @@ export default function HistoryPage() {
             <p className="text-sm text-muted-foreground py-4">A carregar...</p>
           ) : snapshotsWithVariation.length === 0 ? (
             <p className="text-sm text-muted-foreground py-4">
-              Nenhum snapshot encontrado. Importe um ficheiro CSV para criar automaticamente.
+              Nenhum snapshot encontrado. Importa um ficheiro CSV para criar automaticamente.
             </p>
           ) : (
             <Table>

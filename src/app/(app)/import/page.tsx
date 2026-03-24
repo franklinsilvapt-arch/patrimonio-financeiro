@@ -419,15 +419,15 @@ export default function ImportPage() {
     <div className="space-y-8">
       <div>
         <h1 className="text-3xl font-bold tracking-tight">Importar</h1>
-        <p className="text-muted-foreground">Carregue ficheiros CSV das suas corretoras para importar posições.</p>
+        <p className="text-muted-foreground">Carrega ficheiros CSV das tuas corretoras para importar posições.</p>
       </div>
 
       {/* Upload Area + Image Import side by side on desktop */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-      <Card>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
+      <Card className="flex flex-col">
         <CardHeader>
           <CardTitle>Carregar ficheiro</CardTitle>
-          <CardDescription>Arraste um ficheiro CSV ou clique para selecionar</CardDescription>
+          <CardDescription>Arrasta um ficheiro CSV ou clica para selecionar</CardDescription>
         </CardHeader>
         <CardContent>
           {!file ? (
@@ -445,8 +445,8 @@ export default function ImportPage() {
                 <p className="text-lg font-medium">Largue o ficheiro aqui...</p>
               ) : (
                 <>
-                  <p className="text-lg font-medium">Arraste o ficheiro CSV para aqui</p>
-                  <p className="text-sm text-muted-foreground mt-1">ou clique para seleccionar</p>
+                  <p className="text-lg font-medium">Arrasta o ficheiro CSV para aqui</p>
+                  <p className="text-sm text-muted-foreground mt-1">ou clica para selecionar</p>
                   <p className="text-xs text-muted-foreground mt-3">
                     Formatos suportados: DEGIRO, Interactive Brokers, Lightyear, Trading 212
                   </p>
@@ -638,20 +638,20 @@ export default function ImportPage() {
       </Card>
 
       {/* Image Import */}
-      <Card>
+      <Card className="flex flex-col">
         <CardHeader>
           <CardTitle>Importar por imagem</CardTitle>
-          <CardDescription>Carregue uma captura de ecrã do seu portfólio para extrair posições automaticamente</CardDescription>
+          <CardDescription>Carrega uma captura de ecrã do teu portfólio para extrair posições automaticamente</CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="flex-grow flex flex-col">
           {!imageFile ? (
-            <div className="flex flex-col items-center gap-4">
+            <div className="flex flex-col items-center gap-4 flex-grow">
               <label
                 htmlFor="image-upload"
-                className="flex flex-col items-center gap-3 border-2 border-dashed rounded-lg p-8 w-full cursor-pointer transition-colors border-muted-foreground/25 hover:border-primary/50"
+                className="flex flex-col items-center justify-center gap-3 border-2 border-dashed rounded-lg p-8 w-full h-full min-h-[200px] cursor-pointer transition-colors border-muted-foreground/25 hover:border-primary/50"
               >
                 <ImageIcon className="h-10 w-10 text-muted-foreground" />
-                <p className="text-sm font-medium">Clique para selecionar uma imagem</p>
+                <p className="text-sm font-medium">Clica para selecionar uma imagem</p>
                 <p className="text-xs text-muted-foreground">PNG, JPEG, WEBP ou GIF</p>
                 <input
                   id="image-upload"
@@ -808,7 +808,7 @@ export default function ImportPage() {
           <div className="flex items-center justify-between">
             <div>
               <CardTitle>Entrada manual</CardTitle>
-              <CardDescription>Adicione posições manualmente quando o CSV não funciona</CardDescription>
+              <CardDescription>Adiciona posições manualmente quando o CSV não funciona</CardDescription>
             </div>
             <Button
               variant={manualOpen ? 'secondary' : 'outline'}
@@ -993,7 +993,7 @@ export default function ImportPage() {
             <p className="text-sm text-muted-foreground py-4">A carregar...</p>
           ) : history.length === 0 ? (
             <p className="text-sm text-muted-foreground py-4">
-              Nenhuma importação encontrada. Carregue um ficheiro CSV acima para começar.
+              Nenhuma importação encontrada. Carrega um ficheiro CSV acima para começar.
             </p>
           ) : (
             <Table>

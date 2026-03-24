@@ -278,7 +278,7 @@ export default function DashboardPage() {
         <div className="text-center space-y-2">
           <h2 className="text-2xl font-semibold">Sem dados no portfolio</h2>
           <p className="text-muted-foreground">
-            Importe ficheiros das suas corretoras para começar.
+            Importa ficheiros das tuas corretoras para começar.
           </p>
         </div>
         <Button asChild>

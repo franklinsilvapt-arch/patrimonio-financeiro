@@ -90,7 +90,7 @@ export async function POST(request: NextRequest) {
     const apiKey = process.env.ANTHROPIC_API_KEY;
     if (!apiKey) {
       return NextResponse.json(
-        { error: 'ANTHROPIC_API_KEY não configurada. Adicione ao ficheiro .env para usar importação por imagem.' },
+        { error: 'ANTHROPIC_API_KEY não configurada. Adiciona ao ficheiro .env para usar importação por imagem.' },
         { status: 503 }
       );
     }

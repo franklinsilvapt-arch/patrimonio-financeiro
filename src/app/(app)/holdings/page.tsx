@@ -212,7 +212,7 @@ export default function HoldingsPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Posições</h1>
-          <p className="text-muted-foreground">Todas as posições do seu portfolio agregado.</p>
+          <p className="text-muted-foreground">Todas as posições do teu portfolio agregado.</p>
         </div>
         {holdings.length > 0 && (
           <Button variant="destructive" size="sm" onClick={handleDeleteAll}>
@@ -323,7 +323,7 @@ export default function HoldingsPage() {
             <div className="text-center py-8">
               <p className="text-muted-foreground">Nenhuma posição encontrada.</p>
               <p className="text-sm text-muted-foreground mt-1">
-                Importe ficheiros CSV na página de importação para ver as suas posições.
+                Importa ficheiros CSV na página de importação para ver as tuas posições.
               </p>
             </div>
           ) : viewMode === 'position' ? (
