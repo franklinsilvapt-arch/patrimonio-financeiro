@@ -857,7 +857,7 @@ export default function ImportPage() {
                   />
                 ))}
                 <div className="flex flex-col gap-2 shrink-0">
-                  <p className="text-sm font-medium">{imageFiles.length} imagem(ns)</p>
+                  <p className="text-sm font-medium">{imageFiles.length === 1 ? '1 imagem' : `${imageFiles.length} imagens`}</p>
                   <Button variant="ghost" size="sm" onClick={resetImage}>
                     Remover
                   </Button>
@@ -867,7 +867,7 @@ export default function ImportPage() {
               {/* Process button */}
               {!imageResult && (
                 <Button onClick={handleImageProcess} disabled={imageProcessing}>
-                  {imageProcessing ? `A processar ${imageFiles.length} imagem(ns)...` : 'Extrair posições'}
+                  {imageProcessing ? `A processar ${imageFiles.length === 1 ? '1 imagem' : `${imageFiles.length} imagens`}...` : 'Extrair posições'}
                 </Button>
               )}
 
@@ -908,7 +908,7 @@ export default function ImportPage() {
                     <div className="flex items-center gap-3">
                       <CheckCircle className="h-5 w-5 text-green-600" />
                       <span className="text-sm font-medium">
-                        {editablePositions.length} posição(ões) extraída(s)
+                        {editablePositions.length === 1 ? '1 posição extraída' : `${editablePositions.length} posições extraídas`}
                         {imageResult.brokerName && ` — ${imageResult.brokerName}`}
                       </span>
                     </div>
@@ -923,10 +923,12 @@ export default function ImportPage() {
                     </Button>
                   </div>
 
+                  <p className="text-xs text-slate-400 sm:hidden">← Desliza para ver todos os campos →</p>
+                  <div className="overflow-x-auto">
                   <Table>
                     <TableHeader>
                       <TableRow>
-                        <TableHead>Nome</TableHead>
+                        <TableHead className="min-w-[180px]">Nome</TableHead>
                         <TableHead>Ticker</TableHead>
                         <TableHead>Classe</TableHead>
                         <TableHead className="text-right">Qtd</TableHead>
@@ -1028,6 +1030,7 @@ export default function ImportPage() {
                       ))}
                     </TableBody>
                   </Table>
+                  </div>
 
                   {/* Broker selector + Account type + Import button */}
                   {!imageImportResult && (
@@ -1060,7 +1063,10 @@ export default function ImportPage() {
                     <XCircle className="h-5 w-5 shrink-0" />
                   )}
                   <span className="font-medium">{imageImportResult.message}</span>
-                  <Button variant="outline" size="sm" className="ml-auto" onClick={resetImage}>
+                  <Button variant="outline" size="sm" className="ml-auto" onClick={() => {
+                    resetImage();
+                    setTimeout(() => document.getElementById('image-upload')?.click(), 100);
+                  }}>
                     Nova imagem
                   </Button>
                 </div>
