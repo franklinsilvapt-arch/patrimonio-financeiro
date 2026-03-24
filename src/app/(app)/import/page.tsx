@@ -17,15 +17,22 @@ import {
 import { formatDateTime, formatCurrency } from '@/lib/utils';
 
 const BROKERS = [
+  { slug: 'activobank', label: 'ActivoBank' },
   { slug: 'bancoctt', label: 'Banco CTT' },
+  { slug: 'bankinter', label: 'Bankinter' },
+  { slug: 'bpi', label: 'BPI' },
+  { slug: 'caixageral', label: 'Caixa Geral de Depósitos' },
   { slug: 'coverflex', label: 'Coverflex' },
   { slug: 'degiro', label: 'DEGIRO' },
   { slug: 'etoro', label: 'eToro' },
   { slug: 'freedom24', label: 'Freedom24' },
   { slug: 'ibkr', label: 'Interactive Brokers' },
   { slug: 'lightyear', label: 'Lightyear' },
+  { slug: 'millenniumbcp', label: 'Millennium BCP' },
+  { slug: 'montepio', label: 'Montepio' },
   { slug: 'novobanco', label: 'Novo Banco' },
   { slug: 'revolut', label: 'Revolut' },
+  { slug: 'santander', label: 'Santander' },
   { slug: 'traderepublic', label: 'Trade Republic' },
   { slug: 'trading212', label: 'Trading 212' },
   { slug: 'xtb', label: 'XTB' },
@@ -74,7 +81,8 @@ function ImageImportActions({ brokerName, imageManualBroker, setImageManualBroke
   const isDetected = brokerName && IMAGE_BROKER_MAP[brokerName.toLowerCase()];
   const needsBrokerSelect = !isDetected;
   const resolvedBroker = isDetected ? IMAGE_BROKER_MAP[brokerName!.toLowerCase()] : imageManualBroker;
-  const showAccountType = resolvedBroker && ['ibkr', 'lightyear'].includes(resolvedBroker);
+  const BROKERS_WITH_ACCOUNT_TYPES = ['ibkr', 'lightyear', 'novobanco', 'bancoctt', 'millenniumbcp', 'bpi', 'montepio', 'santander', 'caixageral'];
+  const showAccountType = resolvedBroker && BROKERS_WITH_ACCOUNT_TYPES.includes(resolvedBroker);
 
   return (
     <div className="space-y-3">

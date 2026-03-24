@@ -22,10 +22,10 @@ Also extract:
 Known platforms to identify:
 - "Banco CTT" (bancoctt logo, Portuguese bank): look for "Conta à Ordem", "Saldo disponível", "Saldo contabilístico". Extract the balance as a CASH position.
 - "Novo Banco" (novobanco logo, green branding): look for "Todas as contas", "Saldo disponível", IBAN starting with PT50. Extract the balance as a CASH position.
-- "Lightyear": look for portfolio positions with "Latest price", "Avg. buy price", "Value" columns and any cash/"Uninvested" balance. May show company name like "FRANKLIN CAPITAL" for business accounts.
+- "Lightyear": IMPORTANT — Lightyear has a distinctive purple/violet branding with a lightning bolt icon. Look for "Conta pessoal" or "Conta empresarial", "Saldo", "Investimentos", "Depositar", "Converter", "Levantar" buttons. The app shows "Saldo" as cash balance and "Investimentos" as investment value. On desktop, look for "Latest price", "Avg. buy price", "Value" columns. DO NOT confuse with Revolut — Lightyear uses purple branding, Revolut uses blue/dark.
 - "DEGIRO": look for portfolio overview with positions.
-- "Interactive Brokers" / "IBKR": look for account summary or portfolio positions.
-- "Revolut": look for "Investments", stock/crypto positions, and cash balances.
+- "Interactive Brokers" / "IBKR": look for account summary or portfolio positions, "Your Holdings", "Cash Holdings" sections.
+- "Revolut": look for dark blue branding, "Investments" with stock/crypto positions. Revolut does NOT have "Conta pessoal"/"Depositar"/"Converter"/"Levantar" in Portuguese — that's Lightyear.
 - "Freedom24" / "Freedom Finance": look for portfolio positions.
 - "eToro": look for portfolio with positions and available balance.
 - "Trading 212": look for "INVEST" branding, "ACCOUNT VALUE", and cards for "INVESTMENTS", "MAIN POT", "SPENDING POT". Cash = "MAIN POT" + "SPENDING POT" values (sum both as a single CASH position). The "INVESTMENTS" card shows total invested value. Items in "Short list", "Most owned", "New on T212" sections are watchlist items, NOT positions — ignore them. If "INVESTMENTS" value is greater than €0.00, add a warning in the response: set "investmentsWarning": "Trading 212 mostra investimentos de X€. Tira um segundo screenshot da tab de investimentos para importar essas posições." where X is the investments value.
