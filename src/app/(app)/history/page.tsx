@@ -248,15 +248,9 @@ export default function HistoryPage() {
           <h1 className="text-3xl font-bold tracking-tight">Histórico</h1>
           <p className="text-muted-foreground">Evolução do valor do teu património ao longo do tempo.</p>
         </div>
-        <div className="flex items-center gap-2">
-          {createMessage && (
-            <span className="text-sm text-muted-foreground">{createMessage}</span>
-          )}
-          <Button onClick={handleCreateSnapshot} disabled={creating}>
-            <Camera className="mr-2 h-4 w-4" />
-            {creating ? 'A criar...' : 'Criar snapshot'}
-          </Button>
-        </div>
+        {createMessage && (
+          <span className="text-sm text-muted-foreground">{createMessage}</span>
+        )}
       </div>
 
       {/* Chart */}
