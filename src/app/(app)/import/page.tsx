@@ -124,6 +124,78 @@ interface PreviewResult {
   warnings: string[];
 }
 
+function GroupedHistory({ history, fetchHistory, statusBadge }: {
+  history: ImportBatchRecord[];
+  fetchHistory: () => void;
+  statusBadge: (status: string) => React.ReactNode;
+}) {
+  const grouped: Array<{
+    key: string; ids: string[]; importedAt: string; brokerName: string;
+    fileName: string; rowsImported: number; rowsFailed: number; status: string;
+  }> = [];
+  for (const r of history) {
+    const minute = r.importedAt?.slice(0, 16) ?? '';
+    const broker = r.broker?.name ?? '-';
+    const key = `${minute}_${broker}`;
+    const existing = grouped.find((g) => g.key === key);
+    if (existing) {
+      existing.ids.push(r.id);
+      existing.rowsImported += r.rowsImported ?? 0;
+      existing.rowsFailed += r.rowsFailed ?? 0;
+      if (r.status === 'error') existing.status = 'error';
+    } else {
+      grouped.push({
+        key, ids: [r.id], importedAt: r.importedAt, brokerName: broker,
+        fileName: r.fileName, rowsImported: r.rowsImported ?? 0,
+        rowsFailed: r.rowsFailed ?? 0, status: r.status,
+      });
+    }
+  }
+  return (
+    <Table>
+      <TableHeader>
+        <TableRow>
+          <TableHead>Data</TableHead>
+          <TableHead>Corretora</TableHead>
+          <TableHead>Ficheiro</TableHead>
+          <TableHead className="text-right">Importadas</TableHead>
+          <TableHead className="text-right">Falhadas</TableHead>
+          <TableHead>Estado</TableHead>
+          <TableHead className="w-10"></TableHead>
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        {grouped.map((g) => (
+          <TableRow key={g.key}>
+            <TableCell>{formatDateTime(g.importedAt)}</TableCell>
+            <TableCell>{g.brokerName}</TableCell>
+            <TableCell className="font-mono text-xs">{g.fileName}</TableCell>
+            <TableCell className="text-right">{g.rowsImported}</TableCell>
+            <TableCell className="text-right">{g.rowsFailed}</TableCell>
+            <TableCell>{statusBadge(g.status)}</TableCell>
+            <TableCell>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 text-red-500 hover:text-red-700 hover:bg-red-50"
+                onClick={async () => {
+                  if (!window.confirm(`Apagar ${g.ids.length} importação(ões) de ${g.brokerName}?`)) return;
+                  for (const id of g.ids) {
+                    await fetch(`/api/import/${id}`, { method: 'DELETE' });
+                  }
+                  fetchHistory();
+                }}
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            </TableCell>
+          </TableRow>
+        ))}
+      </TableBody>
+    </Table>
+  );
+}
+
 interface ImportBatchRecord {
   id: string;
   importedAt: string;
@@ -1161,85 +1233,7 @@ export default function ImportPage() {
               Nenhuma importação encontrada. Carrega um ficheiro CSV acima para começar.
             </p>
           ) : (
-            {(() => {
-              // Group records by broker + minute to merge manual/image imports
-              const grouped: Array<{
-                key: string;
-                ids: string[];
-                importedAt: string;
-                brokerName: string;
-                fileName: string;
-                rowsImported: number;
-                rowsFailed: number;
-                status: string;
-              }> = [];
-              for (const r of history) {
-                const minute = r.importedAt?.slice(0, 16) ?? '';
-                const broker = r.broker?.name ?? '-';
-                const key = `${minute}_${broker}`;
-                const existing = grouped.find((g) => g.key === key);
-                if (existing) {
-                  existing.ids.push(r.id);
-                  existing.rowsImported += r.rowsImported ?? 0;
-                  existing.rowsFailed += r.rowsFailed ?? 0;
-                  if (r.status === 'error') existing.status = 'error';
-                } else {
-                  grouped.push({
-                    key,
-                    ids: [r.id],
-                    importedAt: r.importedAt,
-                    brokerName: broker,
-                    fileName: r.fileName,
-                    rowsImported: r.rowsImported ?? 0,
-                    rowsFailed: r.rowsFailed ?? 0,
-                    status: r.status,
-                  });
-                }
-              }
-              return (
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Data</TableHead>
-                      <TableHead>Corretora</TableHead>
-                      <TableHead>Ficheiro</TableHead>
-                      <TableHead className="text-right">Importadas</TableHead>
-                      <TableHead className="text-right">Falhadas</TableHead>
-                      <TableHead>Estado</TableHead>
-                      <TableHead className="w-10"></TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {grouped.map((g) => (
-                      <TableRow key={g.key}>
-                        <TableCell>{formatDateTime(g.importedAt)}</TableCell>
-                        <TableCell>{g.brokerName}</TableCell>
-                        <TableCell className="font-mono text-xs">{g.fileName}</TableCell>
-                        <TableCell className="text-right">{g.rowsImported}</TableCell>
-                        <TableCell className="text-right">{g.rowsFailed}</TableCell>
-                        <TableCell>{statusBadge(g.status)}</TableCell>
-                        <TableCell>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-8 w-8 text-red-500 hover:text-red-700 hover:bg-red-50"
-                            onClick={async () => {
-                              if (!window.confirm(`Apagar ${g.ids.length} importação(ões) de ${g.brokerName}?`)) return;
-                              for (const id of g.ids) {
-                                await fetch(`/api/import/${id}`, { method: 'DELETE' });
-                              }
-                              fetchHistory();
-                            }}
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              );
-            })()}
+            <GroupedHistory history={history} fetchHistory={fetchHistory} statusBadge={statusBadge} />
           )}
         </CardContent>
       </Card>
