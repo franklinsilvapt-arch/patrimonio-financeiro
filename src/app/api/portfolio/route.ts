@@ -47,20 +47,37 @@ export async function GET(request: NextRequest) {
     }
 
     const active = Array.from(latestHoldings.values());
-    const totalValue = active.reduce((sum, h) => sum + (h.marketValue || 0), 0);
 
-    // Aggregate by broker
+    // Fetch exchange rates for currency conversion
+    let fxRates: Record<string, number> = {};
+    try {
+      const { fetchLatestRates } = await import('@/lib/currency/ecb');
+      const rateData = await fetchLatestRates();
+      if (rateData?.rates) fxRates = rateData.rates;
+    } catch {}
+
+    // Helper: convert any currency to EUR
+    const toEur = (amount: number, currency: string) => {
+      if (currency === 'EUR' || !amount) return amount;
+      const rate = fxRates[currency];
+      if (!rate) return amount; // fallback: no conversion
+      return amount / rate;
+    };
+
+    const totalValue = active.reduce((sum, h) => sum + toEur(h.marketValue || 0, h.currency), 0);
+
+    // Aggregate by broker (in EUR)
     const byBroker: Record<string, number> = {};
     for (const h of active) {
       const name = h.account.broker.name;
-      byBroker[name] = (byBroker[name] || 0) + (h.marketValue || 0);
+      byBroker[name] = (byBroker[name] || 0) + toEur(h.marketValue || 0, h.currency);
     }
 
-    // Aggregate by asset class
+    // Aggregate by asset class (in EUR)
     const byAssetClass: Record<string, number> = {};
     for (const h of active) {
       const cls = h.security.assetClass;
-      byAssetClass[cls] = (byAssetClass[cls] || 0) + (h.marketValue || 0);
+      byAssetClass[cls] = (byAssetClass[cls] || 0) + toEur(h.marketValue || 0, h.currency);
     }
 
     // Aggregate country exposure (look-through)
@@ -68,7 +85,7 @@ export async function GET(request: NextRequest) {
     let countryCoverage = 0;
     let countryTotal = 0;
     for (const h of active) {
-      const mv = h.marketValue || 0;
+      const mv = toEur(h.marketValue || 0, h.currency);
       countryTotal += mv;
       if (h.security.countryExposures.length > 0) {
         const latestDate = h.security.countryExposures[0].date;
@@ -89,7 +106,7 @@ export async function GET(request: NextRequest) {
     const bySector: Record<string, number> = {};
     let sectorCoverage = 0;
     for (const h of active) {
-      const mv = h.marketValue || 0;
+      const mv = toEur(h.marketValue || 0, h.currency);
       if (h.security.sectorExposures.length > 0) {
         const latestDate = h.security.sectorExposures[0].date;
         const latestExposures = h.security.sectorExposures.filter(
@@ -109,7 +126,7 @@ export async function GET(request: NextRequest) {
     const factorScoresMap: Record<string, { totalScore: number; totalWeight: number }> = {};
     let factorCoverage = 0;
     for (const h of active) {
-      const mv = h.marketValue || 0;
+      const mv = toEur(h.marketValue || 0, h.currency);
       if (h.security.factorExposures.length > 0) {
         factorCoverage += mv;
         const latestDate = h.security.factorExposures[0].date;
@@ -152,8 +169,10 @@ export async function GET(request: NextRequest) {
         quantity: h.quantity,
         price: h.priceAtPosition,
         currency: h.currency,
-        marketValue: h.marketValue || 0,
-        weight: totalValue > 0 ? (h.marketValue || 0) / totalValue : 0,
+        marketValue: toEur(h.marketValue || 0, h.currency),
+        marketValueOriginal: h.marketValue || 0,
+        currencyOriginal: h.currency,
+        weight: totalValue > 0 ? toEur(h.marketValue || 0, h.currency) / totalValue : 0,
         country: h.security.country,
         sector: h.security.sector,
         factorCoverage: hasFactors ? (h.security.factorExposures[0]?.coverage ?? null) : null,
