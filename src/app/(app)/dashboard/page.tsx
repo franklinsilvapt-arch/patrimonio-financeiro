@@ -397,10 +397,11 @@ export default function DashboardPage() {
                 <div className="flex items-center bg-white border border-slate-200 px-4 py-2 rounded-lg gap-2 cursor-help">
                   <span className="text-xs font-medium text-slate-500 uppercase">EUR/USD</span>
                   <span className="text-sm font-bold text-black tabular-nums">{eurUsdRate.rate.toFixed(4)}</span>
+                  <span className="text-[10px] text-slate-400">({eurUsdRate.date})</span>
                 </div>
               </TooltipTrigger>
               <TooltipContent side="bottom" className="max-w-xs text-xs bg-white border shadow-md">
-                Taxa de câmbio EUR/USD do BCE de {eurUsdRate.date}. Usada para converter posições em USD para EUR.
+                Taxa de câmbio EUR/USD do BCE de {eurUsdRate.date} (~16:00 CET). Usada para converter posições em USD para EUR.
               </TooltipContent>
             </Tooltip>
           )}
