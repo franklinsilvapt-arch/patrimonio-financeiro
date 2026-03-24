@@ -46,10 +46,11 @@ export function DateIndicator({ date, label, source }: DateIndicatorProps) {
           <span>{formatDate(date)}</span>
         </span>
       </TooltipTrigger>
-      <TooltipContent>
+      <TooltipContent className="max-w-xs bg-white border shadow-md">
         <div className="space-y-1 text-xs">
           <div>{formatDateTime(date)}</div>
           <div>{freshnessText}</div>
+          <div className="text-muted-foreground">Data da última importação de posições. Os valores refletem o que tinhas nessa data.</div>
           {source && <div className="text-muted-foreground">Fonte: {source}</div>}
         </div>
       </TooltipContent>
