@@ -313,19 +313,28 @@ export default function DashboardPage() {
             { value: 'all', label: 'Tudo' },
             { value: 'personal', label: 'Pessoal' },
             { value: 'business', label: 'Empresarial' },
-          ] as const).map((s) => (
-            <button
-              key={s.value}
-              className={`px-4 py-1.5 text-sm font-semibold rounded-md transition-all ${
-                scope === s.value
-                  ? 'bg-white shadow-sm text-black'
-                  : 'text-slate-500 hover:text-black'
-              }`}
-              onClick={() => setScope(s.value)}
-            >
-              {s.label}
-            </button>
-          ))}
+          ] as const).map((s) => {
+            const hasPersonal = data?.holdings.some((h) => h.accountType === 'personal') ?? true;
+            const hasBusiness = data?.holdings.some((h) => h.accountType === 'business') ?? false;
+            const isDisabled = (s.value === 'personal' && !hasPersonal) || (s.value === 'business' && !hasBusiness);
+            return (
+              <button
+                key={s.value}
+                className={`px-4 py-1.5 text-sm font-semibold rounded-md transition-all ${
+                  isDisabled
+                    ? 'text-slate-300 cursor-not-allowed'
+                    : scope === s.value
+                      ? 'bg-white shadow-sm text-black'
+                      : 'text-slate-500 hover:text-black'
+                }`}
+                onClick={() => !isDisabled && setScope(s.value)}
+                disabled={isDisabled}
+                title={isDisabled ? `Não tens conta ${s.label.toLowerCase()} associada` : undefined}
+              >
+                {s.label}
+              </button>
+            );
+          })}
         </div>
         <div className="flex flex-wrap gap-3 items-center">
           {/* Performance compact pill */}

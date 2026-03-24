@@ -148,6 +148,7 @@ export async function GET(request: NextRequest) {
         ticker: h.security.ticker,
         isin: h.security.isin,
         broker: h.account.broker.name,
+        accountType: h.account.accountType,
         quantity: h.quantity,
         price: h.priceAtPosition,
         currency: h.currency,

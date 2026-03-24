@@ -29,6 +29,7 @@ export interface HoldingRow {
   priceDate: string | null;
   source: string | null;
   assetClass: string;
+  accountType?: string;
 }
 
 interface HoldingsTableProps {
