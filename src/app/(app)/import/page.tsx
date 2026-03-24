@@ -51,6 +51,73 @@ interface PreviewPosition {
   currency: string;
 }
 
+const IMAGE_BROKER_MAP: Record<string, string> = {
+  'banco ctt': 'bancoctt', 'bancoctt': 'bancoctt',
+  'lightyear': 'lightyear', 'degiro': 'degiro',
+  'interactive brokers': 'ibkr', 'ibkr': 'ibkr',
+  'trading 212': 'trading212', 'trading212': 'trading212',
+  'revolut': 'revolut', 'freedom24': 'freedom24', 'freedom 24': 'freedom24',
+  'etoro': 'etoro', 'novo banco': 'novobanco', 'novobanco': 'novobanco',
+  'investing.com': 'investing', 'investing': 'investing',
+};
+
+function ImageImportActions({ brokerName, imageManualBroker, setImageManualBroker, imageAccountType, setImageAccountType, imageImporting, onImport, onCancel }: {
+  brokerName: string | null | undefined;
+  imageManualBroker: string;
+  setImageManualBroker: (v: string) => void;
+  imageAccountType: 'personal' | 'business';
+  setImageAccountType: (v: 'personal' | 'business') => void;
+  imageImporting: boolean;
+  onImport: () => void;
+  onCancel: () => void;
+}) {
+  const isDetected = brokerName && IMAGE_BROKER_MAP[brokerName.toLowerCase()];
+  const needsBrokerSelect = !isDetected;
+  const resolvedBroker = isDetected ? IMAGE_BROKER_MAP[brokerName!.toLowerCase()] : imageManualBroker;
+  const showAccountType = resolvedBroker && ['ibkr', 'lightyear'].includes(resolvedBroker);
+
+  return (
+    <div className="space-y-3">
+      {needsBrokerSelect && (
+        <div className="flex flex-wrap items-center gap-2 p-3 rounded-lg border bg-amber-50 border-amber-200">
+          <span className="text-sm text-amber-800">Não foi possível identificar a corretora/banco. Seleciona:</span>
+          <select
+            value={imageManualBroker}
+            onChange={(e) => setImageManualBroker(e.target.value)}
+            className="h-9 rounded-md border border-input bg-background px-3 text-sm"
+          >
+            <option value="">Escolhe...</option>
+            {BROKERS.map((b) => (
+              <option key={b.slug} value={b.slug}>{b.label}</option>
+            ))}
+          </select>
+        </div>
+      )}
+      <div className="flex flex-wrap items-center gap-3">
+        {showAccountType && (
+          <div className="flex items-center gap-2">
+            <span className="text-sm font-medium">Tipo de conta:</span>
+            <select
+              value={imageAccountType}
+              onChange={(e) => setImageAccountType(e.target.value as 'personal' | 'business')}
+              className="h-9 rounded-md border border-input bg-background px-3 text-sm"
+            >
+              <option value="personal">Pessoal</option>
+              <option value="business">Empresarial</option>
+            </select>
+          </div>
+        )}
+        <Button onClick={onImport} disabled={imageImporting || (needsBrokerSelect && !imageManualBroker)}>
+          {imageImporting ? 'A importar...' : 'Importar posições'}
+        </Button>
+        <Button variant="outline" onClick={onCancel}>
+          Cancelar
+        </Button>
+      </div>
+    </div>
+  );
+}
+
 interface PreviewResult {
   positions: PreviewPosition[];
   errors: string[];
@@ -116,6 +183,7 @@ export default function ImportPage() {
   const [imageImporting, setImageImporting] = useState(false);
   const [imageImportResult, setImageImportResult] = useState<{ success: boolean; message: string } | null>(null);
   const [imageAccountType, setImageAccountType] = useState<'personal' | 'business'>('personal');
+  const [imageManualBroker, setImageManualBroker] = useState('');
 
   const fetchHistory = useCallback(async () => {
     setHistoryLoading(true);
@@ -329,19 +397,11 @@ export default function ImportPage() {
     setImageImportResult(null);
     let imported = 0;
     let failed = 0;
-    // Determine broker slug from detected name
-    const brokerMap: Record<string, string> = {
-      'banco ctt': 'bancoctt', 'bancoctt': 'bancoctt',
-      'lightyear': 'lightyear', 'degiro': 'degiro',
-      'interactive brokers': 'ibkr', 'ibkr': 'ibkr',
-      'trading 212': 'trading212', 'trading212': 'trading212',
-      'revolut': 'revolut', 'freedom24': 'freedom24', 'freedom 24': 'freedom24',
-      'etoro': 'etoro', 'novo banco': 'novobanco', 'novobanco': 'novobanco',
-      'investing.com': 'investing', 'investing': 'investing',
-    };
-    const detectedSlug = imageResult.brokerName
-      ? brokerMap[imageResult.brokerName.toLowerCase()] || 'lightyear'
-      : 'lightyear';
+    // Determine broker slug from detected name or manual selection
+    const autoSlug = imageResult.brokerName
+      ? IMAGE_BROKER_MAP[imageResult.brokerName.toLowerCase()] || null
+      : null;
+    const detectedSlug = autoSlug || imageManualBroker || 'other';
 
     for (const pos of imageResult.positions) {
       try {
@@ -749,29 +809,18 @@ export default function ImportPage() {
                     </TableBody>
                   </Table>
 
-                  {/* Account type selector + Import button */}
+                  {/* Broker selector + Account type + Import button */}
                   {!imageImportResult && (
-                    <div className="flex flex-wrap items-center gap-3">
-                      {imageResult.brokerName && ['interactive brokers', 'ibkr', 'lightyear'].includes(imageResult.brokerName.toLowerCase()) && (
-                        <div className="flex items-center gap-2">
-                          <span className="text-sm font-medium">Tipo de conta:</span>
-                          <select
-                            value={imageAccountType}
-                            onChange={(e) => setImageAccountType(e.target.value as 'personal' | 'business')}
-                            className="h-9 rounded-md border border-input bg-background px-3 text-sm"
-                          >
-                            <option value="personal">Pessoal</option>
-                            <option value="business">Empresarial</option>
-                          </select>
-                        </div>
-                      )}
-                      <Button onClick={handleImageImport} disabled={imageImporting}>
-                        {imageImporting ? 'A importar...' : 'Importar posições'}
-                      </Button>
-                      <Button variant="outline" onClick={resetImage}>
-                        Cancelar
-                      </Button>
-                    </div>
+                    <ImageImportActions
+                      brokerName={imageResult.brokerName}
+                      imageManualBroker={imageManualBroker}
+                      setImageManualBroker={setImageManualBroker}
+                      imageAccountType={imageAccountType}
+                      setImageAccountType={setImageAccountType}
+                      imageImporting={imageImporting}
+                      onImport={handleImageImport}
+                      onCancel={resetImage}
+                    />
                   )}
                 </div>
               )}
