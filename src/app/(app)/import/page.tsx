@@ -246,8 +246,8 @@ export default function ImportPage() {
   const [manualResult, setManualResult] = useState<{ success: boolean; message: string } | null>(null);
 
   // Image import state
-  const [imageFile, setImageFile] = useState<File | null>(null);
-  const [imagePreviewUrl, setImagePreviewUrl] = useState<string | null>(null);
+  const [imageFiles, setImageFiles] = useState<File[]>([]);
+  const [imagePreviewUrls, setImagePreviewUrls] = useState<string[]>([]);
   const [imageProcessing, setImageProcessing] = useState(false);
   const [imageResult, setImageResult] = useState<{
     brokerName?: string;
@@ -438,52 +438,74 @@ export default function ImportPage() {
   };
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const f = e.target.files?.[0];
-    if (!f) return;
-    setImageFile(f);
-    setImagePreviewUrl(URL.createObjectURL(f));
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+    const newFiles = Array.from(files);
+    setImageFiles(newFiles);
+    setImagePreviewUrls(newFiles.map((f) => URL.createObjectURL(f)));
     setImageResult(null);
     setImageImportResult(null);
+    setEditablePositions([]);
   };
 
   const handleImageProcess = async () => {
-    if (!imageFile) return;
+    if (imageFiles.length === 0) return;
     setImageProcessing(true);
     setImageResult(null);
+    setEditablePositions([]);
     try {
-      const formData = new FormData();
-      formData.append('image', imageFile);
-      const res = await fetch('/api/import/image', { method: 'POST', body: formData });
-      const data = await res.json();
-      if (data.error) {
-        setImageResult({ positions: [], error: data.error });
-      } else if (data.type === 'morningstar_factors') {
-        if (data.saved) {
-          setImageResult({
-            positions: [],
-            error: undefined,
-            morningstarResult: `Fatores do ${data.securityName || data.etfName} (${data.isin}) importados com sucesso! ${data.factorsCount} fatores guardados. Refresca o dashboard para ver os dados na tab "Fatores".`,
-          });
-        } else {
-          setImageResult({ positions: [], error: data.error || 'Erro ao guardar fatores' });
+      let allPositions: Array<{ name: string; ticker: string; isin: string; quantity: number; price: number; marketValue: number; currency: string; assetClass: string }> = [];
+      let detectedBrokerName: string | undefined;
+      let totalValue: number | undefined;
+      let investmentsWarning: string | undefined;
+      let morningstarResult: string | undefined;
+      let lastError: string | undefined;
+
+      for (const file of imageFiles) {
+        const formData = new FormData();
+        formData.append('image', file);
+        const res = await fetch('/api/import/image', { method: 'POST', body: formData });
+        const data = await res.json();
+
+        if (data.error) {
+          lastError = data.error;
+          continue;
         }
-      } else {
-        setImageResult(data);
+        if (data.type === 'morningstar_factors') {
+          if (data.saved) {
+            morningstarResult = `Fatores do ${data.securityName || data.etfName} (${data.isin}) importados com sucesso! ${data.factorsCount} fatores guardados.`;
+          } else {
+            lastError = data.error || 'Erro ao guardar fatores';
+          }
+          continue;
+        }
+        if (data.brokerName) detectedBrokerName = data.brokerName;
+        if (data.totalValue != null) totalValue = data.totalValue;
+        if (data.investmentsWarning) investmentsWarning = data.investmentsWarning;
         if (data.positions?.length > 0) {
-          setEditablePositions(data.positions.map((p: { name: string; ticker?: string; isin?: string; quantity: number; price?: number; marketValue: number; currency: string; assetClass: string }) => ({
-            name: p.name,
-            ticker: p.ticker || '',
-            isin: p.isin || '',
-            quantity: p.quantity,
-            price: p.price || 0,
-            marketValue: p.marketValue,
-            currency: p.currency,
-            assetClass: p.assetClass,
+          allPositions.push(...data.positions.map((p: { name: string; ticker?: string; isin?: string; quantity: number; price?: number; marketValue: number; currency: string; assetClass: string }) => ({
+            name: p.name, ticker: p.ticker || '', isin: p.isin || '',
+            quantity: p.quantity, price: p.price || 0, marketValue: p.marketValue,
+            currency: p.currency, assetClass: p.assetClass,
           })));
         }
       }
+
+      if (morningstarResult) {
+        setImageResult({ positions: [], morningstarResult });
+      } else if (allPositions.length > 0) {
+        setImageResult({
+          brokerName: detectedBrokerName,
+          totalValue,
+          positions: allPositions,
+          investmentsWarning,
+        });
+        setEditablePositions(allPositions);
+      } else {
+        setImageResult({ positions: [], error: lastError || 'Não foi possível extrair posições das imagens' });
+      }
     } catch {
-      setImageResult({ positions: [], error: 'Erro ao processar imagem' });
+      setImageResult({ positions: [], error: 'Erro ao processar imagens' });
     } finally {
       setImageProcessing(false);
     }
@@ -534,9 +556,9 @@ export default function ImportPage() {
   };
 
   const resetImage = () => {
-    setImageFile(null);
-    if (imagePreviewUrl) URL.revokeObjectURL(imagePreviewUrl);
-    setImagePreviewUrl(null);
+    imagePreviewUrls.forEach((u) => URL.revokeObjectURL(u));
+    setImageFiles([]);
+    setImagePreviewUrls([]);
     setImageResult(null);
     setImageImportResult(null);
     setEditablePositions([]);
@@ -803,19 +825,20 @@ export default function ImportPage() {
           <CardDescription>Carrega uma captura de ecrã do teu portfólio para extrair posições automaticamente</CardDescription>
         </CardHeader>
         <CardContent className="flex-grow flex flex-col">
-          {!imageFile ? (
+          {imageFiles.length === 0 ? (
             <div className="flex flex-col items-center gap-4 flex-grow">
               <label
                 htmlFor="image-upload"
                 className="flex flex-col items-center justify-center gap-3 border-2 border-dashed rounded-lg p-8 w-full h-full min-h-[200px] cursor-pointer transition-colors border-muted-foreground/25 hover:border-primary/50"
               >
                 <ImageIcon className="h-10 w-10 text-muted-foreground" />
-                <p className="text-sm font-medium">Clica para selecionar uma imagem</p>
-                <p className="text-xs text-muted-foreground">PNG, JPEG, WEBP ou GIF</p>
+                <p className="text-sm font-medium">Clica para selecionar imagens</p>
+                <p className="text-xs text-muted-foreground">PNG, JPEG, WEBP ou GIF — podes selecionar várias</p>
                 <input
                   id="image-upload"
                   type="file"
                   accept="image/png,image/jpeg,image/webp,image/gif"
+                  multiple
                   className="hidden"
                   onChange={handleImageUpload}
                 />
@@ -823,17 +846,18 @@ export default function ImportPage() {
             </div>
           ) : (
             <div className="space-y-4">
-              {/* Image preview */}
-              <div className="flex items-start gap-4">
-                {imagePreviewUrl && (
+              {/* Image previews */}
+              <div className="flex items-start gap-4 overflow-x-auto">
+                {imagePreviewUrls.map((url, i) => (
                   <img
-                    src={imagePreviewUrl}
-                    alt="Preview"
-                    className="max-h-64 rounded-lg border object-contain"
+                    key={i}
+                    src={url}
+                    alt={`Preview ${i + 1}`}
+                    className="max-h-48 rounded-lg border object-contain shrink-0"
                   />
-                )}
-                <div className="flex flex-col gap-2">
-                  <p className="text-sm font-medium">{imageFile.name}</p>
+                ))}
+                <div className="flex flex-col gap-2 shrink-0">
+                  <p className="text-sm font-medium">{imageFiles.length} imagem(ns)</p>
                   <Button variant="ghost" size="sm" onClick={resetImage}>
                     Remover
                   </Button>
@@ -843,7 +867,7 @@ export default function ImportPage() {
               {/* Process button */}
               {!imageResult && (
                 <Button onClick={handleImageProcess} disabled={imageProcessing}>
-                  {imageProcessing ? 'A processar com IA...' : 'Extrair posições'}
+                  {imageProcessing ? `A processar ${imageFiles.length} imagem(ns)...` : 'Extrair posições'}
                 </Button>
               )}
 
