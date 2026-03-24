@@ -21,16 +21,29 @@ interface FilterBarProps {
   onClear: () => void;
 }
 
+const ASSET_CLASS_LABELS: Record<string, string> = {
+  EQUITY: 'Ações',
+  ETF: 'ETF',
+  BOND: 'Obrigações',
+  FUND: 'Fundo',
+  CASH: 'Cash',
+  CRYPTO: 'Crypto',
+  COMMODITY: 'Matérias-primas',
+  OTHER: 'Outros',
+};
+
 function FilterSelect({
   label,
   options,
   value,
   onChange,
+  labelMap,
 }: {
   label: string;
   options: string[];
   value: string;
   onChange: (v: string) => void;
+  labelMap?: Record<string, string>;
 }) {
   if (options.length === 0) return null;
 
@@ -44,7 +57,7 @@ function FilterSelect({
         <option value="">{label}</option>
         {options.map((opt) => (
           <option key={opt} value={opt}>
-            {opt}
+            {labelMap?.[opt] ?? opt}
           </option>
         ))}
       </select>
@@ -89,6 +102,7 @@ export function FilterBar({
         options={assetClasses}
         value={selectedAssetClass}
         onChange={onAssetClassChange}
+        labelMap={ASSET_CLASS_LABELS}
       />
       <FilterSelect
         label="País"
