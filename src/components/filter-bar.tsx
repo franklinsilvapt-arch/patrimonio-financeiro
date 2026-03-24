@@ -26,7 +26,7 @@ const ASSET_CLASS_LABELS: Record<string, string> = {
   ETF: 'ETF',
   BOND: 'Obrigações',
   FUND: 'Fundo',
-  CASH: 'Cash',
+  CASH: 'Liquidez',
   CRYPTO: 'Crypto',
   COMMODITY: 'Matérias-primas',
   OTHER: 'Outros',

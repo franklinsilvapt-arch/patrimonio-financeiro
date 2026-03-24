@@ -15,6 +15,21 @@ import {
 import { formatCurrency, formatPercent, formatDate } from '@/lib/utils';
 import { Trash2 } from 'lucide-react';
 
+const ASSET_CLASS_LABELS: Record<string, string> = {
+  ETF: 'ETF',
+  EQUITY: 'Ações',
+  BOND: 'Obrigações',
+  FUND: 'Fundo',
+  CASH: 'Liquidez',
+  CRYPTO: 'Crypto',
+  COMMODITY: 'Matérias-primas',
+  OTHER: 'Outros',
+};
+
+function assetLabel(raw: string) {
+  return ASSET_CLASS_LABELS[raw] ?? raw;
+}
+
 interface Holding {
   id: string;
   securityId: string;
@@ -258,7 +273,7 @@ export default function HoldingsPage() {
               <option value="all">Todas as classes</option>
               {assetClasses.map((ac) => (
                 <option key={ac} value={ac}>
-                  {ac}
+                  {assetLabel(ac)}
                 </option>
               ))}
             </select>
@@ -357,7 +372,7 @@ export default function HoldingsPage() {
                     <TableCell>{h.ticker}</TableCell>
                     <TableCell className="font-mono text-xs">{h.isin}</TableCell>
                     <TableCell>
-                      <Badge variant="secondary">{h.assetClass}</Badge>
+                      <Badge variant="secondary">{assetLabel(h.assetClass)}</Badge>
                     </TableCell>
                     <TableCell>
                       <Badge variant="outline">{h.broker}</Badge>
@@ -410,7 +425,7 @@ export default function HoldingsPage() {
                     <TableCell>{h.ticker}</TableCell>
                     <TableCell className="font-mono text-xs">{h.isin}</TableCell>
                     <TableCell>
-                      <Badge variant="secondary">{h.assetClass}</Badge>
+                      <Badge variant="secondary">{assetLabel(h.assetClass)}</Badge>
                     </TableCell>
                     <TableCell className="text-right">{h.totalQuantity}</TableCell>
                     <TableCell className="text-right font-medium">
