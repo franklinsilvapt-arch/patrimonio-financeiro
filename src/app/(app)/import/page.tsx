@@ -88,29 +88,38 @@ function ImageImportActions({ brokerName, imageManualBroker, setImageManualBroke
   onImport: () => void;
   onCancel: () => void;
 }) {
-  const isDetected = brokerName && IMAGE_BROKER_MAP[brokerName.toLowerCase()];
-  const needsBrokerSelect = !isDetected;
-  const resolvedBroker = isDetected ? IMAGE_BROKER_MAP[brokerName!.toLowerCase()] : imageManualBroker;
+  // Always allow broker correction — pre-fill with detected value
+  const detectedSlug = brokerName ? (IMAGE_BROKER_MAP[brokerName.toLowerCase()] || '') : '';
+  const resolvedBroker = imageManualBroker || detectedSlug;
   const BROKERS_WITH_ACCOUNT_TYPES = ['ibkr', 'lightyear', 'novobanco', 'bancoctt', 'millenniumbcp', 'bpi', 'montepio', 'santander', 'caixageral'];
   const showAccountType = resolvedBroker && BROKERS_WITH_ACCOUNT_TYPES.includes(resolvedBroker);
 
+  // Pre-fill broker on first render if detected
+  if (detectedSlug && !imageManualBroker) {
+    // Use useEffect-like pattern via setState in parent — for now just show detected
+  }
+
   return (
     <div className="space-y-3">
-      {needsBrokerSelect && (
-        <div className="flex flex-wrap items-center gap-2 p-3 rounded-lg border bg-amber-50 border-amber-200">
-          <span className="text-sm text-amber-800">Não foi possível identificar a corretora/banco. Seleciona:</span>
-          <select
-            value={imageManualBroker}
-            onChange={(e) => setImageManualBroker(e.target.value)}
-            className="h-9 rounded-md border border-input bg-background px-3 text-sm"
-          >
-            <option value="">Escolhe...</option>
-            {BROKERS.map((b) => (
-              <option key={b.slug} value={b.slug}>{b.label}</option>
-            ))}
-          </select>
-        </div>
-      )}
+      <div className="flex flex-wrap items-center gap-2">
+        <span className="text-sm font-medium">Corretora/Banco:</span>
+        <select
+          value={imageManualBroker || detectedSlug}
+          onChange={(e) => setImageManualBroker(e.target.value)}
+          className="h-9 rounded-md border border-input bg-background px-3 text-sm"
+        >
+          <option value="">Escolhe...</option>
+          {BROKERS.map((b) => (
+            <option key={b.slug} value={b.slug}>{b.label}</option>
+          ))}
+        </select>
+        {brokerName && detectedSlug && !imageManualBroker && (
+          <span className="text-xs text-slate-400">(detectado automaticamente)</span>
+        )}
+        {brokerName && imageManualBroker && imageManualBroker !== detectedSlug && (
+          <span className="text-xs text-amber-600">(corrigido manualmente)</span>
+        )}
+      </div>
       <div className="flex flex-wrap items-center gap-3">
         {showAccountType && (
           <div className="flex items-center gap-2">
@@ -125,7 +134,7 @@ function ImageImportActions({ brokerName, imageManualBroker, setImageManualBroke
             </select>
           </div>
         )}
-        <Button onClick={onImport} disabled={imageImporting || (needsBrokerSelect && !imageManualBroker)}>
+        <Button onClick={onImport} disabled={imageImporting || !resolvedBroker}>
           {imageImporting ? 'A importar...' : 'Importar posições'}
         </Button>
         <Button variant="outline" onClick={onCancel}>
@@ -527,11 +536,11 @@ export default function ImportPage() {
     setImageImportResult(null);
     let imported = 0;
     let failed = 0;
-    // Determine broker slug from detected name or manual selection
+    // Determine broker slug — manual selection takes priority over auto-detection
     const autoSlug = imageResult?.brokerName
       ? IMAGE_BROKER_MAP[imageResult.brokerName.toLowerCase()] || null
       : null;
-    const detectedSlug = autoSlug || imageManualBroker || 'other';
+    const detectedSlug = imageManualBroker || autoSlug || 'other';
 
     // Clear existing holdings for this account before importing new ones
     const accountName = imageAccountType === 'business' ? 'Empresarial' : 'Principal';
