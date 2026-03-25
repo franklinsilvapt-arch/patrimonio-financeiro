@@ -149,7 +149,6 @@ export default function HomePage() {
                   <span className="text-4xl font-extrabold font-[family-name:var(--font-manrope)]">2€</span>
                   <span className="text-slate-400 text-sm">/mês</span>
                 </div>
-                <p className="text-sm text-slate-400 mt-1">ou 19,99€/ano (poupa 17%)</p>
                 <p className="text-sm text-slate-400 mt-2">Para quem tem múltiplas corretoras e quer a visão completa.</p>
               </div>
               <a
@@ -165,7 +164,6 @@ export default function HomePage() {
                   'Importação por imagem (IA)',
                   'Contas pessoais + empresariais',
                   'Exportação de dados',
-                  'Suporte prioritário',
                 ].map((text) => (
                   <li key={text} className="flex items-center gap-3 text-sm">
                     <svg className="w-5 h-5 text-emerald-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
