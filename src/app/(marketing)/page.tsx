@@ -146,7 +146,7 @@ export default function HomePage() {
               <div className="mb-6">
                 <h3 className="text-lg font-bold font-[family-name:var(--font-manrope)]">Plus</h3>
                 <div className="mt-2 flex items-baseline gap-1">
-                  <span className="text-4xl font-extrabold font-[family-name:var(--font-manrope)]">2€</span>
+                  <span className="text-4xl font-extrabold font-[family-name:var(--font-manrope)]">1,99€</span>
                   <span className="text-slate-400 text-sm">/mês</span>
                 </div>
                 <p className="text-sm text-slate-400 mt-2">Para quem tem múltiplas corretoras e quer a visão completa.</p>
