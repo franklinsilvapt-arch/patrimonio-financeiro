@@ -14,6 +14,9 @@ model User {
   name           String?
   email          String   @unique
   hashedPassword String
+  plan           String   @default("free") // "free" or "plus"
+  stripeCustomerId   String?  @unique
+  stripeSubscriptionId String?
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
