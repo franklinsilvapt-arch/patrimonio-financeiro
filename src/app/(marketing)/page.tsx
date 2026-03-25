@@ -13,6 +13,18 @@ export default function HomePage() {
             Agrega posições de todas as tuas corretoras e bancos num só dashboard.
             Visualiza alocação, rentabilidade e evolução, sem partilhar dados com terceiros.
           </p>
+          {/* Dashboard Preview — screenshot */}
+          <div className="relative max-w-6xl mx-auto mb-12">
+            <div className="rounded-2xl shadow-2xl border border-slate-200/50 overflow-hidden">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/dashboard-preview.png"
+                alt="Dashboard do Património Financeiro mostrando alocação por corretora, tipo de ativo, evolução do património e métricas de rentabilidade"
+                className="w-full h-auto"
+              />
+            </div>
+          </div>
+
           {/* Começa aqui — upload CTA */}
           <a
             href="/import"
@@ -35,22 +47,10 @@ export default function HomePage() {
           </a>
           <a
             href="/demo"
-            className="inline-block text-sm text-slate-400 hover:text-black transition-colors mb-12"
+            className="inline-block text-sm text-slate-400 hover:text-black transition-colors mb-6"
           >
             Ou experimenta a demo →
           </a>
-
-          {/* Dashboard Preview — screenshot */}
-          <div className="relative max-w-6xl mx-auto">
-            <div className="rounded-2xl shadow-2xl border border-slate-200/50 overflow-hidden">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src="/dashboard-preview.png"
-                alt="Dashboard do Património Financeiro mostrando alocação por corretora, tipo de ativo, evolução do património e métricas de rentabilidade"
-                className="w-full h-auto"
-              />
-            </div>
-          </div>
         </div>
       </section>
 
