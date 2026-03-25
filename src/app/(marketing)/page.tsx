@@ -85,6 +85,99 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* Pricing Section */}
+      <section className="py-24 px-6 bg-white" id="precos">
+        <div className="max-w-5xl mx-auto">
+          <div className="text-center mb-16">
+            <span className="text-xs font-black uppercase tracking-[0.3em] text-slate-300 bg-black px-3 py-1 rounded">
+              Preços
+            </span>
+            <h2 className="text-4xl font-extrabold text-black mt-6 tracking-tight font-[family-name:var(--font-manrope)]">
+              Simples e acessível.
+            </h2>
+            <p className="text-slate-500 mt-3 text-lg">Começa grátis, paga só quando precisares de mais.</p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-3xl mx-auto">
+            {/* Free Plan */}
+            <div className="bg-white border-2 border-slate-200 rounded-2xl p-8 flex flex-col">
+              <div className="mb-6">
+                <h3 className="text-lg font-bold text-black font-[family-name:var(--font-manrope)]">Grátis</h3>
+                <div className="mt-2 flex items-baseline gap-1">
+                  <span className="text-4xl font-extrabold text-black font-[family-name:var(--font-manrope)]">0€</span>
+                  <span className="text-slate-400 text-sm">/mês</span>
+                </div>
+                <p className="text-sm text-slate-500 mt-3">Para quem quer começar a agregar o seu património.</p>
+              </div>
+              <a
+                href="/registar"
+                className="block w-full text-center py-3 px-6 bg-slate-100 text-black font-semibold rounded-lg hover:bg-slate-200 transition-colors mb-8"
+              >
+                Criar conta grátis
+              </a>
+              <ul className="space-y-3 flex-grow">
+                {[
+                  { text: '1 corretora ou banco', included: true },
+                  { text: 'Dashboard completo', included: true },
+                  { text: 'Todas as tabs (países, setores, cambial...)', included: true },
+                  { text: 'Importação CSV e manual', included: true },
+                  { text: 'Evolução histórica', included: true },
+                  { text: 'Corretoras ilimitadas', included: false },
+                  { text: 'Importação por imagem (IA)', included: false },
+                  { text: 'Contas empresariais', included: false },
+                ].map((item) => (
+                  <li key={item.text} className={`flex items-center gap-3 text-sm ${item.included ? 'text-black' : 'text-slate-300'}`}>
+                    {item.included ? (
+                      <svg className="w-5 h-5 text-emerald-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
+                    ) : (
+                      <svg className="w-5 h-5 text-slate-300 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+                    )}
+                    {item.text}
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Plus Plan */}
+            <div className="bg-black text-white rounded-2xl p-8 flex flex-col relative overflow-hidden">
+              <div className="absolute top-4 right-4">
+                <span className="bg-emerald-400 text-black text-xs font-bold px-3 py-1 rounded-full">Recomendado</span>
+              </div>
+              <div className="mb-6">
+                <h3 className="text-lg font-bold font-[family-name:var(--font-manrope)]">Plus</h3>
+                <div className="mt-2 flex items-baseline gap-1">
+                  <span className="text-4xl font-extrabold font-[family-name:var(--font-manrope)]">2€</span>
+                  <span className="text-slate-400 text-sm">/mês</span>
+                </div>
+                <p className="text-sm text-slate-400 mt-1">ou 19,99€/ano (poupa 17%)</p>
+                <p className="text-sm text-slate-400 mt-2">Para quem tem múltiplas corretoras e quer a visão completa.</p>
+              </div>
+              <a
+                href="/registar"
+                className="block w-full text-center py-3 px-6 bg-emerald-400 text-black font-bold rounded-lg hover:bg-emerald-300 transition-colors mb-8"
+              >
+                Começar com Plus
+              </a>
+              <ul className="space-y-3 flex-grow">
+                {[
+                  'Tudo do plano Grátis',
+                  'Corretoras e bancos ilimitados',
+                  'Importação por imagem (IA)',
+                  'Contas pessoais + empresariais',
+                  'Exportação de dados',
+                  'Suporte prioritário',
+                ].map((text) => (
+                  <li key={text} className="flex items-center gap-3 text-sm">
+                    <svg className="w-5 h-5 text-emerald-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
+                    {text}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* CTA Section */}
       <section className="py-24 px-6 relative bg-black text-white overflow-hidden">
         <div className="absolute inset-0 opacity-10">
