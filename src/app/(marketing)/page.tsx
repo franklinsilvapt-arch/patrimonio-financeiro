@@ -13,21 +13,32 @@ export default function HomePage() {
             Agrega posições de todas as tuas corretoras e bancos num só dashboard.
             Visualiza alocação, rentabilidade e evolução, sem partilhar dados com terceiros.
           </p>
-          <div className="flex flex-col sm:flex-row justify-center gap-4 mb-14">
-            <a
-              href="/dashboard"
-              className="px-8 py-4 bg-black text-white font-bold rounded-lg shadow-lg hover:bg-opacity-90 active:scale-95 transition-all duration-200 inline-flex items-center justify-center gap-2"
-            >
-              Começar agora
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
-            </a>
-            <a
-              href="/demo"
-              className="px-8 py-4 bg-slate-200 text-black font-bold rounded-lg active:scale-95 transition-all duration-200 inline-flex items-center justify-center"
-            >
-              Experimentar demo
-            </a>
-          </div>
+          {/* Começa aqui — upload CTA */}
+          <a
+            href="/import"
+            className="group relative flex flex-col items-center gap-4 border-2 border-dashed border-slate-300 hover:border-black rounded-2xl p-8 md:p-12 cursor-pointer transition-all duration-300 hover:shadow-lg mx-auto max-w-xl mb-6"
+          >
+            <div className="w-14 h-14 bg-slate-100 group-hover:bg-black rounded-full flex items-center justify-center transition-colors duration-300">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-slate-500 group-hover:text-white transition-colors duration-300"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg>
+            </div>
+            <div>
+              <p className="text-lg font-bold text-black">
+                Começa aqui — carrega um screenshot ou CSV
+              </p>
+              <p className="text-sm text-slate-400 mt-1">
+                DEGIRO, Interactive Brokers, Trading 212, Lightyear, bancos e mais
+              </p>
+            </div>
+            <span className="absolute -bottom-4 bg-black text-white text-xs font-bold px-4 py-1.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+              Leva menos de 1 minuto →
+            </span>
+          </a>
+          <a
+            href="/demo"
+            className="inline-block text-sm text-slate-400 hover:text-black transition-colors mb-12"
+          >
+            Ou experimenta a demo →
+          </a>
 
           {/* Dashboard Preview — screenshot */}
           <div className="relative max-w-6xl mx-auto">
@@ -40,37 +51,6 @@ export default function HomePage() {
               />
             </div>
           </div>
-        </div>
-      </section>
-
-      {/* Quick Start CTA */}
-      <section className="py-16 px-6 bg-white">
-        <div className="max-w-3xl mx-auto text-center">
-          <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight text-black mb-3 font-[family-name:var(--font-manrope)]">
-            Começa aqui
-          </h2>
-          <p className="text-slate-500 mb-8 text-lg">
-            Tira um screenshot do teu portfolio e importa em segundos. É grátis.
-          </p>
-          <a
-            href="/import"
-            className="group relative flex flex-col items-center gap-4 border-2 border-dashed border-slate-300 hover:border-black rounded-2xl p-10 md:p-14 cursor-pointer transition-all duration-300 hover:shadow-lg mx-auto max-w-xl"
-          >
-            <div className="w-16 h-16 bg-slate-100 group-hover:bg-black rounded-full flex items-center justify-center transition-colors duration-300">
-              <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-slate-500 group-hover:text-white transition-colors duration-300"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg>
-            </div>
-            <div>
-              <p className="text-lg font-bold text-black group-hover:text-black">
-                Carrega um screenshot ou CSV
-              </p>
-              <p className="text-sm text-slate-400 mt-1">
-                DEGIRO, Interactive Brokers, Trading 212, Lightyear, bancos e mais
-              </p>
-            </div>
-            <span className="absolute -bottom-4 bg-black text-white text-xs font-bold px-4 py-1.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-              Leva menos de 1 minuto →
-            </span>
-          </a>
         </div>
       </section>
 
