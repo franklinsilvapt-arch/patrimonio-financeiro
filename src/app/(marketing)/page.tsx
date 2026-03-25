@@ -1,3 +1,5 @@
+import { HomepageUpload } from '@/components/homepage-upload';
+
 export default function HomePage() {
   return (
     <>
@@ -17,34 +19,7 @@ export default function HomePage() {
           <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 max-w-6xl mx-auto items-center">
             {/* Começa aqui — upload CTA */}
             <div className="lg:col-span-2 flex flex-col items-center order-2 lg:order-1">
-              <a
-                href="/import"
-                className="group relative flex flex-col items-center gap-4 border-2 border-dashed border-slate-300 hover:border-black rounded-2xl p-8 md:p-10 cursor-pointer transition-all duration-300 hover:shadow-lg w-full"
-              >
-                <div className="w-14 h-14 bg-slate-100 group-hover:bg-black rounded-full flex items-center justify-center transition-colors duration-300">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-slate-500 group-hover:text-white transition-colors duration-300"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg>
-                </div>
-                <div className="text-center">
-                  <p className="text-lg font-bold text-black">
-                    Começa aqui
-                  </p>
-                  <p className="text-sm text-slate-500 mt-2">
-                    Carrega um screenshot ou CSV do teu portfolio
-                  </p>
-                  <p className="text-xs text-slate-400 mt-3">
-                    DEGIRO, Interactive Brokers, Trading 212, Lightyear, bancos e mais
-                  </p>
-                </div>
-                <span className="absolute -bottom-4 bg-black text-white text-xs font-bold px-4 py-1.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                  Leva menos de 1 minuto →
-                </span>
-              </a>
-              <a
-                href="/demo"
-                className="inline-block text-sm text-slate-400 hover:text-black transition-colors mt-8"
-              >
-                Ou experimenta a demo →
-              </a>
+              <HomepageUpload />
             </div>
 
             {/* Dashboard image — takes more space */}
