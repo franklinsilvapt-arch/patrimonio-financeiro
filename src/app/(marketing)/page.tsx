@@ -173,6 +173,7 @@ export default function HomePage() {
               </ul>
             </div>
           </div>
+          <p className="text-center text-sm text-slate-400 mt-8">Cancela a qualquer momento. Sem compromisso.</p>
         </div>
       </section>
 
