@@ -13,22 +13,10 @@ export default function HomePage() {
             Agrega posições de todas as tuas corretoras e bancos num só dashboard.
             Visualiza alocação, rentabilidade e evolução, sem partilhar dados com terceiros.
           </p>
-          {/* Dashboard Preview + Começa aqui — side by side */}
+          {/* Começa aqui + Dashboard Preview — side by side */}
           <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 max-w-6xl mx-auto items-center">
-            {/* Dashboard image — takes more space */}
-            <div className="lg:col-span-3">
-              <div className="rounded-2xl shadow-2xl border border-slate-200/50 overflow-hidden">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src="/dashboard-preview.png"
-                  alt="Dashboard do Património Financeiro mostrando alocação por corretora, tipo de ativo, evolução do património e métricas de rentabilidade"
-                  className="w-full h-auto"
-                />
-              </div>
-            </div>
-
             {/* Começa aqui — upload CTA */}
-            <div className="lg:col-span-2 flex flex-col items-center">
+            <div className="lg:col-span-2 flex flex-col items-center order-2 lg:order-1">
               <a
                 href="/import"
                 className="group relative flex flex-col items-center gap-4 border-2 border-dashed border-slate-300 hover:border-black rounded-2xl p-8 md:p-10 cursor-pointer transition-all duration-300 hover:shadow-lg w-full"
@@ -57,6 +45,18 @@ export default function HomePage() {
               >
                 Ou experimenta a demo →
               </a>
+            </div>
+
+            {/* Dashboard image — takes more space */}
+            <div className="lg:col-span-3 order-1 lg:order-2">
+              <div className="rounded-2xl shadow-2xl border border-slate-200/50 overflow-hidden">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src="/dashboard-preview.png"
+                  alt="Dashboard do Património Financeiro mostrando alocação por corretora, tipo de ativo, evolução do património e métricas de rentabilidade"
+                  className="w-full h-auto"
+                />
+              </div>
             </div>
           </div>
         </div>
