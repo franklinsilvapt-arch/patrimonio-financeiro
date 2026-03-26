@@ -24,7 +24,12 @@ const BAR_COLOR = '#1e293b'; // slate-800
 
 export function ExposureBarChart({ data, title, valueFormatter, limit = 0 }: ExposureBarChartProps) {
   const fmt = valueFormatter ?? ((v: number) => formatPercent(v));
-  const sorted = [...data].sort((a, b) => b.value - a.value);
+  const isOther = (name: string) => name === 'Other' || name === 'Outros' || name === 'Other/Unknown';
+  const sorted = [...data].sort((a, b) => {
+    if (isOther(a.name) && !isOther(b.name)) return 1;
+    if (!isOther(a.name) && isOther(b.name)) return -1;
+    return b.value - a.value;
+  });
   const [expanded, setExpanded] = useState(false);
 
   if (sorted.length === 0) {
