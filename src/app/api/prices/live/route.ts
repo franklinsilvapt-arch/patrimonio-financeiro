@@ -12,17 +12,25 @@ export async function GET() {
     return NextResponse.json({ error: 'Não autenticado' }, { status: 401 });
   }
 
-  const user = await prisma.user.findUnique({ where: { id: userId } });
+  // Fetch only fields guaranteed to exist pre-migration
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { id: true, plan: true, livePricesGranted: true },
+  }).catch(() =>
+    // Fallback if livePricesGranted column doesn't exist yet (pre-migration)
+    prisma.user.findUnique({ where: { id: userId }, select: { id: true, plan: true } })
+  );
 
-  // Grandfather existing Plus subscribers on first access
-  if (user?.plan === 'plus' && !user?.livePricesGranted) {
-    await prisma.user.update({
+  const hasAccess = (user as { plan?: string; livePricesGranted?: boolean } | null)?.livePricesGranted
+    || user?.plan === 'plus';
+
+  // Grandfather existing Plus subscribers (best-effort — column may not exist yet)
+  if (user?.plan === 'plus') {
+    prisma.user.update({
       where: { id: userId },
       data: { livePricesGranted: true },
-    });
+    }).catch(() => {});
   }
-
-  const hasAccess = user?.livePricesGranted || user?.plan === 'plus';
   if (!hasAccess) {
     return NextResponse.json({ error: 'Plano Plus necessário' }, { status: 403 });
   }
