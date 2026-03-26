@@ -24,6 +24,8 @@ export interface HoldingRow {
   weight: number;
   country: string | null;
   sector: string | null;
+  countryExposures?: Array<{ countryName: string; weight: number }>;
+  sectorExposures?: Array<{ sector: string; weight: number }>;
   factorCoverage: number | null;
   positionDate: string | null;
   priceDate: string | null;

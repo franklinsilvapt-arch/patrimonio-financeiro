@@ -159,6 +159,24 @@ export async function GET(request: NextRequest) {
     // Build holdings list for the table
     const holdingsForTable = active.map((h) => {
       const hasFactors = h.security.factorExposures.length > 0;
+
+      // Build per-holding country/sector exposures for client-side filtered charts
+      let countryExposures: Array<{ countryName: string; weight: number }> = [];
+      if (h.security.countryExposures.length > 0) {
+        const latestDate = h.security.countryExposures[0].date;
+        countryExposures = h.security.countryExposures
+          .filter((e) => e.date.getTime() === latestDate.getTime())
+          .map((e) => ({ countryName: e.countryName, weight: e.weight }));
+      }
+
+      let sectorExposures: Array<{ sector: string; weight: number }> = [];
+      if (h.security.sectorExposures.length > 0) {
+        const latestDate = h.security.sectorExposures[0].date;
+        sectorExposures = h.security.sectorExposures
+          .filter((e) => e.date.getTime() === latestDate.getTime())
+          .map((e) => ({ sector: e.sector, weight: e.weight }));
+      }
+
       return {
         securityId: h.securityId,
         securityName: h.security.name,
@@ -175,6 +193,8 @@ export async function GET(request: NextRequest) {
         weight: totalValue > 0 ? toEur(h.marketValue || 0, h.currency) / totalValue : 0,
         country: h.security.country,
         sector: h.security.sector,
+        countryExposures,
+        sectorExposures,
         factorCoverage: hasFactors ? (h.security.factorExposures[0]?.coverage ?? null) : null,
         positionDate: h.positionDate?.toISOString() ?? null,
         priceDate: h.priceDate?.toISOString() ?? null,

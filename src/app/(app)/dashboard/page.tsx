@@ -197,21 +197,35 @@ export default function DashboardPage() {
     const brokerAllocation = Array.from(brokerMap.entries())
       .map(([name, value]) => ({ name, value }))
       .sort((a, b) => b.value - a.value);
-    // Country exposure
+    // Country exposure (look-through via JustETF data)
     const countryMap = new Map<string, number>();
     for (const h of filteredHoldings) {
-      if (h.country) countryMap.set(h.country, (countryMap.get(h.country) || 0) + h.marketValue);
+      const mv = h.marketValue;
+      if (h.countryExposures && h.countryExposures.length > 0) {
+        for (const e of h.countryExposures) {
+          countryMap.set(e.countryName, (countryMap.get(e.countryName) || 0) + mv * e.weight);
+        }
+      } else if (h.country) {
+        countryMap.set(h.country, (countryMap.get(h.country) || 0) + mv);
+      }
     }
     const countryExposure = Array.from(countryMap.entries())
-      .map(([name, value]) => ({ name, value: totalValue > 0 ? (value / totalValue) * 100 : 0 }))
+      .map(([name, value]) => ({ name, value: totalValue > 0 ? value / totalValue : 0 }))
       .sort((a, b) => b.value - a.value);
-    // Sector exposure
+    // Sector exposure (look-through via JustETF data)
     const sectorMap = new Map<string, number>();
     for (const h of filteredHoldings) {
-      if (h.sector) sectorMap.set(h.sector, (sectorMap.get(h.sector) || 0) + h.marketValue);
+      const mv = h.marketValue;
+      if (h.sectorExposures && h.sectorExposures.length > 0) {
+        for (const e of h.sectorExposures) {
+          sectorMap.set(e.sector, (sectorMap.get(e.sector) || 0) + mv * e.weight);
+        }
+      } else if (h.sector) {
+        sectorMap.set(h.sector, (sectorMap.get(h.sector) || 0) + mv);
+      }
     }
     const sectorExposure = Array.from(sectorMap.entries())
-      .map(([name, value]) => ({ name, value: totalValue > 0 ? (value / totalValue) * 100 : 0 }))
+      .map(([name, value]) => ({ name, value: totalValue > 0 ? value / totalValue : 0 }))
       .sort((a, b) => b.value - a.value);
     // Summary override
     const uniqueSecIds = new Set(filteredHoldings.map((h) => h.securityId));
