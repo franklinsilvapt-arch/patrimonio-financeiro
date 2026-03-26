@@ -330,11 +330,36 @@ export default function DashboardPage() {
     return (v >= 0 ? '+' : '') + formatPercent(v);
   };
 
+  // When broker filter is active, compute monthly change from history for that broker
+  const monthlyChange = useMemo(() => {
+    if (!data?.history || data.history.length === 0) return performance?.periodReturns['1m'] ?? null;
+
+    const sorted = [...data.history].sort((a, b) => a.date.localeCompare(b.date));
+    const latest = sorted[sorted.length - 1];
+
+    if (!selectedBroker) return performance?.periodReturns['1m'] ?? null;
+
+    const latestDate = new Date(latest.date);
+    const prevMonthEnd = new Date(latestDate.getFullYear(), latestDate.getMonth(), 0);
+    const prevMonthEndStr = prevMonthEnd.toISOString().split('T')[0];
+
+    let prevSnap = sorted[0];
+    for (const s of sorted) {
+      if (s.date <= prevMonthEndStr) prevSnap = s;
+    }
+    if (prevSnap.date === latest.date) return null;
+
+    const currentVal = (latest[selectedBroker] as number) ?? 0;
+    const prevVal = (prevSnap[selectedBroker] as number) ?? 0;
+    if (!prevVal || prevVal === 0) return null;
+    return (currentVal - prevVal) / prevVal;
+  }, [data, selectedBroker, performance]);
+
   return (
     <div className="space-y-6">
       <PortfolioSummary
         summary={filteredChartData?.summary ?? data.summary}
-        monthlyChange={performance?.periodReturns['1m'] ?? null}
+        monthlyChange={monthlyChange}
       />
 
       {/* Scope toggle + Action bar */}

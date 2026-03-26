@@ -219,7 +219,7 @@ export async function GET(request: NextRequest) {
       return {
         date: s.date.toISOString().split('T')[0],
         value,
-        ...(!scope ? brokerData : {}),
+        ...brokerData,
       };
     });
 
