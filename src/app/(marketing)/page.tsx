@@ -1,4 +1,5 @@
 import { HomepageUpload } from '@/components/homepage-upload';
+import { UpgradeButton } from '@/components/upgrade-button';
 
 export default function HomePage() {
   return (
@@ -56,6 +57,78 @@ export default function HomePage() {
                 <p className="text-sm text-slate-500 leading-relaxed">{f.description}</p>
               </div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Pricing Section */}
+      {/* NOTE: Update the Plus plan price below as needed — search for "9€/mês" */}
+      <section className="py-24 px-6 bg-white">
+        <div className="max-w-5xl mx-auto">
+          <div className="mb-16 text-center">
+            <span className="text-xs font-black uppercase tracking-[0.3em] text-slate-300 bg-black px-3 py-1 rounded">
+              Planos
+            </span>
+            <h2 className="text-4xl font-extrabold text-black mt-6 tracking-tight font-[family-name:var(--font-manrope)]">
+              Simples e transparente.
+            </h2>
+            <p className="mt-3 text-lg text-slate-500">Começa grátis, faz upgrade quando quiseres.</p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-3xl mx-auto">
+            {/* Free Plan */}
+            <div className="bg-white border-2 border-slate-200 rounded-2xl p-8 flex flex-col">
+              <div className="mb-6">
+                <p className="text-sm font-black uppercase tracking-[0.2em] text-slate-400">Free</p>
+                <p className="mt-2 text-4xl font-extrabold text-black font-[family-name:var(--font-manrope)]">0€</p>
+                <p className="text-sm text-slate-400 mt-1">para sempre</p>
+              </div>
+              <ul className="space-y-3 flex-1 mb-8">
+                {freePlanFeatures.map((f) => (
+                  <li key={f} className="flex items-start gap-2 text-sm text-slate-600">
+                    <svg className="w-4 h-4 text-emerald-500 mt-0.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                    </svg>
+                    {f}
+                  </li>
+                ))}
+              </ul>
+              <a
+                href="/registar"
+                className="block w-full text-center px-10 py-4 bg-black text-white font-black rounded-lg hover:opacity-80 transition-opacity text-base"
+              >
+                Criar conta grátis
+              </a>
+            </div>
+
+            {/* Plus Plan */}
+            <div className="bg-black rounded-2xl p-8 flex flex-col relative overflow-hidden">
+              {/* Background accent */}
+              <div className="absolute top-0 right-0 w-48 h-48 bg-emerald-400 rounded-full blur-[80px] opacity-20 pointer-events-none" />
+              <div className="relative z-10 flex flex-col flex-1">
+                <div className="mb-6">
+                  <div className="flex items-center gap-2">
+                    <p className="text-sm font-black uppercase tracking-[0.2em] text-emerald-400">Plus</p>
+                    <span className="text-[10px] font-black bg-emerald-400 text-black px-2 py-0.5 rounded uppercase tracking-wider">Popular</span>
+                  </div>
+                  {/* Price — update "9€/mês" here if the price changes */}
+                  <p className="mt-2 text-4xl font-extrabold text-white font-[family-name:var(--font-manrope)]">9€<span className="text-xl font-semibold text-slate-400">/mês</span></p>
+                  <p className="text-sm text-slate-400 mt-1">sem compromisso</p>
+                </div>
+                <ul className="space-y-3 flex-1 mb-8">
+                  <li className="text-xs font-semibold uppercase tracking-widest text-slate-500 pb-1">Tudo do plano Free, mais:</li>
+                  {plusPlanExtraFeatures.map((f) => (
+                    <li key={f} className="flex items-start gap-2 text-sm text-white">
+                      <svg className="w-4 h-4 text-emerald-400 mt-0.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                      </svg>
+                      {f}
+                    </li>
+                  ))}
+                </ul>
+                <UpgradeButton />
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -122,6 +195,23 @@ export default function HomePage() {
     </>
   );
 }
+
+const freePlanFeatures = [
+  'Importação de todas as corretoras',
+  'Dashboard com alocação, países e setores',
+  'Rentabilidade real (TWR, YTD, drawdown)',
+  'Evolução histórica do portfolio',
+  'Contas pessoal e empresarial',
+  'Exportação para CSV',
+];
+
+const plusPlanExtraFeatures = [
+  'Cotações live (mercado em tempo real)',
+  'Variação diária por posição',
+  'Exposição cambial detalhada',
+  'Fatores de risco (value, momentum, quality)',
+  'Matriz de correlação entre ativos',
+];
 
 const features = [
   {
