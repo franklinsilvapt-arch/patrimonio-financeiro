@@ -574,8 +574,19 @@ export default function ImportPage() {
             accountName: imageAccountType === 'business' ? 'Empresarial' : undefined,
           }),
         });
-        if (res.ok) imported++;
-        else failed++;
+        if (res.ok) {
+          imported++;
+        } else if (res.status === 403) {
+          const d = await res.json();
+          if (d.error === 'BROKER_LIMIT') {
+            setImageImporting(false);
+            setImageImportResult({ success: false, message: 'BROKER_LIMIT' });
+            return;
+          }
+          failed++;
+        } else {
+          failed++;
+        }
       } catch {
         failed++;
       }
@@ -1107,7 +1118,32 @@ export default function ImportPage() {
               )}
 
               {/* Import result */}
-              {imageImportResult && (
+              {imageImportResult && imageImportResult.message === 'BROKER_LIMIT' ? (
+                <div className="flex flex-col items-center gap-4 p-8 rounded-xl border-2 border-slate-200 text-center">
+                  <div className="w-10 h-10 bg-black rounded-full flex items-center justify-center shrink-0">
+                    <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <p className="font-bold text-base">Limite do plano gratuito</p>
+                    <p className="text-sm text-slate-500 mt-1">O plano gratuito suporta apenas 1 corretora ou banco. Faz upgrade para o Plus para adicionares corretoras ilimitadas.</p>
+                  </div>
+                  <div className="flex gap-3">
+                    <button
+                      onClick={async () => {
+                        const res = await fetch('/api/stripe/checkout', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({}) });
+                        const d = await res.json();
+                        if (d.url) window.location.href = d.url;
+                      }}
+                      className="bg-black text-white font-bold px-6 py-2.5 rounded-lg hover:opacity-80 transition-opacity text-sm"
+                    >
+                      Fazer upgrade para Plus →
+                    </button>
+                    <Button variant="outline" size="sm" onClick={resetImage}>Cancelar</Button>
+                  </div>
+                </div>
+              ) : imageImportResult && (
                 <div
                   className={`flex items-center gap-3 p-4 rounded-lg border ${
                     imageImportResult.success

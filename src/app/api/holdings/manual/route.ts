@@ -34,6 +34,19 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Free plan: only 1 broker allowed
+    const user = await prisma.user.findUnique({ where: { id: userId }, select: { plan: true } });
+    if (user?.plan !== 'plus') {
+      const existingAccounts = await prisma.account.findMany({
+        where: { userId },
+        include: { broker: true },
+      });
+      const existingSlugs = new Set(existingAccounts.map((a) => a.broker.slug));
+      if (existingSlugs.size > 0 && !existingSlugs.has(body.brokerSlug)) {
+        return NextResponse.json({ error: 'BROKER_LIMIT' }, { status: 403 });
+      }
+    }
+
     // Find or create broker
     let broker = await prisma.broker.findUnique({ where: { slug: body.brokerSlug } });
     if (!broker) {

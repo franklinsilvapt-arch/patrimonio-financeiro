@@ -14,7 +14,7 @@ export function UpgradeButton() {
         body: JSON.stringify({}),
       });
       if (res.status === 401) {
-        window.location.href = '/registar';
+        window.location.href = '/registar?upgrade=true';
         return;
       }
       const data = await res.json();

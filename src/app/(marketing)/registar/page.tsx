@@ -1,11 +1,15 @@
 'use client';
 
-import { useState } from 'react';
+import { Suspense, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { signIn } from 'next-auth/react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 
-export default function RegisterPage() {
+function RegisterForm() {
+  const searchParams = useSearchParams();
+  const upgrade = searchParams.get('upgrade') === 'true';
+
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -41,6 +45,15 @@ export default function RegisterPage() {
 
       if (result?.error) {
         setError('Conta criada, mas erro ao entrar. Tenta na página de login.');
+      } else if (upgrade) {
+        // Came from "Começar com Plus" — go straight to Stripe checkout
+        const checkoutRes = await fetch('/api/stripe/checkout', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({}),
+        });
+        const checkoutData = await checkoutRes.json();
+        window.location.href = checkoutData.url ?? '/dashboard';
       } else {
         window.location.href = '/dashboard';
       }
@@ -123,5 +136,13 @@ export default function RegisterPage() {
         </CardContent>
       </Card>
     </div>
+  );
+}
+
+export default function RegisterPage() {
+  return (
+    <Suspense>
+      <RegisterForm />
+    </Suspense>
   );
 }
