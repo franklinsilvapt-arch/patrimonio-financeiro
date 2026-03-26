@@ -23,15 +23,10 @@ export interface PortfolioSummaryData {
 interface PortfolioSummaryProps {
   summary: PortfolioSummaryData;
   monthlyChange?: number | null;
-  liveTotal?: number | null;
-  liveDailyChangePct?: number | null;
-  liveFetchedAt?: string | null;
 }
 
-export function PortfolioSummary({ summary, monthlyChange, liveTotal, liveDailyChangePct, liveFetchedAt }: PortfolioSummaryProps) {
+export function PortfolioSummary({ summary, monthlyChange }: PortfolioSummaryProps) {
   const coveragePct = Math.round(summary.averageCoverage * 100);
-  const displayTotal = liveTotal ?? summary.totalValue;
-  const isLive = liveTotal != null;
 
   return (
     <TooltipProvider>
@@ -39,28 +34,11 @@ export function PortfolioSummary({ summary, monthlyChange, liveTotal, liveDailyC
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {/* Valor total */}
           <div className="bg-white p-6 rounded-xl shadow-[0_20px_40px_rgba(25,28,30,0.06)]">
-            <p className="text-slate-500 text-sm font-medium mb-1 flex items-center gap-2">
-              Valor total
-              {isLive && (
-                <span className="inline-flex items-center gap-1 text-xs font-semibold text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded-full">
-                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                  LIVE
-                </span>
-              )}
-            </p>
+            <p className="text-slate-500 text-sm font-medium mb-1">Valor total</p>
             <h2 className="text-3xl font-extrabold font-[family-name:var(--font-manrope)] tracking-tight text-black tabular-nums">
-              {formatCurrency(displayTotal, summary.currency)}
+              {formatCurrency(summary.totalValue, summary.currency)}
             </h2>
             <div className="mt-3 flex flex-wrap items-center gap-2">
-              {isLive && liveDailyChangePct != null && (
-                <span className={`text-xs px-2 py-0.5 rounded-full font-semibold ${
-                  liveDailyChangePct >= 0
-                    ? 'bg-emerald-100 text-emerald-700'
-                    : 'bg-red-100 text-red-700'
-                }`}>
-                  {liveDailyChangePct >= 0 ? '+' : ''}{liveDailyChangePct.toFixed(2)}% hoje
-                </span>
-              )}
               {monthlyChange != null && (
                 <span className={`text-xs px-2 py-0.5 rounded-full font-semibold ${
                   monthlyChange >= 0
@@ -68,11 +46,6 @@ export function PortfolioSummary({ summary, monthlyChange, liveTotal, liveDailyC
                     : 'bg-red-100 text-red-700'
                 }`}>
                   {monthlyChange >= 0 ? '+' : ''}{formatPercent(monthlyChange)} mês
-                </span>
-              )}
-              {isLive && liveFetchedAt && (
-                <span className="text-xs text-slate-400">
-                  {new Date(liveFetchedAt).toLocaleTimeString('pt-PT', { hour: '2-digit', minute: '2-digit' })}
                 </span>
               )}
             </div>

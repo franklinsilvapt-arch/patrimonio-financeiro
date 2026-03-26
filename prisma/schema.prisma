@@ -15,7 +15,6 @@ model User {
   email          String   @unique
   hashedPassword String
   plan                String   @default("free") // "free" or "plus"
-  livePricesGranted   Boolean  @default(false)   // true = grandfathered access forever
   stripeCustomerId    String?  @unique
   stripeSubscriptionId String?
   createdAt      DateTime @default(now())

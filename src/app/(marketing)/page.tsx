@@ -205,8 +205,6 @@ const freePlanFeatures = [
 ];
 
 const plusPlanExtraFeatures = [
-  'Cotações live (mercado em tempo real)',
-  'Variação diária por posição',
   'Exposição cambial detalhada',
   'Fatores de risco (value, momentum, quality)',
   'Matriz de correlação entre ativos',
