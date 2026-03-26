@@ -80,36 +80,6 @@ function translateAssetClasses(data: Array<{ name: string; value: number }>) {
 }
 
 // ---------------------------------------------------------------------------
-// PlusGateCard — shown in gated tabs when user is on Free plan
-// ---------------------------------------------------------------------------
-
-function PlusGateCard() {
-  const [loading, setLoading] = useState(false);
-  async function handleUpgrade() {
-    setLoading(true);
-    try {
-      const res = await fetch('/api/stripe/checkout', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({}) });
-      const data = await res.json();
-      if (data.url) window.location.href = data.url;
-    } catch { setLoading(false); }
-  }
-  return (
-    <div className="bg-white rounded-xl shadow-[0_20px_40px_rgba(25,28,30,0.06)] p-16 flex flex-col items-center text-center gap-4">
-      <div className="w-12 h-12 bg-black rounded-full flex items-center justify-center">
-        <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-          <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-        </svg>
-      </div>
-      <h3 className="text-lg font-bold">Funcionalidade Plus</h3>
-      <p className="text-sm text-slate-500 max-w-sm">Esta análise está disponível no plano Plus. Faz upgrade para acederes a cotações live, fatores de risco e análise cambial avançada.</p>
-      <button onClick={handleUpgrade} disabled={loading} className="mt-2 bg-black text-white font-bold px-8 py-3 rounded-lg hover:opacity-80 transition-opacity disabled:opacity-50">
-        {loading ? 'A redirecionar...' : 'Fazer upgrade para Plus →'}
-      </button>
-    </div>
-  );
-}
-
-// ---------------------------------------------------------------------------
 // Component
 // ---------------------------------------------------------------------------
 
@@ -117,9 +87,6 @@ export default function DashboardPage() {
   const [data, setData] = useState<PortfolioApiResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
-  // Plan
-  const [userPlan, setUserPlan] = useState<'free' | 'plus'>('free');
 
   // Performance, analytics & rates
   const [performance, setPerformance] = useState<PerformanceData | null>(null);
@@ -140,20 +107,6 @@ export default function DashboardPage() {
   const [selectedCountry, setSelectedCountry] = useState('');
   const [selectedSector, setSelectedSector] = useState('');
   const [selectedCurrency, setSelectedCurrency] = useState('');
-
-  // Fetch user plan once on mount
-  useEffect(() => {
-    async function fetchPlan() {
-      try {
-        const res = await fetch('/api/user/plan');
-        if (res.ok) {
-          const d = await res.json();
-          if (d.plan === 'plus') setUserPlan('plus');
-        }
-      } catch {}
-    }
-    fetchPlan();
-  }, []);
 
   // Fetch available account types once on mount
   useEffect(() => {
@@ -353,8 +306,6 @@ export default function DashboardPage() {
     return (currentVal - prevVal) / prevVal;
   }, [data, selectedBroker, performance]);
 
-  const isPlus = userPlan === 'plus';
-
   // ---- Loading ----
   if (loading) {
     return (
@@ -524,15 +475,9 @@ export default function DashboardPage() {
           <TabsTrigger value="countries">Países</TabsTrigger>
           <TabsTrigger value="sectors">Setores</TabsTrigger>
           {(data.factorScores?.length ?? 0) > 0 && (
-            <TabsTrigger value="factors">
-              Fatores
-              {!isPlus && <span className="ml-1.5 text-[10px] font-black bg-black text-white px-1.5 py-0.5 rounded">PLUS</span>}
-            </TabsTrigger>
+            <TabsTrigger value="factors">Fatores</TabsTrigger>
           )}
-          <TabsTrigger value="currency">
-            Cambial
-            {!isPlus && <span className="ml-1.5 text-[10px] font-black bg-black text-white px-1.5 py-0.5 rounded">PLUS</span>}
-          </TabsTrigger>
+          <TabsTrigger value="currency">Cambial</TabsTrigger>
           <TabsTrigger value="holdings">Posições</TabsTrigger>
           <TabsTrigger value="history">Histórico</TabsTrigger>
         </TabsList>
@@ -565,14 +510,10 @@ export default function DashboardPage() {
         </TabsContent>
 
         <TabsContent value="factors">
-          {!isPlus ? (
-            <PlusGateCard />
-          ) : (
-            <div className="bg-white p-8 rounded-xl shadow-[0_20px_40px_rgba(25,28,30,0.06)]">
-              <h3 className="text-xl font-bold font-[family-name:var(--font-manrope)] text-black tracking-tight mb-6">Exposição a fatores</h3>
-              <FactorRadarChart data={data.factorScores} />
-            </div>
-          )}
+          <div className="bg-white p-8 rounded-xl shadow-[0_20px_40px_rgba(25,28,30,0.06)]">
+            <h3 className="text-xl font-bold font-[family-name:var(--font-manrope)] text-black tracking-tight mb-6">Exposição a fatores</h3>
+            <FactorRadarChart data={data.factorScores} />
+          </div>
         </TabsContent>
 
         <TabsContent value="history">
@@ -590,9 +531,7 @@ export default function DashboardPage() {
         </TabsContent>
 
         <TabsContent value="currency">
-          {!isPlus ? (
-            <PlusGateCard />
-          ) : analytics ? (
+          {analytics ? (
             <div className="space-y-6">
               <div className="bg-white p-8 rounded-xl shadow-[0_20px_40px_rgba(25,28,30,0.06)]">
                 <h3 className="text-xl font-bold font-[family-name:var(--font-manrope)] text-black tracking-tight mb-1">Exposição cambial real</h3>

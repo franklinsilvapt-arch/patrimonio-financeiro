@@ -196,18 +196,19 @@ export default function HomePage() {
 }
 
 const freePlanFeatures = [
-  'Importação de todas as corretoras',
-  'Dashboard com alocação, países e setores',
+  '1 corretora ou banco',
+  'Dashboard completo: alocação, países, setores, fatores',
   'Rentabilidade real (TWR, YTD, drawdown)',
   'Evolução histórica do portfolio',
-  'Contas pessoal e empresarial',
   'Exportação para CSV',
+  'Sem cartão de crédito',
 ];
 
 const plusPlanExtraFeatures = [
-  'Exposição cambial detalhada',
-  'Fatores de risco (value, momentum, quality)',
-  'Matriz de correlação entre ativos',
+  'Corretoras ilimitadas',
+  'Contas pessoal e empresarial',
+  'Visão consolidada de todo o teu patrimônio',
+  'Cancela quando quiseres',
 ];
 
 const features = [
