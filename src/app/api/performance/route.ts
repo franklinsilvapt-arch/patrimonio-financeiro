@@ -39,7 +39,14 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    const points: SnapshotPoint[] = snapshots.map((s) => ({
+    // For scoped views, skip snapshots where the scope value was never recorded (null = no data yet)
+    const scopedSnapshots = scope === 'business'
+      ? snapshots.filter((s) => s.businessValue != null)
+      : scope === 'personal'
+        ? snapshots.filter((s) => s.personalValue != null)
+        : snapshots;
+
+    const points: SnapshotPoint[] = scopedSnapshots.map((s) => ({
       date: s.date,
       totalValue: scope === 'personal'
         ? (s.personalValue ?? s.totalValue)
@@ -47,6 +54,19 @@ export async function GET(request: NextRequest) {
           ? (s.businessValue ?? 0)
           : s.totalValue,
     }));
+
+    if (points.length === 0) {
+      return NextResponse.json({
+        ttwror: null,
+        annualizedReturn: null,
+        maxDrawdown: 0,
+        volatility: null,
+        periodReturns: { '1m': null, '3m': null, '6m': null, '1y': null, ytd: null, total: null },
+        snapshotCount: 0,
+        firstDate: null,
+        lastDate: null,
+      });
+    }
 
     const ttwror = calculateTTWROR(points);
     const firstDate = points[0].date;

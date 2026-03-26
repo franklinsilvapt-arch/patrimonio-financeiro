@@ -209,19 +209,25 @@ export async function GET(request: NextRequest) {
       orderBy: { date: 'asc' },
     });
 
-    const history = snapshots.map((s) => {
-      const brokerData = s.brokerBreakdown ? JSON.parse(s.brokerBreakdown) : {};
-      const value = scope === 'personal'
-        ? (s.personalValue ?? s.totalValue)
-        : scope === 'business'
-          ? (s.businessValue ?? 0)
-          : s.totalValue;
-      return {
-        date: s.date.toISOString().split('T')[0],
-        value,
-        ...brokerData,
-      };
-    });
+    const history = snapshots
+      .filter((s) =>
+        scope === 'business' ? s.businessValue != null :
+        scope === 'personal' ? s.personalValue != null :
+        true
+      )
+      .map((s) => {
+        const brokerData = s.brokerBreakdown ? JSON.parse(s.brokerBreakdown) : {};
+        const value = scope === 'personal'
+          ? (s.personalValue ?? s.totalValue)
+          : scope === 'business'
+            ? (s.businessValue ?? 0)
+            : s.totalValue;
+        return {
+          date: s.date.toISOString().split('T')[0],
+          value,
+          ...brokerData,
+        };
+      });
 
     const brokerNames = Object.keys(byBroker);
 
