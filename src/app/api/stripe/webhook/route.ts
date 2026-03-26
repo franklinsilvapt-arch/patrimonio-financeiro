@@ -35,6 +35,7 @@ export async function POST(request: NextRequest) {
             where: { id: user.id },
             data: {
               plan: 'plus',
+              livePricesGranted: true, // grandfathered forever
               stripeSubscriptionId: session.subscription as string,
             },
           });

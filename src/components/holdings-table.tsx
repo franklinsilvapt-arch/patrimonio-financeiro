@@ -34,8 +34,18 @@ export interface HoldingRow {
   accountType?: string;
 }
 
+export interface LivePriceData {
+  price: number;
+  currency: string;
+  dailyChange: number;
+  dailyChangePercent: number;
+  ticker: string;
+  timestamp: number;
+}
+
 interface HoldingsTableProps {
   holdings: HoldingRow[];
+  livePrices?: Record<string, LivePriceData | null>;
 }
 
 type SortField = 'securityName' | 'ticker' | 'broker' | 'quantity' | 'price' | 'marketValue' | 'weight' | 'positionDate';
@@ -66,7 +76,7 @@ function compareValues(a: unknown, b: unknown, dir: SortDir): number {
   return dir === 'asc' ? cmp : -cmp;
 }
 
-export function HoldingsTable({ holdings }: HoldingsTableProps) {
+export function HoldingsTable({ holdings, livePrices }: HoldingsTableProps) {
   const [sortField, setSortField] = useState<SortField>('marketValue');
   const [sortDir, setSortDir] = useState<SortDir>('desc');
 
@@ -93,6 +103,8 @@ export function HoldingsTable({ holdings }: HoldingsTableProps) {
     );
   }
 
+  const hasLive = !!livePrices;
+
   return (
     <Table>
       <TableHeader>
@@ -112,33 +124,65 @@ export function HoldingsTable({ holdings }: HoldingsTableProps) {
               )}
             </TableHead>
           ))}
+          {hasLive && (
+            <>
+              <TableHead className="text-right whitespace-nowrap">
+                <span className="inline-flex items-center gap-1">
+                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                  Cotação live
+                </span>
+              </TableHead>
+              <TableHead className="text-right whitespace-nowrap">Var. hoje</TableHead>
+            </>
+          )}
         </TableRow>
       </TableHeader>
       <TableBody>
-        {sorted.map((h, i) => (
-          <TableRow key={`${h.securityId}-${h.broker}-${i}`}>
-            <TableCell className="font-medium max-w-[200px] truncate" title={h.securityName}>
-              {h.securityName}
-            </TableCell>
-            <TableCell className="font-mono text-xs">{h.ticker ?? '-'}</TableCell>
-            <TableCell>{h.broker}</TableCell>
-            <TableCell className="text-right tabular-nums">
-              {h.quantity.toLocaleString('pt-PT')}
-            </TableCell>
-            <TableCell className="text-right tabular-nums">
-              {h.price != null ? formatCurrency(h.price, h.currency) : '-'}
-            </TableCell>
-            <TableCell className="text-right tabular-nums font-medium">
-              {formatCurrency(h.marketValue, h.currency)}
-            </TableCell>
-            <TableCell className="text-right tabular-nums">
-              {formatPercent(h.weight)}
-            </TableCell>
-            <TableCell className="text-xs text-muted-foreground">
-              {h.positionDate ? formatDate(h.positionDate) : '-'}
-            </TableCell>
-          </TableRow>
-        ))}
+        {sorted.map((h, i) => {
+          const lp = livePrices?.[h.securityId];
+          return (
+            <TableRow key={`${h.securityId}-${h.broker}-${i}`}>
+              <TableCell className="font-medium max-w-[200px] truncate" title={h.securityName}>
+                {h.securityName}
+              </TableCell>
+              <TableCell className="font-mono text-xs">{h.ticker ?? '-'}</TableCell>
+              <TableCell>{h.broker}</TableCell>
+              <TableCell className="text-right tabular-nums">
+                {h.quantity.toLocaleString('pt-PT')}
+              </TableCell>
+              <TableCell className="text-right tabular-nums">
+                {h.price != null ? formatCurrency(h.price, h.currency) : '-'}
+              </TableCell>
+              <TableCell className="text-right tabular-nums font-medium">
+                {formatCurrency(h.marketValue, h.currency)}
+              </TableCell>
+              <TableCell className="text-right tabular-nums">
+                {formatPercent(h.weight)}
+              </TableCell>
+              <TableCell className="text-xs text-muted-foreground">
+                {h.positionDate ? formatDate(h.positionDate) : '-'}
+              </TableCell>
+              {hasLive && (
+                <>
+                  <TableCell className="text-right tabular-nums text-sm">
+                    {lp ? formatCurrency(lp.price, lp.currency) : (
+                      <span className="text-slate-300">—</span>
+                    )}
+                  </TableCell>
+                  <TableCell className="text-right tabular-nums text-sm font-semibold">
+                    {lp ? (
+                      <span className={lp.dailyChangePercent >= 0 ? 'text-emerald-600' : 'text-red-600'}>
+                        {lp.dailyChangePercent >= 0 ? '+' : ''}{lp.dailyChangePercent.toFixed(2)}%
+                      </span>
+                    ) : (
+                      <span className="text-slate-300">—</span>
+                    )}
+                  </TableCell>
+                </>
+              )}
+            </TableRow>
+          );
+        })}
       </TableBody>
     </Table>
   );

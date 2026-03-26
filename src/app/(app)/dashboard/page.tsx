@@ -6,7 +6,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { PortfolioSummary, type PortfolioSummaryData } from '@/components/portfolio-summary';
 import { FilterBar } from '@/components/filter-bar';
-import { HoldingsTable, type HoldingRow } from '@/components/holdings-table';
+import { HoldingsTable, type HoldingRow, type LivePriceData } from '@/components/holdings-table';
 import { BrokerPieChart } from '@/components/charts/broker-pie-chart';
 import { DonutChart } from '@/components/charts/donut-chart';
 import { ExposureBarChart } from '@/components/charts/exposure-bar-chart';
@@ -97,6 +97,12 @@ export default function DashboardPage() {
   const [enriching, setEnriching] = useState(false);
   const [enrichResult, setEnrichResult] = useState<string | null>(null);
 
+  // Live prices (Plus users only)
+  const [livePrices, setLivePrices] = useState<Record<string, LivePriceData | null> | null>(null);
+  const [liveTotal, setLiveTotal] = useState<number | null>(null);
+  const [liveDailyChangePct, setLiveDailyChangePct] = useState<number | null>(null);
+  const [liveFetchedAt, setLiveFetchedAt] = useState<string | null>(null);
+
   // Scope: personal / business / all
   const [scope, setScope] = useState<'all' | 'personal' | 'business'>('all');
   const [availableScopes, setAvailableScopes] = useState<{ hasPersonal: boolean; hasBusiness: boolean }>({ hasPersonal: true, hasBusiness: false });
@@ -159,6 +165,25 @@ export default function DashboardPage() {
     }
     fetchAll();
   }, [scope]);
+
+  // Fetch live prices once portfolio data is loaded
+  useEffect(() => {
+    if (!data || loading) return;
+    async function fetchLive() {
+      try {
+        const res = await fetch('/api/prices/live');
+        if (res.ok) {
+          const json = await res.json();
+          setLivePrices(json.prices ?? null);
+          setLiveTotal(json.liveTotal ?? null);
+          setLiveDailyChangePct(json.liveDailyChangePct ?? null);
+          setLiveFetchedAt(json.fetchedAt ?? null);
+        }
+        // 403 = free user, silently ignore
+      } catch {}
+    }
+    fetchLive();
+  }, [data, loading]);
 
   const filterOptions = useMemo(() => {
     if (!data) return { brokers: [], assetClasses: [], countries: [], sectors: [], currencies: [] };
@@ -359,6 +384,9 @@ export default function DashboardPage() {
       <PortfolioSummary
         summary={filteredChartData?.summary ?? data.summary}
         monthlyChange={monthlyChange}
+        liveTotal={!hasFilters ? liveTotal : null}
+        liveDailyChangePct={!hasFilters ? liveDailyChangePct : null}
+        liveFetchedAt={!hasFilters ? liveFetchedAt : null}
       />
 
       {/* Scope toggle + Action bar */}
@@ -526,7 +554,7 @@ export default function DashboardPage() {
         <TabsContent value="holdings">
           <div className="bg-white p-8 rounded-xl shadow-[0_20px_40px_rgba(25,28,30,0.06)]">
             <h3 className="text-xl font-bold font-[family-name:var(--font-manrope)] text-black tracking-tight mb-6">Posições ({filteredHoldings.length})</h3>
-            <HoldingsTable holdings={filteredHoldings} />
+            <HoldingsTable holdings={filteredHoldings} livePrices={livePrices ?? undefined} />
           </div>
         </TabsContent>
 
