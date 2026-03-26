@@ -474,7 +474,7 @@ export default function DashboardPage() {
           <TabsTrigger value="overview">Geral</TabsTrigger>
           <TabsTrigger value="countries">Países</TabsTrigger>
           <TabsTrigger value="sectors">Setores</TabsTrigger>
-          {data.factorScores.length > 0 && (
+          {(data.factorScores?.length ?? 0) > 0 && (
             <TabsTrigger value="factors">Fatores</TabsTrigger>
           )}
           <TabsTrigger value="currency">Cambial</TabsTrigger>

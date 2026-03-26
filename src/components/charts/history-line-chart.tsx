@@ -70,18 +70,13 @@ export function HistoryLineChart({ data, brokers }: HistoryLineChartProps) {
   const [period, setPeriod] = useState<Period>('all');
   const [viewMode, setViewMode] = useState<ViewMode>('absolute');
 
-  if (data.length === 0) {
-    return (
-      <div className="flex items-center justify-center h-64 text-muted-foreground text-sm">
-        Sem dados históricos
-      </div>
-    );
-  }
-
-  const showBrokers = brokers && brokers.length > 0 && viewMode === 'absolute';
-  const lastDate = new Date(data[data.length - 1].date);
+  const lastDate = useMemo(
+    () => (data.length > 0 ? new Date(data[data.length - 1].date) : new Date()),
+    [data]
+  );
 
   const filteredData = useMemo(() => {
+    if (data.length === 0) return [];
     const { start, end } = getPeriodBounds(period, lastDate);
     if (!start && !end) return data;
     return data.filter((d) => {
@@ -129,6 +124,16 @@ export function HistoryLineChart({ data, brokers }: HistoryLineChartProps) {
     const variationPct = variationEur / initialValue;
     return { initialValue, finalValue, variationEur, variationPct };
   }, [filteredData]);
+
+  const showBrokers = brokers && brokers.length > 0 && viewMode === 'absolute';
+
+  if (data.length === 0) {
+    return (
+      <div className="flex items-center justify-center h-64 text-muted-foreground text-sm">
+        Sem dados históricos
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4">
