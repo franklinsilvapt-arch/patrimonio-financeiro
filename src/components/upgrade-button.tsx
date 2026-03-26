@@ -13,6 +13,10 @@ export function UpgradeButton() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({}),
       });
+      if (res.status === 401) {
+        window.location.href = '/registar';
+        return;
+      }
       const data = await res.json();
       if (data.url) window.location.href = data.url;
     } catch {

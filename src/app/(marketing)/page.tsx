@@ -81,7 +81,7 @@ export default function HomePage() {
               <div className="mb-6">
                 <p className="text-sm font-black uppercase tracking-[0.2em] text-slate-400">Free</p>
                 <p className="mt-2 text-4xl font-extrabold text-black font-[family-name:var(--font-manrope)]">0€</p>
-                <p className="text-sm text-slate-400 mt-1">para sempre</p>
+                <p className="text-sm text-slate-400 mt-1">&nbsp;</p>
               </div>
               <ul className="space-y-3 flex-1 mb-8">
                 {freePlanFeatures.map((f) => (
@@ -200,7 +200,7 @@ const freePlanFeatures = [
   'Dashboard completo: alocação, países, setores, fatores',
   'Rentabilidade real (TWR, YTD, drawdown)',
   'Evolução histórica do portfolio',
-  'Exportação para CSV',
+  'Exportação via screenshot, CSV ou manual',
   'Sem cartão de crédito',
 ];
 
@@ -208,7 +208,6 @@ const plusPlanExtraFeatures = [
   'Corretoras ilimitadas',
   'Contas pessoal e empresarial',
   'Visão consolidada de todo o teu patrimônio',
-  'Cancela quando quiseres',
 ];
 
 const features = [
