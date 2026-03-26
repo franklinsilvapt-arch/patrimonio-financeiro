@@ -104,8 +104,15 @@ export function calculatePeriodReturns(
     }
   }
 
+  // 1m: fim do mês anterior (não "30 dias atrás")
+  const prevMonthEnd = new Date(now.getFullYear(), now.getMonth(), 0);
+  const prevMonthSnap = findClosestBefore(prevMonthEnd);
+  const oneMonth = prevMonthSnap && prevMonthSnap.totalValue > 0 && prevMonthSnap !== latest
+    ? (latest.totalValue - prevMonthSnap.totalValue) / prevMonthSnap.totalValue
+    : null;
+
   return {
-    '1m': calcReturn(30),
+    '1m': oneMonth,
     '3m': calcReturn(90),
     '6m': calcReturn(180),
     '1y': calcReturn(365),
