@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 import { getAuthUserId } from '@/lib/auth/get-user';
+import { fetchLatestRates, convertCurrency } from '@/lib/currency/ecb';
 
 export async function GET(request: NextRequest) {
   let userId: string;
@@ -66,8 +67,20 @@ export async function GET(request: NextRequest) {
 
     const result = Array.from(latestHoldings.values());
 
-    // Calculate total value for weights
-    const totalValue = result.reduce((sum, h) => sum + (h.marketValue || 0), 0);
+    // Fetch ECB rates for currency conversion (same as portfolio API)
+    let fxRates: Record<string, number> = {};
+    try {
+      const rateData = await fetchLatestRates();
+      if (rateData?.rates) fxRates = rateData.rates;
+    } catch {}
+
+    const toEur = (amount: number, currency: string) => {
+      if (currency === 'EUR' || !amount) return amount;
+      return convertCurrency(amount, currency, 'EUR', fxRates);
+    };
+
+    // Calculate total value in EUR for weights
+    const totalValue = result.reduce((sum, h) => sum + toEur(h.marketValue || 0, h.currency), 0);
 
     const enriched = result.map((h) => ({
       id: h.id,
@@ -82,9 +95,9 @@ export async function GET(request: NextRequest) {
       accountType: h.account.accountType,
       quantity: h.quantity,
       price: h.priceAtPosition,
-      currency: h.currency,
-      marketValue: h.marketValue,
-      weight: totalValue > 0 ? (h.marketValue || 0) / totalValue : 0,
+      currency: 'EUR',
+      marketValue: toEur(h.marketValue || 0, h.currency),
+      weight: totalValue > 0 ? toEur(h.marketValue || 0, h.currency) / totalValue : 0,
       country: h.security.country,
       sector: h.security.sector,
       positionDate: h.positionDate,
