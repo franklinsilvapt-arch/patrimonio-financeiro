@@ -111,8 +111,7 @@ export default function HomePage() {
                     <p className="text-sm font-black uppercase tracking-[0.2em] text-emerald-400">Plus</p>
                     <span className="text-[10px] font-black bg-emerald-400 text-black px-2 py-0.5 rounded uppercase tracking-wider">Popular</span>
                   </div>
-                  {/* Price — update "9€/mês" here if the price changes */}
-                  <p className="mt-2 text-4xl font-extrabold text-white font-[family-name:var(--font-manrope)]">9€<span className="text-xl font-semibold text-slate-400">/mês</span></p>
+                  <p className="mt-2 text-4xl font-extrabold text-white font-[family-name:var(--font-manrope)]">1,99€<span className="text-xl font-semibold text-slate-400">/mês</span></p>
                   <p className="text-sm text-slate-400 mt-1">sem compromisso</p>
                 </div>
                 <ul className="space-y-3 flex-1 mb-8">
