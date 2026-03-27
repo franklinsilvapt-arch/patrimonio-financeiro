@@ -511,7 +511,7 @@ export default function DashboardPage() {
         </TabsContent>
 
         <TabsContent value="countries">
-          <p className="text-sm text-slate-500 mb-4">A que países estás realmente exposto. Para ETFs, os dados vêm do JustETF (composição real do fundo). Para ações individuais, usa-se o país de domicílio da empresa.</p>
+          <p className="text-sm text-slate-500 mb-4">A que países estás realmente exposto. Para ETFs, os dados vêm do JustETF (composição real do fundo). Para ações individuais, usa-se o país de domicílio da empresa. Nota: a origem geográfica das receitas também é relevante para a exposição real, mas não é possível extrair essa informação automaticamente.</p>
           <div className="bg-white p-8 rounded-xl shadow-[0_20px_40px_rgba(25,28,30,0.06)]">
             <h3 className="text-xl font-bold font-[family-name:var(--font-manrope)] text-black tracking-tight mb-6">Exposição por país</h3>
             <ExposureBarChart data={filteredChartData?.countryExposure ?? data.countryExposure} title="Países" limit={10} />
