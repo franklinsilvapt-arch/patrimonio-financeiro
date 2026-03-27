@@ -149,7 +149,7 @@ export default function HomePage() {
             Criar conta grátis
           </a>
           <p className="mt-6 text-slate-400 text-sm font-medium">
-            Sem cartão de crédito necessário. Configuração em 2 minutos.
+            Sem cartão de crédito necessário. Importa o teu primeiro extrato em menos de 2 minutos.
           </p>
         </div>
       </section>
@@ -207,7 +207,7 @@ const freePlanFeatures = [
 const plusPlanExtraFeatures = [
   'Corretoras ilimitadas',
   'Contas pessoal e empresarial',
-  'Visão consolidada de todo o teu patrimônio',
+  'Visão consolidada de todo o teu património',
 ];
 
 const features = [
@@ -244,11 +244,11 @@ const features = [
   {
     icon: 'database',
     title: 'Enriquecimento de ETFs',
-    description: 'Dados integrados via JustETF para análise profunda de composição e rácios.',
+    description: 'Exposição por país e setor dos teus ETFs, atualizada automaticamente via JustETF.',
   },
   {
     icon: 'encrypted',
     title: 'Seguro e privado',
-    description: 'Encriptação de ponta a ponta. Não guardamos credenciais e nunca vendemos dados.',
+    description: 'Os teus dados ficam protegidos. Não pedimos credenciais de acesso às tuas corretoras e nunca vendemos dados.',
   },
 ];
