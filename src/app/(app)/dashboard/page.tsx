@@ -12,7 +12,6 @@ import { DonutChart } from '@/components/charts/donut-chart';
 import { ExposureBarChart } from '@/components/charts/exposure-bar-chart';
 import { HistoryLineChart } from '@/components/charts/history-line-chart';
 import { FactorRadarChart } from '@/components/charts/factor-radar-chart';
-import { CorrelationMatrix } from '@/components/charts/correlation-matrix';
 import { formatPercent, formatCurrency } from '@/lib/utils';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
@@ -494,6 +493,7 @@ export default function DashboardPage() {
         </TabsList>
 
         <TabsContent value="overview">
+          <p className="text-sm text-slate-500 mb-4">Como o teu dinheiro está distribuído entre corretoras/bancos e tipos de ativos (ETFs, ações, liquidez, etc.).</p>
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
             <div className="bg-white p-8 rounded-xl shadow-[0_20px_40px_rgba(25,28,30,0.06)]">
               <h3 className="text-xl font-bold font-[family-name:var(--font-manrope)] text-black tracking-tight mb-8">Alocação por corretora</h3>
@@ -507,6 +507,7 @@ export default function DashboardPage() {
         </TabsContent>
 
         <TabsContent value="countries">
+          <p className="text-sm text-slate-500 mb-4">A que países estás realmente exposto. Para ETFs, os dados vêm do JustETF (composição real do fundo). Para ações individuais, usa-se o país de domicílio da empresa.</p>
           <div className="bg-white p-8 rounded-xl shadow-[0_20px_40px_rgba(25,28,30,0.06)]">
             <h3 className="text-xl font-bold font-[family-name:var(--font-manrope)] text-black tracking-tight mb-6">Exposição por país</h3>
             <ExposureBarChart data={filteredChartData?.countryExposure ?? data.countryExposure} title="Países" limit={10} />
@@ -514,6 +515,7 @@ export default function DashboardPage() {
         </TabsContent>
 
         <TabsContent value="sectors">
+          <p className="text-sm text-slate-500 mb-4">A que setores da economia estás exposto (tecnologia, saúde, financeiro, etc.). Para ETFs, calculado a partir da composição real via JustETF.</p>
           <div className="bg-white p-8 rounded-xl shadow-[0_20px_40px_rgba(25,28,30,0.06)]">
             <h3 className="text-xl font-bold font-[family-name:var(--font-manrope)] text-black tracking-tight mb-6">Exposição por setor</h3>
             <ExposureBarChart data={filteredChartData?.sectorExposure ?? data.sectorExposure} title="Setores" />
@@ -521,6 +523,7 @@ export default function DashboardPage() {
         </TabsContent>
 
         <TabsContent value="factors">
+          <p className="text-sm text-slate-500 mb-4">Fatores de risco do teu portfólio (value, momentum, quality, etc.). Dados importados via screenshot do Morningstar Factor Profile de cada ETF.</p>
           <div className="bg-white p-8 rounded-xl shadow-[0_20px_40px_rgba(25,28,30,0.06)]">
             <h3 className="text-xl font-bold font-[family-name:var(--font-manrope)] text-black tracking-tight mb-6">Exposição a fatores</h3>
             <FactorRadarChart data={data.factorScores} />
@@ -528,6 +531,7 @@ export default function DashboardPage() {
         </TabsContent>
 
         <TabsContent value="history">
+          <p className="text-sm text-slate-500 mb-4">Evolução do valor total do teu portfólio ao longo do tempo. Cada ponto corresponde a um snapshot criado quando importas posições.</p>
           <div className="bg-white p-8 rounded-xl shadow-[0_20px_40px_rgba(25,28,30,0.06)]">
             <h3 className="text-xl font-bold font-[family-name:var(--font-manrope)] text-black tracking-tight mb-6">Evolução do património</h3>
             <HistoryLineChart data={data.history} />
@@ -535,6 +539,7 @@ export default function DashboardPage() {
         </TabsContent>
 
         <TabsContent value="holdings">
+          <p className="text-sm text-slate-500 mb-4">Todas as tuas posições individuais com quantidade, cotação, valor e peso no portfólio. Dados da última importação de cada corretora.</p>
           <div className="bg-white p-8 rounded-xl shadow-[0_20px_40px_rgba(25,28,30,0.06)]">
             <h3 className="text-xl font-bold font-[family-name:var(--font-manrope)] text-black tracking-tight mb-6">Posições ({filteredHoldings.length})</h3>
             <HoldingsTable holdings={filteredHoldings} />
@@ -542,22 +547,12 @@ export default function DashboardPage() {
         </TabsContent>
 
         <TabsContent value="currency">
+          <p className="text-sm text-slate-500 mb-4">A que moedas estás realmente exposto. Mesmo que compres um ETF em EUR, os ativos subjacentes podem estar em USD, GBP, JPY, etc. Calculado via exposição geográfica dos teus fundos.</p>
           {analytics ? (
-            <div className="space-y-6">
-              <div className="bg-white p-8 rounded-xl shadow-[0_20px_40px_rgba(25,28,30,0.06)]">
-                <h3 className="text-xl font-bold font-[family-name:var(--font-manrope)] text-black tracking-tight mb-1">Exposição cambial real</h3>
-                <p className="text-sm text-slate-500 mb-6">Moedas subjacentes dos ativos (look-through via país)</p>
-                <ExposureBarChart data={analytics.currencyExposure} title="Moedas" />
-              </div>
-
-              <div className="bg-white p-8 rounded-xl shadow-[0_20px_40px_rgba(25,28,30,0.06)]">
-                <h3 className="text-xl font-bold font-[family-name:var(--font-manrope)] text-black tracking-tight mb-1">Correlação entre ativos</h3>
-                <p className="text-sm text-slate-500 mb-6">Baseada nos retornos históricos dos preços</p>
-                <CorrelationMatrix
-                  assets={analytics.correlation.assets}
-                  matrix={analytics.correlation.matrix}
-                />
-              </div>
+            <div className="bg-white p-8 rounded-xl shadow-[0_20px_40px_rgba(25,28,30,0.06)]">
+              <h3 className="text-xl font-bold font-[family-name:var(--font-manrope)] text-black tracking-tight mb-1">Exposição cambial real</h3>
+              <p className="text-sm text-slate-500 mb-6">Moedas subjacentes dos ativos (look-through via país)</p>
+              <ExposureBarChart data={analytics.currencyExposure} title="Moedas" />
             </div>
           ) : (
             <div className="flex items-center justify-center h-32 text-slate-400 text-sm">
