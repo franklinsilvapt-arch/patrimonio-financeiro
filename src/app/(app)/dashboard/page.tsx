@@ -395,11 +395,22 @@ export default function DashboardPage() {
             <div className="flex items-center bg-slate-200 px-4 py-2 rounded-lg gap-3">
               {[
                 { label: 'Retorno total', value: performance.ttwror, bold: true },
-                { label: 'YTD', value: performance.periodReturns.ytd },
-                { label: 'Drawdown', value: performance.maxDrawdown ? -performance.maxDrawdown : 0 },
+                { label: 'YTD', value: performance.periodReturns.ytd, tooltip: 'Year To Date: rentabilidade acumulada desde 1 de janeiro deste ano' },
+                { label: 'Drawdown', value: performance.maxDrawdown ? -performance.maxDrawdown : 0, tooltip: 'Drawdown máximo: a maior queda entre um pico e um vale desde que existem dados' },
               ].map((m, i, arr) => (
                 <div key={m.label} className="flex items-center gap-2">
-                  <span className={`text-xs text-slate-600 ${m.bold ? 'font-bold uppercase tracking-widest' : 'font-medium'}`}>{m.label}</span>
+                  {m.tooltip ? (
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <span className={`text-xs text-slate-600 ${m.bold ? 'font-bold uppercase tracking-widest' : 'font-medium'} cursor-help border-b border-dotted border-slate-400`}>{m.label}</span>
+                      </TooltipTrigger>
+                      <TooltipContent side="bottom" className="max-w-xs text-xs">
+                        {m.tooltip}
+                      </TooltipContent>
+                    </Tooltip>
+                  ) : (
+                    <span className={`text-xs text-slate-600 ${m.bold ? 'font-bold uppercase tracking-widest' : 'font-medium'}`}>{m.label}</span>
+                  )}
                   <span className={`text-sm font-bold tabular-nums ${
                     m.value === null ? 'text-slate-500' :
                     m.label === 'Drawdown' ? 'text-red-600' :
