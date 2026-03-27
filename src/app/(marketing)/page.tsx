@@ -248,6 +248,11 @@ const features = [
     description: 'Exposição por país e setor dos teus ETFs, atualizada automaticamente via JustETF.',
   },
   {
+    icon: 'auto_awesome',
+    title: 'Raio-X do Portfólio',
+    description: 'Análise com IA: score de diversificação, risco de concentração, sobreposição de ETFs e pontos fortes e fracos.',
+  },
+  {
     icon: 'encrypted',
     title: 'Seguro e privado',
     description: 'Os teus dados ficam protegidos. Não pedimos credenciais de acesso às tuas corretoras e nunca vendemos dados.',
