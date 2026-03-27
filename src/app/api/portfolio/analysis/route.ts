@@ -5,6 +5,73 @@ import { getAuthUserId } from '@/lib/auth/get-user';
 
 export const maxDuration = 30;
 
+// ---------------------------------------------------------------------------
+// Herfindahl-Hirschman Index (HHI) — measures concentration
+// Returns 0 (perfectly concentrated) to 1 (perfectly spread)
+// ---------------------------------------------------------------------------
+function hhi(weights: number[]): number {
+  if (weights.length === 0) return 0;
+  const sum = weights.reduce((a, b) => a + b, 0);
+  if (sum === 0) return 0;
+  const normalized = weights.map((w) => w / sum);
+  const hhi = normalized.reduce((acc, w) => acc + w * w, 0);
+  // HHI ranges from 1/n (perfect spread) to 1 (single item)
+  // Normalize to 0-1 where 1 = best diversification
+  const n = weights.length;
+  if (n <= 1) return 0;
+  const minHhi = 1 / n;
+  return (1 - hhi) / (1 - minHhi);
+}
+
+// ---------------------------------------------------------------------------
+// Score calculation — 4 dimensions, 25 points each
+// ---------------------------------------------------------------------------
+function computeScore(data: {
+  positionWeights: number[];
+  countryWeights: number[];
+  sectorWeights: number[];
+  assetClassWeights: number[];
+  numCountries: number;
+  numSectors: number;
+  numAssetClasses: number;
+  numPositions: number;
+}) {
+  // 1. Geographic diversification (25 pts)
+  // HHI component (max 15) + breadth bonus (max 10)
+  const geoHhi = hhi(data.countryWeights);
+  const geoBreadth = Math.min(data.numCountries / 10, 1); // 10+ countries = full marks
+  const geoScore = Math.round(geoHhi * 15 + geoBreadth * 10);
+
+  // 2. Sector diversification (25 pts)
+  const sectorHhi = hhi(data.sectorWeights);
+  const sectorBreadth = Math.min(data.numSectors / 8, 1); // 8+ sectors = full marks
+  const sectorScore = Math.round(sectorHhi * 15 + sectorBreadth * 10);
+
+  // 3. Asset class mix (25 pts)
+  const assetHhi = hhi(data.assetClassWeights);
+  const assetBreadth = Math.min(data.numAssetClasses / 4, 1); // 4+ classes = full marks
+  const assetScore = Math.round(assetHhi * 15 + assetBreadth * 10);
+
+  // 4. Concentration / position spread (25 pts)
+  const posHhi = hhi(data.positionWeights);
+  const posBreadth = Math.min(data.numPositions / 15, 1); // 15+ positions = full marks
+  const concScore = Math.round(posHhi * 15 + posBreadth * 10);
+
+  const total = geoScore + sectorScore + assetScore + concScore;
+  const grade = total >= 75 ? 'A' : total >= 55 ? 'B' : total >= 35 ? 'C' : 'D';
+
+  return {
+    total,
+    grade,
+    breakdown: {
+      geographic: { score: geoScore, max: 25, countries: data.numCountries },
+      sector: { score: sectorScore, max: 25, sectors: data.numSectors },
+      assetClass: { score: assetScore, max: 25, classes: data.numAssetClasses },
+      concentration: { score: concScore, max: 25, positions: data.numPositions },
+    },
+  };
+}
+
 export async function GET() {
   let userId: string;
   try {
@@ -80,6 +147,7 @@ export async function GET() {
         countryMap.set(h.security.country, (countryMap.get(h.security.country) || 0) + mv);
       }
     }
+    const countryWeights = Array.from(countryMap.values());
     const topCountries = Array.from(countryMap.entries())
       .sort((a, b) => b[1] - a[1])
       .slice(0, 10)
@@ -97,6 +165,7 @@ export async function GET() {
         sectorMap.set(h.security.sector, (sectorMap.get(h.security.sector) || 0) + mv);
       }
     }
+    const sectorWeights = Array.from(sectorMap.values());
     const topSectors = Array.from(sectorMap.entries())
       .sort((a, b) => b[1] - a[1])
       .slice(0, 10)
@@ -108,9 +177,31 @@ export async function GET() {
       const cls = h.security.assetClass;
       assetMap.set(cls, (assetMap.get(cls) || 0) + (h.marketValue || 0));
     }
+    const assetClassWeights = Array.from(assetMap.values());
     const assetBreakdown = Array.from(assetMap.entries())
       .sort((a, b) => b[1] - a[1])
       .map(([cls, val]) => `${cls}: ${(val / totalValue * 100).toFixed(1)}%`);
+
+    // Position weights
+    const positionWeights = active.map((h) => h.marketValue || 0);
+
+    // Compute deterministic score
+    const scoreResult = computeScore({
+      positionWeights,
+      countryWeights,
+      sectorWeights,
+      assetClassWeights,
+      numCountries: countryMap.size,
+      numSectors: sectorMap.size,
+      numAssetClasses: assetMap.size,
+      numPositions: active.length,
+    });
+
+    // Top 3 concentration
+    const sortedWeights = positionWeights.sort((a, b) => b - a);
+    const top3Pct = totalValue > 0
+      ? ((sortedWeights.slice(0, 3).reduce((a, b) => a + b, 0) / totalValue) * 100).toFixed(1)
+      : '0';
 
     const prompt = `Analisa este portfólio de investimento e devolve um JSON com a tua análise. Responde APENAS em português de Portugal (PT-PT).
 
@@ -118,6 +209,7 @@ DADOS DO PORTFÓLIO:
 - Valor total: ${Math.round(totalValue).toLocaleString('pt-PT')} €
 - Número de posições: ${active.length}
 - Corretoras: ${Array.from(new Set(active.map(h => h.account.broker.name))).join(', ')}
+- Top 3 posições: ${top3Pct}% do portfólio
 
 POSIÇÕES (por peso):
 ${positionsSummary.map(p => `${p.name} (${p.ticker || 'N/A'}) — ${p.assetClass} — ${p.value}€ (${p.weight}) — Países: ${p.countries} — Setores: ${p.sectors}`).join('\n')}
@@ -131,11 +223,15 @@ ${topSectors.join('\n')}
 CLASSES DE ATIVO:
 ${assetBreakdown.join('\n')}
 
+SCORE DE DIVERSIFICAÇÃO (já calculado, NÃO alteres):
+- Total: ${scoreResult.total}/100 (${scoreResult.grade})
+- Geográfica: ${scoreResult.breakdown.geographic.score}/25 (${scoreResult.breakdown.geographic.countries} países)
+- Setorial: ${scoreResult.breakdown.sector.score}/25 (${scoreResult.breakdown.sector.sectors} setores)
+- Classes de ativo: ${scoreResult.breakdown.assetClass.score}/25 (${scoreResult.breakdown.assetClass.classes} classes)
+- Concentração: ${scoreResult.breakdown.concentration.score}/25 (${scoreResult.breakdown.concentration.positions} posições)
+
 Devolve APENAS um JSON válido com esta estrutura exata:
 {
-  "score": <número 0-100 representando diversificação global>,
-  "grade": "<A, B, C ou D>",
-  "scoreExplanation": "<1 frase curta a explicar o score>",
   "concentrationRisk": {
     "title": "<ex: As tuas 3 maiores posições representam X% do portfólio>",
     "detail": "<1-2 frases sobre o risco de concentração>"
@@ -149,13 +245,12 @@ Regras:
 - Sê direto e concreto, sem jargão desnecessário
 - Usa dados reais do portfólio (não inventes números)
 - NÃO dês sugestões de investimento nem aconselhamento financeiro — limita-te a descrever factos sobre a composição do portfólio
-- O score deve refletir: diversificação geográfica, setorial, por classe de ativo e concentração
 - Se vires ETFs globais (VWCE, IWDA, SWDA, etc.) e ETFs regionais (CSPX, SXR8, etc.) que se sobrepõem, menciona em overlapNotes`;
 
     const anthropic = new Anthropic({ apiKey });
     const message = await anthropic.messages.create({
       model: 'claude-sonnet-4-20250514',
-      max_tokens: 1500,
+      max_tokens: 1000,
       messages: [{ role: 'user', content: prompt }],
     });
 
@@ -170,8 +265,15 @@ Regras:
       jsonStr = codeBlockMatch[1].trim();
     }
 
-    const analysis = JSON.parse(jsonStr);
-    return NextResponse.json(analysis);
+    const aiAnalysis = JSON.parse(jsonStr);
+
+    // Merge deterministic score with AI commentary
+    return NextResponse.json({
+      score: scoreResult.total,
+      grade: scoreResult.grade,
+      breakdown: scoreResult.breakdown,
+      ...aiAnalysis,
+    });
   } catch (error) {
     console.error('Error generating analysis:', error);
     return NextResponse.json({ error: 'Erro ao gerar análise' }, { status: 500 });

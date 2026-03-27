@@ -577,10 +577,17 @@ export default function DashboardPage() {
 // Raio-X Tab — AI portfolio analysis
 // ---------------------------------------------------------------------------
 
+interface ScoreBreakdown {
+  geographic: { score: number; max: number; countries: number };
+  sector: { score: number; max: number; sectors: number };
+  assetClass: { score: number; max: number; classes: number };
+  concentration: { score: number; max: number; positions: number };
+}
+
 interface XRayAnalysis {
   score: number;
   grade: string;
-  scoreExplanation: string;
+  breakdown: ScoreBreakdown;
   concentrationRisk: { title: string; detail: string };
   strengths: string[];
   risks: string[];
@@ -620,7 +627,7 @@ function XRayTab() {
         </div>
         <h3 className="text-xl font-bold font-[family-name:var(--font-manrope)]">Raio-X do Portfólio</h3>
         <p className="text-sm text-slate-500 max-w-md">
-          Análise inteligente do teu portfólio: diversificação, concentração, sobreposição de ETFs e sugestões personalizadas.
+          Análise inteligente do teu portfólio: diversificação, concentração e sobreposição de ETFs.
         </p>
         <button
           onClick={runAnalysis}
@@ -676,27 +683,46 @@ function XRayTab() {
           </button>
         </div>
 
-        <div className="flex items-center gap-8">
-          {/* Score circle */}
-          <div className="relative w-28 h-28 shrink-0">
-            <svg className="w-28 h-28 -rotate-90" viewBox="0 0 120 120">
-              <circle cx="60" cy="60" r="52" stroke="#e2e8f0" strokeWidth="10" fill="none" />
-              <circle cx="60" cy="60" r="52" stroke={analysis.score >= 70 ? '#10b981' : analysis.score >= 40 ? '#f59e0b' : '#ef4444'} strokeWidth="10" fill="none"
-                strokeDasharray={`${analysis.score * 3.267} 326.7`} strokeLinecap="round" />
-            </svg>
-            <div className="absolute inset-0 flex flex-col items-center justify-center">
-              <span className={`text-2xl font-extrabold tabular-nums ${scoreColor}`}>{analysis.score}</span>
-              <span className="text-[10px] text-slate-400 font-medium uppercase tracking-wider">/ 100</span>
+        <div className="flex flex-col md:flex-row items-start gap-8">
+          {/* Score circle + grade */}
+          <div className="flex items-center gap-5 shrink-0">
+            <div className="relative w-28 h-28">
+              <svg className="w-28 h-28 -rotate-90" viewBox="0 0 120 120">
+                <circle cx="60" cy="60" r="52" stroke="#e2e8f0" strokeWidth="10" fill="none" />
+                <circle cx="60" cy="60" r="52" stroke={analysis.score >= 70 ? '#10b981' : analysis.score >= 40 ? '#f59e0b' : '#ef4444'} strokeWidth="10" fill="none"
+                  strokeDasharray={`${analysis.score * 3.267} 326.7`} strokeLinecap="round" />
+              </svg>
+              <div className="absolute inset-0 flex flex-col items-center justify-center">
+                <span className={`text-2xl font-extrabold tabular-nums ${scoreColor}`}>{analysis.score}</span>
+                <span className="text-[10px] text-slate-400 font-medium uppercase tracking-wider">/ 100</span>
+              </div>
             </div>
+            <span className={`text-3xl font-extrabold px-4 py-1 rounded-lg border-2 ${gradeColors[analysis.grade] || gradeColors.C}`}>
+              {analysis.grade}
+            </span>
           </div>
 
-          <div className="flex-1">
-            <div className="flex items-center gap-3 mb-2">
-              <span className={`text-3xl font-extrabold px-4 py-1 rounded-lg border-2 ${gradeColors[analysis.grade] || gradeColors.C}`}>
-                {analysis.grade}
-              </span>
-              <span className="text-sm text-slate-600">{analysis.scoreExplanation}</span>
-            </div>
+          {/* Breakdown bars */}
+          <div className="flex-1 w-full space-y-3">
+            {[
+              { label: 'Geográfica', detail: `${analysis.breakdown.geographic.countries} países`, ...analysis.breakdown.geographic },
+              { label: 'Setorial', detail: `${analysis.breakdown.sector.sectors} setores`, ...analysis.breakdown.sector },
+              { label: 'Classes de ativo', detail: `${analysis.breakdown.assetClass.classes} classes`, ...analysis.breakdown.assetClass },
+              { label: 'Concentração', detail: `${analysis.breakdown.concentration.positions} posições`, ...analysis.breakdown.concentration },
+            ].map((dim) => (
+              <div key={dim.label}>
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-xs font-semibold text-slate-700">{dim.label}</span>
+                  <span className="text-xs text-slate-400 tabular-nums">{dim.score}/{dim.max} <span className="text-slate-300">({dim.detail})</span></span>
+                </div>
+                <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
+                  <div
+                    className={`h-full rounded-full transition-all ${dim.score / dim.max >= 0.7 ? 'bg-emerald-500' : dim.score / dim.max >= 0.4 ? 'bg-amber-400' : 'bg-red-400'}`}
+                    style={{ width: `${(dim.score / dim.max) * 100}%` }}
+                  />
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </div>
