@@ -394,7 +394,7 @@ export default function DashboardPage() {
           {performance && performance.snapshotCount >= 2 && (
             <div className="flex items-center bg-slate-200 px-4 py-2 rounded-lg gap-3">
               {[
-                { label: 'Retorno total', value: performance.ttwror, bold: true },
+                { label: 'Retorno total', value: performance.ttwror, bold: true, tooltip: 'Rentabilidade ponderada pelo tempo (TWR) desde o primeiro registo' },
                 { label: 'YTD', value: performance.periodReturns.ytd, tooltip: 'Year To Date: rentabilidade acumulada desde 1 de janeiro deste ano' },
                 { label: 'Drawdown', value: performance.maxDrawdown ? -performance.maxDrawdown : 0, tooltip: 'Drawdown máximo: a maior queda entre um pico e um vale desde que existem dados' },
               ].map((m, i, arr) => (
