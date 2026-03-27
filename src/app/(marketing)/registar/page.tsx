@@ -45,6 +45,51 @@ function RegisterForm() {
 
       if (result?.error) {
         setError('Conta criada, mas erro ao entrar. Tenta na página de login.');
+      } else if (typeof window !== 'undefined' && sessionStorage.getItem('preview-data')) {
+        // Came from homepage preview — auto-import the extracted positions
+        const BROKER_MAP: Record<string, string> = {
+          'degiro': 'degiro', 'interactive brokers': 'ibkr', 'ibkr': 'ibkr',
+          'trading 212': 'trading212', 'lightyear': 'lightyear', 'revolut': 'revolut',
+          'etoro': 'etoro', 'freedom24': 'freedom24', 'novo banco': 'novobanco',
+          'banco ctt': 'bancoctt', 'coverflex': 'coverflex', 'xtb': 'xtb',
+          'trade republic': 'traderepublic', 'millennium bcp': 'millenniumbcp',
+          'bpi': 'bpi', 'montepio': 'montepio', 'santander': 'santander',
+          'bankinter': 'bankinter', 'activobank': 'activobank',
+          'caixa geral de depósitos': 'caixageral', 'investing.com': 'investing',
+        };
+        try {
+          const preview = JSON.parse(sessionStorage.getItem('preview-data')!);
+          if (preview.positions?.length > 0) {
+            const brokerSlug = (preview.brokerName ? BROKER_MAP[preview.brokerName.toLowerCase()] : null) || 'other';
+            const accountName = 'Principal';
+            // Clear existing holdings for this broker first
+            await fetch('/api/holdings/clear', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ brokerSlug, accountName }),
+            }).catch(() => {});
+            // Import each position
+            for (const pos of preview.positions) {
+              await fetch('/api/holdings/manual', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  name: pos.name,
+                  ticker: pos.ticker || undefined,
+                  isin: pos.isin || undefined,
+                  quantity: pos.quantity,
+                  price: pos.price || undefined,
+                  marketValue: pos.marketValue,
+                  currency: pos.currency || 'EUR',
+                  assetClass: pos.assetClass || 'ETF',
+                  brokerSlug,
+                }),
+              }).catch(() => {});
+            }
+          }
+          sessionStorage.removeItem('preview-data');
+        } catch {}
+        window.location.href = '/dashboard';
       } else if (upgrade) {
         // Came from "Começar com Plus" — go straight to Stripe checkout
         const checkoutRes = await fetch('/api/stripe/checkout', {
