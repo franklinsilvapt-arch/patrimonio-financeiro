@@ -219,7 +219,7 @@ export async function GET() {
     });
 
     // Top 3 concentration
-    const sortedWeights = positionWeights.sort((a, b) => b - a);
+    const sortedWeights = positions.map((p) => p.weight).sort((a, b) => b - a);
     const top3Pct = totalValue > 0
       ? ((sortedWeights.slice(0, 3).reduce((a, b) => a + b, 0) / totalValue) * 100).toFixed(1)
       : '0';
