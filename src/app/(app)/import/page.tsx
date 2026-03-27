@@ -206,7 +206,7 @@ function GroupedHistory({ history, fetchHistory, statusBadge }: {
                 size="icon"
                 className="h-8 w-8 text-red-500 hover:text-red-700 hover:bg-red-50"
                 onClick={async () => {
-                  if (!window.confirm(`Apagar ${g.ids.length} importação(ões) de ${g.brokerName}?`)) return;
+                  if (!window.confirm(`Apagar ${g.ids.length} ${g.ids.length === 1 ? 'importação' : 'importações'} de ${g.brokerName}?`)) return;
                   for (const id of g.ids) {
                     await fetch(`/api/import/${id}`, { method: 'DELETE' });
                   }
@@ -489,6 +489,11 @@ export default function ImportPage() {
         const data = await res.json();
 
         if (data.error) {
+          if (data.error === 'IMAGE_LIMIT') {
+            setImageResult({ error: 'IMAGE_LIMIT', positions: [] });
+            setImageProcessing(false);
+            return;
+          }
           lastError = data.error;
           continue;
         }
@@ -593,7 +598,7 @@ export default function ImportPage() {
     }
     setImageImportResult({
       success: failed === 0,
-      message: `${imported} posição(ões) importada(s)${failed > 0 ? `, ${failed} falharam` : ''}.`,
+      message: `${imported} ${imported === 1 ? 'posição importada' : 'posições importadas'}${failed > 0 ? `, ${failed} falharam` : ''}.`,
     });
     setImageImporting(false);
     fetchHistory();
@@ -941,7 +946,32 @@ export default function ImportPage() {
               )}
 
               {/* Error from OCR */}
-              {imageResult?.error && (
+              {imageResult?.error && imageResult.error === 'IMAGE_LIMIT' ? (
+                <div className="flex flex-col items-center gap-4 p-8 rounded-xl border-2 border-slate-200 text-center">
+                  <div className="w-10 h-10 bg-black rounded-full flex items-center justify-center shrink-0">
+                    <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <p className="font-bold text-base">Limite de importações por imagem</p>
+                    <p className="text-sm text-slate-500 mt-1">O plano gratuito permite 2 importações por imagem por mês. Faz upgrade para o Plus para importações ilimitadas.</p>
+                  </div>
+                  <div className="flex gap-3">
+                    <button
+                      onClick={async () => {
+                        const res = await fetch('/api/stripe/checkout', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({}) });
+                        const d = await res.json();
+                        if (d.url) window.location.href = d.url;
+                      }}
+                      className="bg-black text-white font-bold px-6 py-2.5 rounded-lg hover:opacity-80 transition-opacity text-sm"
+                    >
+                      Fazer upgrade para Plus →
+                    </button>
+                    <Button variant="outline" size="sm" onClick={resetImage}>Cancelar</Button>
+                  </div>
+                </div>
+              ) : imageResult?.error && (
                 <div className="flex items-center gap-3 p-4 rounded-lg border bg-red-50 border-red-200 text-red-800">
                   <XCircle className="h-5 w-5 shrink-0" />
                   <span className="text-sm">{imageResult.error}</span>

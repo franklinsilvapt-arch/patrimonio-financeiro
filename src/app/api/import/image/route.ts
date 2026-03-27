@@ -94,7 +94,22 @@ Be precise with numbers — extract them exactly as shown.`;
 
 export async function POST(request: NextRequest) {
   try {
-    await getAuthUserId();
+    const userId = await getAuthUserId();
+
+    // Free plan: max 2 image imports per month
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { plan: true, imageUploadsThisMonth: true, imageUploadsResetAt: true },
+    }).catch(() => null);
+    if (user && user.plan !== 'plus') {
+      const now = new Date();
+      const resetAt = new Date(user.imageUploadsResetAt);
+      const sameMonth = resetAt.getFullYear() === now.getFullYear() && resetAt.getMonth() === now.getMonth();
+      const count = sameMonth ? user.imageUploadsThisMonth : 0;
+      if (count >= 2) {
+        return NextResponse.json({ error: 'IMAGE_LIMIT' }, { status: 403 });
+      }
+    }
 
     const apiKey = process.env.ANTHROPIC_API_KEY;
     if (!apiKey) {
@@ -206,6 +221,18 @@ export async function POST(request: NextRequest) {
         securityName: security.name,
       });
     }
+
+    // Increment image upload counter for free users
+    const now = new Date();
+    const resetAt = user ? new Date(user.imageUploadsResetAt) : now;
+    const sameMonth = resetAt.getFullYear() === now.getFullYear() && resetAt.getMonth() === now.getMonth();
+    await prisma.user.update({
+      where: { id: userId },
+      data: {
+        imageUploadsThisMonth: sameMonth ? { increment: 1 } : 1,
+        imageUploadsResetAt: sameMonth ? undefined : now,
+      },
+    }).catch(() => {});
 
     return NextResponse.json(extracted);
   } catch (error) {

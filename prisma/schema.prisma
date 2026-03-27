@@ -15,6 +15,8 @@ model User {
   email          String   @unique
   hashedPassword String
   plan                String   @default("free") // "free" or "plus"
+  imageUploadsThisMonth Int    @default(0)
+  imageUploadsResetAt   DateTime @default(now())
   stripeCustomerId    String?  @unique
   stripeSubscriptionId String?
   createdAt      DateTime @default(now())

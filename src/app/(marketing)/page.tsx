@@ -200,12 +200,13 @@ const freePlanFeatures = [
   'Dashboard completo: alocação, países, setores, fatores',
   'Rentabilidade real (TWR, YTD, drawdown)',
   'Evolução histórica do portfolio',
-  'Exportação via screenshot, CSV ou manual',
+  'Importação via screenshot (2/mês), CSV ou manual',
   'Sem cartão de crédito',
 ];
 
 const plusPlanExtraFeatures = [
   'Corretoras ilimitadas',
+  'Importações por imagem ilimitadas',
   'Contas pessoal e empresarial',
   'Visão consolidada de todo o teu património',
 ];

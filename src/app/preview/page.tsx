@@ -109,7 +109,7 @@ export default function PreviewPage() {
               <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
             </svg>
             <p className="text-sm text-emerald-800">
-              <strong>{data.positions.length} posição(ões)</strong> extraída(s) de <strong>{data.brokerName}</strong>.
+              <strong>{data.positions.length} {data.positions.length === 1 ? 'posição extraída' : 'posições extraídas'}</strong> de <strong>{data.brokerName}</strong>.
               Cria uma conta para guardar os teus dados e aceder a todas as funcionalidades.
             </p>
           </div>
