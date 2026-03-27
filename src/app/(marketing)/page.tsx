@@ -224,13 +224,8 @@ const features = [
   },
   {
     icon: 'insights',
-    title: 'Rentabilidade real',
-    description: 'TWR, retorno anualizado, YTD, mensal, trimestral e métricas de risco máximo drawdown.',
-  },
-  {
-    icon: 'show_chart',
-    title: 'Evolução do património',
-    description: 'Gráficos dinâmicos em valor absoluto (€) e percentual (%) para análise histórica.',
+    title: 'Rentabilidade e evolução',
+    description: 'TWR, YTD, drawdown e gráficos de evolução do teu património em valor absoluto (€) e percentual (%).',
   },
   {
     icon: 'corporate_fare',
