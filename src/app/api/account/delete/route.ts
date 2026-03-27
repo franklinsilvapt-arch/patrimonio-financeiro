@@ -26,41 +26,43 @@ export async function POST() {
       }
     }
 
-    // Delete in order to respect foreign key constraints:
-    // 1. Holdings (depend on Account and ImportBatch)
-    const accounts = await prisma.account.findMany({ where: { userId }, select: { id: true } });
-    const accountIds = accounts.map((a) => a.id);
-    if (accountIds.length > 0) {
-      await prisma.holding.deleteMany({ where: { accountId: { in: accountIds } } });
-    }
-
-    // 2. ImportBatches
-    await prisma.importBatch.deleteMany({ where: { userId } });
-
-    // 3. Accounts
-    await prisma.account.deleteMany({ where: { userId } });
-
-    // 4. PortfolioSnapshots
-    await prisma.portfolioSnapshot.deleteMany({ where: { userId } });
-
-    // 5. Taxonomies (cascade: TaxonomyCategory → SecurityCategory)
-    const taxonomies = await prisma.taxonomy.findMany({ where: { userId }, select: { id: true } });
-    const taxonomyIds = taxonomies.map((t) => t.id);
-    if (taxonomyIds.length > 0) {
-      const categories = await prisma.taxonomyCategory.findMany({
-        where: { taxonomyId: { in: taxonomyIds } },
-        select: { id: true },
-      });
-      const categoryIds = categories.map((c) => c.id);
-      if (categoryIds.length > 0) {
-        await prisma.securityCategory.deleteMany({ where: { categoryId: { in: categoryIds } } });
+    // Delete all user data in a transaction to prevent partial deletion
+    await prisma.$transaction(async (tx) => {
+      // 1. Holdings (depend on Account and ImportBatch)
+      const accounts = await tx.account.findMany({ where: { userId }, select: { id: true } });
+      const accountIds = accounts.map((a) => a.id);
+      if (accountIds.length > 0) {
+        await tx.holding.deleteMany({ where: { accountId: { in: accountIds } } });
       }
-      await prisma.taxonomyCategory.deleteMany({ where: { taxonomyId: { in: taxonomyIds } } });
-    }
-    await prisma.taxonomy.deleteMany({ where: { userId } });
 
-    // 6. Delete the user
-    await prisma.user.delete({ where: { id: userId } });
+      // 2. ImportBatches
+      await tx.importBatch.deleteMany({ where: { userId } });
+
+      // 3. Accounts
+      await tx.account.deleteMany({ where: { userId } });
+
+      // 4. PortfolioSnapshots
+      await tx.portfolioSnapshot.deleteMany({ where: { userId } });
+
+      // 5. Taxonomies (cascade: TaxonomyCategory → SecurityCategory)
+      const taxonomies = await tx.taxonomy.findMany({ where: { userId }, select: { id: true } });
+      const taxonomyIds = taxonomies.map((t) => t.id);
+      if (taxonomyIds.length > 0) {
+        const categories = await tx.taxonomyCategory.findMany({
+          where: { taxonomyId: { in: taxonomyIds } },
+          select: { id: true },
+        });
+        const categoryIds = categories.map((c) => c.id);
+        if (categoryIds.length > 0) {
+          await tx.securityCategory.deleteMany({ where: { categoryId: { in: categoryIds } } });
+        }
+        await tx.taxonomyCategory.deleteMany({ where: { taxonomyId: { in: taxonomyIds } } });
+      }
+      await tx.taxonomy.deleteMany({ where: { userId } });
+
+      // 6. Delete the user
+      await tx.user.delete({ where: { id: userId } });
+    });
 
     return NextResponse.json({ ok: true });
   } catch (error) {
