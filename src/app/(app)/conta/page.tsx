@@ -1,6 +1,6 @@
 'use client';
 
-import { useSession } from 'next-auth/react';
+import { useSession, signOut } from 'next-auth/react';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 
@@ -11,6 +11,8 @@ export default function ContaPage() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [deleteConfirm, setDeleteConfirm] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -122,6 +124,62 @@ export default function ContaPage() {
             {loading ? 'A alterar...' : 'Alterar password'}
           </Button>
         </form>
+      </div>
+
+      {/* Delete account */}
+      <div className="rounded-lg border border-red-200 p-6 space-y-4">
+        <h2 className="text-lg font-semibold text-red-600">Apagar conta</h2>
+        <p className="text-sm text-muted-foreground">
+          Esta ação é irreversível. Todos os teus dados (posições, importações, snapshots) serão permanentemente apagados.
+        </p>
+
+        {!deleteConfirm ? (
+          <Button variant="outline" className="border-red-300 text-red-600 hover:bg-red-50" onClick={() => setDeleteConfirm(true)}>
+            Apagar a minha conta
+          </Button>
+        ) : (
+          <div className="space-y-3">
+            <p className="text-sm font-medium text-red-600">Tens a certeza? Escreve &quot;apagar&quot; para confirmar.</p>
+            <div className="flex items-center gap-3">
+              <input
+                type="text"
+                placeholder="Escreve 'apagar'"
+                id="delete-confirm-input"
+                className="flex h-10 w-48 rounded-md border border-red-300 bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400 focus-visible:ring-offset-2"
+              />
+              <Button
+                variant="destructive"
+                disabled={deleting}
+                onClick={async () => {
+                  const input = document.getElementById('delete-confirm-input') as HTMLInputElement;
+                  if (input?.value.toLowerCase() !== 'apagar') {
+                    setMessage({ type: 'error', text: 'Escreve "apagar" para confirmar' });
+                    return;
+                  }
+                  setDeleting(true);
+                  try {
+                    const res = await fetch('/api/account/delete', { method: 'POST' });
+                    if (res.ok) {
+                      await signOut({ callbackUrl: '/' });
+                    } else {
+                      const data = await res.json();
+                      setMessage({ type: 'error', text: data.error ?? 'Erro ao apagar conta' });
+                      setDeleting(false);
+                    }
+                  } catch {
+                    setMessage({ type: 'error', text: 'Erro de ligação ao servidor' });
+                    setDeleting(false);
+                  }
+                }}
+              >
+                {deleting ? 'A apagar...' : 'Confirmar eliminação'}
+              </Button>
+              <Button variant="outline" onClick={() => setDeleteConfirm(false)} disabled={deleting}>
+                Cancelar
+              </Button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
