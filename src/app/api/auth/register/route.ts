@@ -57,7 +57,7 @@ async function notifyNewRegistration(name: string, email: string) {
           <hr style="border: none; border-top: 1px solid #eee; margin: 24px 0;" />
           <p style="font-size: 15px; line-height: 1.6; color: #444;"><strong>Para começar:</strong></p>
           <ol style="font-size: 15px; line-height: 1.8; color: #444; padding-left: 20px;">
-            <li>Vai a <a href="https://patrimoniofinanceiro.pt/importar" style="color: #000; font-weight: 600;">patrimoniofinanceiro.pt/importar</a></li>
+            <li>Vai a <a href="https://patrimoniofinanceiro.pt" style="color: #000; font-weight: 600;">patrimoniofinanceiro.pt</a></li>
             <li>Faz upload de um screenshot ou CSV da tua corretora</li>
             <li>O teu dashboard fica pronto em segundos</li>
           </ol>
