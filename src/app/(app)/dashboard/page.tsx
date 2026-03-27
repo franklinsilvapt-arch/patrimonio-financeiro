@@ -556,7 +556,7 @@ export default function DashboardPage() {
             <div className="bg-white p-8 rounded-xl shadow-[0_20px_40px_rgba(25,28,30,0.06)]">
               <h3 className="text-xl font-bold font-[family-name:var(--font-manrope)] text-black tracking-tight mb-1">Exposição cambial real</h3>
               <p className="text-sm text-slate-500 mb-6">Moedas subjacentes dos ativos (look-through via país)</p>
-              <ExposureBarChart data={analytics.currencyExposure} title="Moedas" />
+              <ExposureBarChart data={analytics.currencyExposure} title="Moedas" limit={10} />
             </div>
           ) : (
             <div className="flex items-center justify-center h-32 text-slate-400 text-sm">
