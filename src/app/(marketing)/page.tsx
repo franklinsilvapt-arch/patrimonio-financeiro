@@ -79,7 +79,7 @@ export default function HomePage() {
             {/* Free Plan */}
             <div className="bg-white border-2 border-slate-200 rounded-2xl p-8 flex flex-col">
               <div className="mb-6">
-                <p className="text-sm font-black uppercase tracking-[0.2em] text-slate-400">Free</p>
+                <p className="text-sm font-black uppercase tracking-[0.2em] text-slate-400">Grátis</p>
                 <p className="mt-2 text-4xl font-extrabold text-black font-[family-name:var(--font-manrope)]">0€</p>
                 <p className="text-sm text-slate-400 mt-1">&nbsp;</p>
               </div>
@@ -115,7 +115,7 @@ export default function HomePage() {
                   <p className="text-sm text-slate-400 mt-1">sem compromisso</p>
                 </div>
                 <ul className="space-y-3 flex-1 mb-8">
-                  <li className="text-xs font-semibold uppercase tracking-widest text-slate-500 pb-1">Tudo do plano Free, mais:</li>
+                  <li className="text-xs font-semibold uppercase tracking-widest text-slate-500 pb-1">Tudo do plano Grátis, mais:</li>
                   {plusPlanExtraFeatures.map((f) => (
                     <li key={f} className="flex items-start gap-2 text-sm text-white">
                       <svg className="w-4 h-4 text-emerald-400 mt-0.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
