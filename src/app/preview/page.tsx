@@ -74,7 +74,7 @@ export default function PreviewPage() {
     .map(([name, value]) => ({ name, value }))
     .sort((a, b) => b.value - a.value);
 
-  const lockedTabs = ['Países', 'Setores', 'Fatores', 'Cambial', 'Histórico'];
+  const lockedTabs = ['Países', 'Setores', 'Fatores', 'Cambial', 'Histórico', 'Raio-X'];
 
   return (
     <div className="min-h-screen bg-[#f7f9fb]">
