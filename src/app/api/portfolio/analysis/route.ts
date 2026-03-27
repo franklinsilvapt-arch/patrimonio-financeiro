@@ -142,17 +142,13 @@ Devolve APENAS um JSON válido com esta estrutura exata:
   },
   "strengths": ["<ponto forte 1>", "<ponto forte 2>"],
   "risks": ["<risco 1>", "<risco 2>"],
-  "suggestions": [
-    {"title": "<título curto>", "detail": "<1-2 frases com sugestão acionável>"},
-    {"title": "<título curto>", "detail": "<1-2 frases com sugestão acionável>"}
-  ],
   "overlapNotes": "<Se existirem ETFs com sobreposição de holdings, comenta aqui. Caso contrário, null>"
 }
 
 Regras:
 - Sê direto e concreto, sem jargão desnecessário
 - Usa dados reais do portfólio (não inventes números)
-- Máximo 2-3 sugestões, priorizando as mais impactantes
+- NÃO dês sugestões de investimento nem aconselhamento financeiro — limita-te a descrever factos sobre a composição do portfólio
 - O score deve refletir: diversificação geográfica, setorial, por classe de ativo e concentração
 - Se vires ETFs globais (VWCE, IWDA, SWDA, etc.) e ETFs regionais (CSPX, SXR8, etc.) que se sobrepõem, menciona em overlapNotes`;
 

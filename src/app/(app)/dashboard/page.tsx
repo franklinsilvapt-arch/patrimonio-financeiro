@@ -490,6 +490,10 @@ export default function DashboardPage() {
           <TabsTrigger value="currency">Cambial</TabsTrigger>
           <TabsTrigger value="holdings">Posições</TabsTrigger>
           <TabsTrigger value="history">Histórico</TabsTrigger>
+          <TabsTrigger value="xray" className="gap-1.5">
+            <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z" /></svg>
+            Raio-X
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview">
@@ -503,11 +507,6 @@ export default function DashboardPage() {
               <h3 className="text-xl font-bold font-[family-name:var(--font-manrope)] text-black tracking-tight mb-8">Alocação por tipo de ativo</h3>
               <DonutChart data={translateAssetClasses(filteredChartData?.assetClassAllocation ?? data.assetClassAllocation)} colorScheme="green" />
             </div>
-          </div>
-
-          {/* Raio-X AI */}
-          <div className="mt-6">
-            <XRayTab />
           </div>
         </TabsContent>
 
@@ -565,6 +564,10 @@ export default function DashboardPage() {
             </div>
           )}
         </TabsContent>
+
+        <TabsContent value="xray">
+          <XRayTab />
+        </TabsContent>
       </Tabs>
     </div>
   );
@@ -581,7 +584,6 @@ interface XRayAnalysis {
   concentrationRisk: { title: string; detail: string };
   strengths: string[];
   risks: string[];
-  suggestions: Array<{ title: string; detail: string }>;
   overlapNotes: string | null;
 }
 
@@ -752,21 +754,6 @@ function XRayTab() {
         </div>
       )}
 
-      {/* Suggestions */}
-      <div className="bg-white rounded-xl shadow-[0_20px_40px_rgba(25,28,30,0.06)] p-8">
-        <h4 className="text-base font-bold mb-4 flex items-center gap-2">
-          <svg className="w-5 h-5 text-black" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 18v-5.25m0 0a6.01 6.01 0 001.5-.189m-1.5.189a6.01 6.01 0 01-1.5-.189m3.75 7.478a12.06 12.06 0 01-4.5 0m3.75 2.383a14.406 14.406 0 01-3 0M14.25 18v-.192c0-.983.658-1.823 1.508-2.316a7.5 7.5 0 10-7.517 0c.85.493 1.509 1.333 1.509 2.316V18" /></svg>
-          Sugestões
-        </h4>
-        <div className="space-y-4">
-          {analysis.suggestions.map((s, i) => (
-            <div key={i} className="border-l-2 border-black pl-4">
-              <p className="text-sm font-semibold text-black">{s.title}</p>
-              <p className="text-sm text-slate-500 mt-0.5">{s.detail}</p>
-            </div>
-          ))}
-        </div>
-      </div>
     </div>
   );
 }
