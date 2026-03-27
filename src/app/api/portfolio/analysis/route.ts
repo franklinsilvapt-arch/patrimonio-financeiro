@@ -27,7 +27,7 @@ function hhi(weights: number[]): number {
 // Score calculation — 4 dimensions, 25 points each
 // ---------------------------------------------------------------------------
 function computeScore(data: {
-  positionWeights: number[];
+  positions: Array<{ weight: number; assetClass: string; hasCountryExposures: boolean }>;
   countryWeights: number[];
   sectorWeights: number[];
   assetClassWeights: number[];
@@ -52,9 +52,26 @@ function computeScore(data: {
   const assetBreadth = Math.min(data.numAssetClasses / 4, 1); // 4+ classes = full marks
   const assetScore = Math.round(assetHhi * 15 + assetBreadth * 10);
 
-  // 4. Concentration / position spread (25 pts)
-  const posHhi = hhi(data.positionWeights);
-  const posBreadth = Math.min(data.numPositions / 15, 1); // 15+ positions = full marks
+  // 4. Concentration (25 pts)
+  // ETFs/Funds are internally diversified — a single global ETF holding
+  // 3000+ stocks is NOT a concentration risk. We use "effective weights":
+  // - ETFs/Funds with country exposure data (enriched): count at 10% of real weight
+  // - ETFs/Funds without enrichment: count at 25% of real weight
+  // - Individual stocks/other: count at full weight
+  const diversifiedClasses = new Set(['ETF', 'FUND']);
+  const effectiveWeights = data.positions.map((p) => {
+    if (diversifiedClasses.has(p.assetClass)) {
+      return p.weight * (p.hasCountryExposures ? 0.1 : 0.25);
+    }
+    return p.weight;
+  });
+  const posHhi = hhi(effectiveWeights);
+  // Effective positions: each ETF/Fund counts as ~10 positions for breadth
+  const effectivePositions = data.positions.reduce((sum, p) => {
+    if (diversifiedClasses.has(p.assetClass)) return sum + 10;
+    return sum + 1;
+  }, 0);
+  const posBreadth = Math.min(effectivePositions / 15, 1);
   const concScore = Math.round(posHhi * 15 + posBreadth * 10);
 
   const total = geoScore + sectorScore + assetScore + concScore;
@@ -182,12 +199,16 @@ export async function GET() {
       .sort((a, b) => b[1] - a[1])
       .map(([cls, val]) => `${cls}: ${(val / totalValue * 100).toFixed(1)}%`);
 
-    // Position weights
-    const positionWeights = active.map((h) => h.marketValue || 0);
+    // Position data for concentration analysis
+    const positions = active.map((h) => ({
+      weight: h.marketValue || 0,
+      assetClass: h.security.assetClass,
+      hasCountryExposures: h.security.countryExposures.length > 0,
+    }));
 
     // Compute deterministic score
     const scoreResult = computeScore({
-      positionWeights,
+      positions,
       countryWeights,
       sectorWeights,
       assetClassWeights,
@@ -233,8 +254,8 @@ SCORE DE DIVERSIFICAÇÃO (já calculado, NÃO alteres):
 Devolve APENAS um JSON válido com esta estrutura exata:
 {
   "concentrationRisk": {
-    "title": "<ex: As tuas 3 maiores posições representam X% do portfólio>",
-    "detail": "<1-2 frases sobre o risco de concentração>"
+    "title": "<resumo factual da concentração — ex: As tuas 3 maiores posições representam X% do portfólio>",
+    "detail": "<1-2 frases sobre a concentração. Sê preciso: se as posições grandes forem ETFs diversificados (ex: VWCE com 3000+ ações), isso NÃO é um risco de concentração real. Concentração é um risco apenas quando posições grandes são ações individuais ou ETFs de nicho.>"
   },
   "strengths": ["<ponto forte 1>", "<ponto forte 2>"],
   "risks": ["<risco 1>", "<risco 2>"],
@@ -245,6 +266,7 @@ Regras:
 - Sê direto e concreto, sem jargão desnecessário
 - Usa dados reais do portfólio (não inventes números)
 - NÃO dês sugestões de investimento nem aconselhamento financeiro — limita-te a descrever factos sobre a composição do portfólio
+- IMPORTANTE sobre concentração: ETFs e fundos são veículos internamente diversificados. Um portfólio com 3 ETFs globais (ex: VWCE, IWDA) NÃO tem risco de concentração, mesmo que esses 3 representem 90% do valor total. Concentração é um problema quando posições grandes são ações individuais.
 - Se vires ETFs globais (VWCE, IWDA, SWDA, etc.) e ETFs regionais (CSPX, SXR8, etc.) que se sobrepõem, menciona em overlapNotes`;
 
     const anthropic = new Anthropic({ apiKey });
