@@ -13,8 +13,8 @@ export default function HomePage() {
             <span className="text-slate-500">numa única vista.</span>
           </h1>
           <p className="max-w-2xl mx-auto text-lg md:text-xl text-slate-600 mb-8 leading-relaxed">
-            O dashboard para quem investe, maioritariamente, em ETFs.
-            Agrega posições de várias corretoras, analisa a tua exposição real por país e setor, e acompanha a rentabilidade do teu portfólio.
+            Agrega posições de todas as tuas corretoras e bancos num só dashboard.
+            Visualiza alocação, rentabilidade e evolução, sem partilhar dados com terceiros.
           </p>
           {/* Começa aqui + Dashboard Preview — side by side */}
           <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 max-w-6xl mx-auto items-center">
