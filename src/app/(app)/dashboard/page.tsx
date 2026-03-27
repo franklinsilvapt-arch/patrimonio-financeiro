@@ -490,6 +490,10 @@ export default function DashboardPage() {
           <TabsTrigger value="currency">Cambial</TabsTrigger>
           <TabsTrigger value="holdings">Posições</TabsTrigger>
           <TabsTrigger value="history">Histórico</TabsTrigger>
+          <TabsTrigger value="xray" className="gap-1.5">
+            <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.455 2.456L21.75 6l-1.036.259a3.375 3.375 0 00-2.455 2.456z" /></svg>
+            Raio-X
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview">
@@ -560,7 +564,212 @@ export default function DashboardPage() {
             </div>
           )}
         </TabsContent>
+
+        <TabsContent value="xray">
+          <XRayTab />
+        </TabsContent>
       </Tabs>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Raio-X Tab — AI portfolio analysis
+// ---------------------------------------------------------------------------
+
+interface XRayAnalysis {
+  score: number;
+  grade: string;
+  scoreExplanation: string;
+  concentrationRisk: { title: string; detail: string };
+  strengths: string[];
+  risks: string[];
+  suggestions: Array<{ title: string; detail: string }>;
+  overlapNotes: string | null;
+}
+
+function XRayTab() {
+  const [analysis, setAnalysis] = useState<XRayAnalysis | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  async function runAnalysis() {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await fetch('/api/portfolio/analysis');
+      if (!res.ok) {
+        const d = await res.json();
+        setError(d.error || 'Erro ao gerar análise');
+        return;
+      }
+      setAnalysis(await res.json());
+    } catch {
+      setError('Erro de ligação');
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  if (!analysis && !loading && !error) {
+    return (
+      <div className="bg-white rounded-xl shadow-[0_20px_40px_rgba(25,28,30,0.06)] p-12 flex flex-col items-center text-center gap-4">
+        <div className="w-14 h-14 bg-black rounded-full flex items-center justify-center">
+          <svg className="w-7 h-7 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.455 2.456L21.75 6l-1.036.259a3.375 3.375 0 00-2.455 2.456z" />
+          </svg>
+        </div>
+        <h3 className="text-xl font-bold font-[family-name:var(--font-manrope)]">Raio-X do Portfólio</h3>
+        <p className="text-sm text-slate-500 max-w-md">
+          Análise inteligente do teu portfólio: diversificação, concentração, sobreposição de ETFs e sugestões personalizadas.
+        </p>
+        <button
+          onClick={runAnalysis}
+          className="mt-2 bg-black text-white font-bold px-8 py-3 rounded-lg hover:opacity-80 transition-opacity flex items-center gap-2"
+        >
+          <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z" /></svg>
+          Gerar análise com IA
+        </button>
+      </div>
+    );
+  }
+
+  if (loading) {
+    return (
+      <div className="bg-white rounded-xl shadow-[0_20px_40px_rgba(25,28,30,0.06)] p-12 flex flex-col items-center gap-4">
+        <div className="w-10 h-10 border-4 border-slate-200 border-t-black rounded-full animate-spin" />
+        <p className="text-sm text-slate-500">A analisar o teu portfólio com IA...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="bg-white rounded-xl shadow-[0_20px_40px_rgba(25,28,30,0.06)] p-8 text-center space-y-3">
+        <p className="text-red-600 text-sm font-medium">{error}</p>
+        <button onClick={runAnalysis} className="text-sm text-black underline">Tentar novamente</button>
+      </div>
+    );
+  }
+
+  if (!analysis) return null;
+
+  const gradeColors: Record<string, string> = {
+    A: 'bg-emerald-100 text-emerald-700 border-emerald-200',
+    B: 'bg-blue-100 text-blue-700 border-blue-200',
+    C: 'bg-amber-100 text-amber-700 border-amber-200',
+    D: 'bg-red-100 text-red-700 border-red-200',
+  };
+
+  const scoreColor = analysis.score >= 70 ? 'text-emerald-600' : analysis.score >= 40 ? 'text-amber-600' : 'text-red-600';
+
+  return (
+    <div className="space-y-6">
+      {/* Score + Grade */}
+      <div className="bg-white rounded-xl shadow-[0_20px_40px_rgba(25,28,30,0.06)] p-8">
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h3 className="text-xl font-bold font-[family-name:var(--font-manrope)] text-black tracking-tight">Raio-X do Portfólio</h3>
+            <p className="text-sm text-slate-500 mt-1">Análise gerada por IA com base nas tuas posições atuais</p>
+          </div>
+          <button onClick={runAnalysis} className="text-xs text-slate-400 hover:text-black transition-colors underline">
+            Atualizar
+          </button>
+        </div>
+
+        <div className="flex items-center gap-8">
+          {/* Score circle */}
+          <div className="relative w-28 h-28 shrink-0">
+            <svg className="w-28 h-28 -rotate-90" viewBox="0 0 120 120">
+              <circle cx="60" cy="60" r="52" stroke="#e2e8f0" strokeWidth="10" fill="none" />
+              <circle cx="60" cy="60" r="52" stroke={analysis.score >= 70 ? '#10b981' : analysis.score >= 40 ? '#f59e0b' : '#ef4444'} strokeWidth="10" fill="none"
+                strokeDasharray={`${analysis.score * 3.267} 326.7`} strokeLinecap="round" />
+            </svg>
+            <div className="absolute inset-0 flex flex-col items-center justify-center">
+              <span className={`text-2xl font-extrabold tabular-nums ${scoreColor}`}>{analysis.score}</span>
+              <span className="text-[10px] text-slate-400 font-medium uppercase tracking-wider">/ 100</span>
+            </div>
+          </div>
+
+          <div className="flex-1">
+            <div className="flex items-center gap-3 mb-2">
+              <span className={`text-3xl font-extrabold px-4 py-1 rounded-lg border-2 ${gradeColors[analysis.grade] || gradeColors.C}`}>
+                {analysis.grade}
+              </span>
+              <span className="text-sm text-slate-600">{analysis.scoreExplanation}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Concentration Risk */}
+      <div className="bg-white rounded-xl shadow-[0_20px_40px_rgba(25,28,30,0.06)] p-8">
+        <h4 className="text-base font-bold mb-2 flex items-center gap-2">
+          <svg className="w-5 h-5 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126z" /></svg>
+          {analysis.concentrationRisk.title}
+        </h4>
+        <p className="text-sm text-slate-500">{analysis.concentrationRisk.detail}</p>
+      </div>
+
+      {/* Strengths + Risks */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="bg-white rounded-xl shadow-[0_20px_40px_rgba(25,28,30,0.06)] p-8">
+          <h4 className="text-base font-bold mb-4 flex items-center gap-2">
+            <svg className="w-5 h-5 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+            Pontos fortes
+          </h4>
+          <ul className="space-y-2">
+            {analysis.strengths.map((s, i) => (
+              <li key={i} className="text-sm text-slate-600 flex items-start gap-2">
+                <span className="text-emerald-500 mt-0.5 shrink-0">+</span>
+                {s}
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <div className="bg-white rounded-xl shadow-[0_20px_40px_rgba(25,28,30,0.06)] p-8">
+          <h4 className="text-base font-bold mb-4 flex items-center gap-2">
+            <svg className="w-5 h-5 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126z" /></svg>
+            Riscos a considerar
+          </h4>
+          <ul className="space-y-2">
+            {analysis.risks.map((r, i) => (
+              <li key={i} className="text-sm text-slate-600 flex items-start gap-2">
+                <span className="text-red-500 mt-0.5 shrink-0">!</span>
+                {r}
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+
+      {/* ETF Overlap */}
+      {analysis.overlapNotes && (
+        <div className="bg-white rounded-xl shadow-[0_20px_40px_rgba(25,28,30,0.06)] p-8">
+          <h4 className="text-base font-bold mb-2 flex items-center gap-2">
+            <svg className="w-5 h-5 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M7.5 21L3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5" /></svg>
+            Sobreposição de ETFs
+          </h4>
+          <p className="text-sm text-slate-500">{analysis.overlapNotes}</p>
+        </div>
+      )}
+
+      {/* Suggestions */}
+      <div className="bg-white rounded-xl shadow-[0_20px_40px_rgba(25,28,30,0.06)] p-8">
+        <h4 className="text-base font-bold mb-4 flex items-center gap-2">
+          <svg className="w-5 h-5 text-black" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 18v-5.25m0 0a6.01 6.01 0 001.5-.189m-1.5.189a6.01 6.01 0 01-1.5-.189m3.75 7.478a12.06 12.06 0 01-4.5 0m3.75 2.383a14.406 14.406 0 01-3 0M14.25 18v-.192c0-.983.658-1.823 1.508-2.316a7.5 7.5 0 10-7.517 0c.85.493 1.509 1.333 1.509 2.316V18" /></svg>
+          Sugestões
+        </h4>
+        <div className="space-y-4">
+          {analysis.suggestions.map((s, i) => (
+            <div key={i} className="border-l-2 border-black pl-4">
+              <p className="text-sm font-semibold text-black">{s.title}</p>
+              <p className="text-sm text-slate-500 mt-0.5">{s.detail}</p>
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }
