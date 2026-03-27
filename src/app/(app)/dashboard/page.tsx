@@ -565,7 +565,7 @@ export default function DashboardPage() {
           )}
         </TabsContent>
 
-        <TabsContent value="xray">
+        <TabsContent value="xray" forceMount className="data-[state=inactive]:hidden">
           <XRayTab />
         </TabsContent>
       </Tabs>
