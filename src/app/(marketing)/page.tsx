@@ -219,7 +219,7 @@ const features = [
   {
     icon: 'dashboard',
     title: 'Dashboard completo',
-    description: 'Valor total, alocação por corretora, exposição por país, setor e moeda num relance.',
+    description: 'Valor total, alocação por corretora, exposição por país, setor e moeda num único sítio.',
   },
   {
     icon: 'insights',
