@@ -63,7 +63,7 @@ async function notifyNewRegistration(name: string, email: string) {
           </ol>
           <p style="font-size: 15px; line-height: 1.6; color: #444; margin-top: 24px;">
             Bons investimentos,<br />
-            <strong>Franklin Silva</strong><br />
+            <strong>Franklin Carneiro da Silva</strong><br />
             <span style="color: #888;">Património Financeiro</span>
           </p>
         </div>
