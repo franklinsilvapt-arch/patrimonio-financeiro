@@ -19,7 +19,7 @@ async function notifyNewRegistration(name: string, email: string) {
 
     // Notify admin
     await resend.emails.send({
-      from: 'Património Financeiro <onboarding@resend.dev>',
+      from: 'Património Financeiro <noreply@patrimoniofinanceiro.pt>',
       to: ADMIN_EMAIL,
       subject: `Novo registo: ${name}`,
       html: `
@@ -32,7 +32,7 @@ async function notifyNewRegistration(name: string, email: string) {
 
     // Welcome email to the new user
     await resend.emails.send({
-      from: 'Património Financeiro <onboarding@resend.dev>',
+      from: 'Património Financeiro <noreply@patrimoniofinanceiro.pt>',
       replyTo: ADMIN_EMAIL,
       to: email,
       subject: 'Bem-vindo ao Património Financeiro',
