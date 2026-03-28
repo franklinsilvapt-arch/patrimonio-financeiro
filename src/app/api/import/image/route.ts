@@ -38,6 +38,7 @@ Known platforms to identify:
 - "XTB": look for "XTB" branding, portfolio positions with ticker/name, quantity, value. Extract all positions.
 - "Trade Republic": look for "Trade Republic" branding, portfolio overview with positions and cash balance.
 - Portuguese banks (Millennium BCP, BPI, Montepio, Santander, Bankinter, ActivoBank, Caixa Geral de Depósitos): look for account balances, "Saldo", "Conta à Ordem". Extract balances as CASH positions with the bank name as brokerName.
+- PPR funds: If you see "Save & Grow" or "Casa de Investimentos", extract it as a single FUND position with name="Save & Grow PPR", isin="PTCUUBHM0004", assetClass="FUND", brokerName="Casa de Investimentos". Extract the total value ("Valor atual" or "Valor da carteira") as marketValue. If you see both Founders and Prime classes, extract them separately (Founders ISIN: PTCUUBHM0004, Prime ISIN: PTCUUAHM0005).
 
 If you see a total portfolio value, extract it as "totalValue".
 

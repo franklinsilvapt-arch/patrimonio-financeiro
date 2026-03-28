@@ -4,6 +4,7 @@
 
 import { prisma } from '@/lib/db';
 import { fetchJustETF } from './justetf';
+import { getPPRFundData } from './ppr-data';
 
 export interface EnrichmentResult {
   securityId: string;
@@ -38,6 +39,57 @@ export async function enrichSecurity(securityId: string): Promise<EnrichmentResu
   }
 
   try {
+    // Try static PPR data first (Portuguese pension funds not on JustETF)
+    const pprData = getPPRFundData(security.isin);
+    if (pprData) {
+      // Delete old data for this security from same source
+      await prisma.countryExposure.deleteMany({
+        where: { securityId, source: { startsWith: 'casadeinvestimentos' } },
+      });
+      await prisma.sectorExposure.deleteMany({
+        where: { securityId, source: { startsWith: 'casadeinvestimentos' } },
+      });
+
+      if (pprData.countries.length > 0) {
+        await prisma.countryExposure.createMany({
+          data: pprData.countries.map((c) => ({
+            securityId,
+            country: c.country,
+            countryName: c.countryName,
+            weight: c.weight,
+            date: pprData.referenceDate,
+            source: pprData.source,
+            confidence: 0.95,
+            coverage: 1.0,
+          })),
+        });
+      }
+
+      if (pprData.sectors.length > 0) {
+        await prisma.sectorExposure.createMany({
+          data: pprData.sectors.map((s) => ({
+            securityId,
+            sector: s.sector,
+            weight: s.weight,
+            date: pprData.referenceDate,
+            source: pprData.source,
+            confidence: 0.95,
+            coverage: 1.0,
+          })),
+        });
+      }
+
+      return {
+        securityId,
+        isin: security.isin,
+        ticker: security.ticker,
+        countriesAdded: pprData.countries.length,
+        sectorsAdded: pprData.sectors.length,
+        source: pprData.source,
+      };
+    }
+
+    // Fallback to JustETF for ETFs
     const data = await fetchJustETF(security.isin);
 
     if (!data) {
