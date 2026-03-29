@@ -34,9 +34,13 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Free plan: only 1 broker allowed
-    const user = await prisma.user.findUnique({ where: { id: userId }, select: { plan: true } });
+    // Free plan limits
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { plan: true, manualPositionsCount: true },
+    }).catch(() => null);
     if (user?.plan !== 'plus') {
+      // Broker limit: only 1 broker
       const existingAccounts = await prisma.account.findMany({
         where: { userId },
         include: { broker: true },
@@ -44,6 +48,10 @@ export async function POST(request: NextRequest) {
       const existingSlugs = new Set(existingAccounts.map((a) => a.broker.slug));
       if (existingSlugs.size > 0 && !existingSlugs.has(body.brokerSlug)) {
         return NextResponse.json({ error: 'BROKER_LIMIT' }, { status: 403 });
+      }
+      // Manual positions limit: 5
+      if ((user?.manualPositionsCount ?? 0) >= 5) {
+        return NextResponse.json({ error: 'MANUAL_LIMIT' }, { status: 403 });
       }
     }
 
@@ -179,6 +187,14 @@ export async function POST(request: NextRequest) {
         priceSource: 'manual',
       },
     });
+
+    // Increment manual positions counter for free users
+    if (user?.plan !== 'plus') {
+      await prisma.user.update({
+        where: { id: userId },
+        data: { manualPositionsCount: { increment: 1 } },
+      }).catch(() => {});
+    }
 
     return NextResponse.json({ success: true, holdingId: holding.id, batchId: batch.id });
   } catch (error) {

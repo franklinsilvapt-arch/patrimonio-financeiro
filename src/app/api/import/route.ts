@@ -46,9 +46,27 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: `Unknown broker: ${brokerSlug}` }, { status: 400 });
     }
 
-    // Free plan: only 1 broker allowed
-    const user = await prisma.user.findUnique({ where: { id: userId }, select: { plan: true } });
+    // Free plan limits
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { plan: true, csvImportsThisMonth: true, csvImportsResetAt: true },
+    }).catch(() => null);
     if (user?.plan !== 'plus') {
+      // Reset monthly counter if needed
+      const now = new Date();
+      const resetAt = user?.csvImportsResetAt ? new Date(user.csvImportsResetAt) : new Date(0);
+      if (now.getMonth() !== resetAt.getMonth() || now.getFullYear() !== resetAt.getFullYear()) {
+        await prisma.user.update({
+          where: { id: userId },
+          data: { csvImportsThisMonth: 0, csvImportsResetAt: now },
+        }).catch(() => {});
+        if (user) user.csvImportsThisMonth = 0;
+      }
+      // CSV import limit: 2/month
+      if ((user?.csvImportsThisMonth ?? 0) >= 2) {
+        return NextResponse.json({ error: 'CSV_LIMIT' }, { status: 403 });
+      }
+      // Broker limit: only 1 broker
       const existingAccounts = await prisma.account.findMany({
         where: { userId },
         include: { broker: true },
@@ -344,6 +362,14 @@ export async function POST(request: NextRequest) {
       });
     } catch (snapErr) {
       console.error('Failed to create auto-snapshot:', snapErr);
+    }
+
+    // Increment CSV import counter for free users
+    if (user?.plan !== 'plus') {
+      await prisma.user.update({
+        where: { id: userId },
+        data: { csvImportsThisMonth: { increment: 1 } },
+      }).catch(() => {});
     }
 
     return NextResponse.json({

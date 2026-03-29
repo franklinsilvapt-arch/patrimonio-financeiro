@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { Upload, FileText, AlertTriangle, CheckCircle, XCircle, ChevronDown, ChevronUp, Trash2, Plus, ImageIcon } from 'lucide-react';
+import { UpgradePopup } from '@/components/upgrade-popup';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -244,6 +245,7 @@ export default function ImportPage() {
   const [previewing, setPreviewing] = useState(false);
   const [importing, setImporting] = useState(false);
   const [importResult, setImportResult] = useState<{ success: boolean; message: string } | null>(null);
+  const [upgradeLimit, setUpgradeLimit] = useState<string | null>(null);
   const [errorsExpanded, setErrorsExpanded] = useState(false);
   const [history, setHistory] = useState<ImportBatchRecord[]>([]);
   const [historyLoading, setHistoryLoading] = useState(true);
@@ -390,8 +392,8 @@ export default function ImportPage() {
           message: `Importação concluída: ${data.imported} posições importadas${data.failed > 0 ? `, ${data.failed} falharam` : ''}.`,
         });
         fetchHistory();
-      } else if (res.status === 403 && data.error === 'BROKER_LIMIT') {
-        setImportResult({ success: false, message: 'BROKER_LIMIT' });
+      } else if (res.status === 403 && ['BROKER_LIMIT', 'CSV_LIMIT'].includes(data.error)) {
+        setUpgradeLimit(data.error);
       } else {
         setImportResult({ success: false, message: data.error || 'Erro na importação' });
       }
@@ -444,6 +446,8 @@ export default function ImportPage() {
         setManualResult({ success: true, message: `Posição "${manualForm.name}" adicionada com sucesso.` });
         setManualForm({ name: '', ticker: '', isin: '', quantity: '', price: '', marketValue: '', currency: 'EUR', assetClass: 'EQUITY', brokerSlug: manualForm.brokerSlug });
         fetchHistory();
+      } else if (res.status === 403 && ['BROKER_LIMIT', 'MANUAL_LIMIT'].includes(data.error)) {
+        setUpgradeLimit(data.error);
       } else {
         setManualResult({ success: false, message: data.error || 'Erro ao adicionar posição' });
       }
@@ -490,7 +494,7 @@ export default function ImportPage() {
 
         if (data.error) {
           if (data.error === 'IMAGE_LIMIT') {
-            setImageResult({ error: 'IMAGE_LIMIT', positions: [] });
+            setUpgradeLimit('IMAGE_LIMIT');
             setImageProcessing(false);
             return;
           }
@@ -583,9 +587,9 @@ export default function ImportPage() {
           imported++;
         } else if (res.status === 403) {
           const d = await res.json();
-          if (d.error === 'BROKER_LIMIT') {
+          if (['BROKER_LIMIT', 'MANUAL_LIMIT'].includes(d.error)) {
             setImageImporting(false);
-            setImageImportResult({ success: false, message: 'BROKER_LIMIT' });
+            setUpgradeLimit(d.error);
             return;
           }
           failed++;
@@ -843,32 +847,7 @@ export default function ImportPage() {
               )}
 
               {/* Import result */}
-              {importResult && importResult.message === 'BROKER_LIMIT' ? (
-                <div className="flex flex-col items-center gap-4 p-8 rounded-xl border-2 border-slate-200 text-center">
-                  <div className="w-10 h-10 bg-black rounded-full flex items-center justify-center shrink-0">
-                    <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                    </svg>
-                  </div>
-                  <div>
-                    <p className="font-bold text-base">Limite do plano gratuito</p>
-                    <p className="text-sm text-slate-500 mt-1">O plano gratuito suporta apenas 1 corretora ou banco. Faz upgrade para o Plus para adicionares corretoras ilimitadas.</p>
-                  </div>
-                  <div className="flex gap-3">
-                    <button
-                      onClick={async () => {
-                        const res = await fetch('/api/stripe/checkout', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({}) });
-                        const d = await res.json();
-                        if (d.url) window.location.href = d.url;
-                      }}
-                      className="bg-black text-white font-bold px-6 py-2.5 rounded-lg hover:opacity-80 transition-opacity text-sm"
-                    >
-                      Fazer upgrade para Plus →
-                    </button>
-                    <Button variant="outline" size="sm" onClick={resetUpload}>Cancelar</Button>
-                  </div>
-                </div>
-              ) : importResult && (
+              {importResult && (
                 <div
                   className={`flex items-center gap-3 p-4 rounded-lg border ${
                     importResult.success
@@ -946,32 +925,7 @@ export default function ImportPage() {
               )}
 
               {/* Error from OCR */}
-              {imageResult?.error && imageResult.error === 'IMAGE_LIMIT' ? (
-                <div className="flex flex-col items-center gap-4 p-8 rounded-xl border-2 border-slate-200 text-center">
-                  <div className="w-10 h-10 bg-black rounded-full flex items-center justify-center shrink-0">
-                    <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                    </svg>
-                  </div>
-                  <div>
-                    <p className="font-bold text-base">Limite de importações por imagem</p>
-                    <p className="text-sm text-slate-500 mt-1">O plano gratuito permite 2 importações por imagem por mês. Faz upgrade para o Plus para importações ilimitadas.</p>
-                  </div>
-                  <div className="flex gap-3">
-                    <button
-                      onClick={async () => {
-                        const res = await fetch('/api/stripe/checkout', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({}) });
-                        const d = await res.json();
-                        if (d.url) window.location.href = d.url;
-                      }}
-                      className="bg-black text-white font-bold px-6 py-2.5 rounded-lg hover:opacity-80 transition-opacity text-sm"
-                    >
-                      Fazer upgrade para Plus →
-                    </button>
-                    <Button variant="outline" size="sm" onClick={resetImage}>Cancelar</Button>
-                  </div>
-                </div>
-              ) : imageResult?.error && (
+              {imageResult?.error && (
                 <div className="flex items-center gap-3 p-4 rounded-lg border bg-red-50 border-red-200 text-red-800">
                   <XCircle className="h-5 w-5 shrink-0" />
                   <span className="text-sm">{imageResult.error}</span>
@@ -1148,32 +1102,7 @@ export default function ImportPage() {
               )}
 
               {/* Import result */}
-              {imageImportResult && imageImportResult.message === 'BROKER_LIMIT' ? (
-                <div className="flex flex-col items-center gap-4 p-8 rounded-xl border-2 border-slate-200 text-center">
-                  <div className="w-10 h-10 bg-black rounded-full flex items-center justify-center shrink-0">
-                    <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                    </svg>
-                  </div>
-                  <div>
-                    <p className="font-bold text-base">Limite do plano gratuito</p>
-                    <p className="text-sm text-slate-500 mt-1">O plano gratuito suporta apenas 1 corretora ou banco. Faz upgrade para o Plus para adicionares corretoras ilimitadas.</p>
-                  </div>
-                  <div className="flex gap-3">
-                    <button
-                      onClick={async () => {
-                        const res = await fetch('/api/stripe/checkout', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({}) });
-                        const d = await res.json();
-                        if (d.url) window.location.href = d.url;
-                      }}
-                      className="bg-black text-white font-bold px-6 py-2.5 rounded-lg hover:opacity-80 transition-opacity text-sm"
-                    >
-                      Fazer upgrade para Plus →
-                    </button>
-                    <Button variant="outline" size="sm" onClick={resetImage}>Cancelar</Button>
-                  </div>
-                </div>
-              ) : imageImportResult && (
+              {imageImportResult && (
                 <div
                   className={`flex items-center gap-3 p-4 rounded-lg border ${
                     imageImportResult.success
@@ -1399,6 +1328,10 @@ export default function ImportPage() {
           )}
         </CardContent>
       </Card>
+
+      {upgradeLimit && (
+        <UpgradePopup limitType={upgradeLimit} onClose={() => setUpgradeLimit(null)} />
+      )}
     </div>
   );
 }
