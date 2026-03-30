@@ -4,6 +4,7 @@ import { DegiroTransactionsImporter } from './degiro-transactions';
 import { IbkrImporter } from './ibkr';
 import { LightyearImporter } from './lightyear';
 import { Trading212Importer } from './trading212';
+import { Trading212TransactionsImporter } from './trading212-transactions';
 
 export type { BrokerImporter, ImportParseResult, ParsedPosition, RawImportRow, ImporterConfig } from './types';
 export { parseNumber, parseDate, detectAssetClass, normalizeCSVContent, getColumnValue } from './base';
@@ -12,6 +13,7 @@ export { DegiroTransactionsImporter } from './degiro-transactions';
 export { IbkrImporter } from './ibkr';
 export { LightyearImporter } from './lightyear';
 export { Trading212Importer } from './trading212';
+export { Trading212TransactionsImporter } from './trading212-transactions';
 
 /**
  * Registry mapping broker slugs to their importer instances.
@@ -24,6 +26,7 @@ export const importerRegistry: Map<string, BrokerImporter> = new Map([
   ['ibkr', new IbkrImporter()],
   ['lightyear', new LightyearImporter()],
   ['trading212', new Trading212Importer()],
+  ['trading212-transactions', new Trading212TransactionsImporter()],
 ]);
 
 /**
@@ -40,7 +43,7 @@ export function getImporter(slug: string): BrokerImporter | undefined {
  */
 export function detectImporter(csvContent: string): BrokerImporter | null {
   // Try transaction importers first (they have stricter detection)
-  const txImporters = ['degiro-transactions'];
+  const txImporters = ['degiro-transactions', 'trading212-transactions'];
   for (const key of txImporters) {
     const imp = importerRegistry.get(key);
     if (imp?.detectFormat(csvContent)) return imp;
