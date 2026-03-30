@@ -46,6 +46,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: `Unknown broker: ${brokerSlug}` }, { status: 400 });
     }
 
+    // Map transaction importers to their real broker slug
+    const realBrokerSlug = brokerSlug.replace(/-transactions$/, '');
+
     // Free plan limits
     const user = await prisma.user.findUnique({
       where: { id: userId },
@@ -72,13 +75,13 @@ export async function POST(request: NextRequest) {
         include: { broker: true },
       });
       const existingSlugs = new Set(existingAccounts.map((a) => a.broker.slug));
-      if (existingSlugs.size > 0 && !existingSlugs.has(brokerSlug)) {
+      if (existingSlugs.size > 0 && !existingSlugs.has(realBrokerSlug)) {
         return NextResponse.json({ error: 'BROKER_LIMIT' }, { status: 403 });
       }
     }
 
     // Find or create broker
-    let broker = await prisma.broker.findUnique({ where: { slug: brokerSlug } });
+    let broker = await prisma.broker.findUnique({ where: { slug: realBrokerSlug } });
     if (!broker) {
       const brokerNames: Record<string, string> = {
         activobank: 'ActivoBank',
@@ -103,7 +106,7 @@ export async function POST(request: NextRequest) {
         xtb: 'XTB',
       };
       broker = await prisma.broker.create({
-        data: { name: brokerNames[brokerSlug] || brokerSlug, slug: brokerSlug },
+        data: { name: brokerNames[realBrokerSlug] || realBrokerSlug, slug: realBrokerSlug },
       });
     }
 

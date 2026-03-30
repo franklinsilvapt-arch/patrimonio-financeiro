@@ -336,9 +336,11 @@ export default function ImportPage() {
       if (res.ok) {
         const data = await res.json();
         if (data.brokerSlug) {
+          // Keep full slug for the importer, but show clean slug in UI
           setDetectedBroker(data.brokerSlug);
           setSelectedBroker(data.brokerSlug);
-          setAccountName(['ibkr', 'lightyear'].includes(data.brokerSlug) ? 'Pessoal' : 'Principal');
+          const uiSlug = data.brokerSlug.replace(/-transactions$/, '');
+          setAccountName(['ibkr', 'lightyear'].includes(uiSlug) ? 'Pessoal' : 'Principal');
         }
       }
     } catch {
@@ -719,6 +721,11 @@ export default function ImportPage() {
                       className="h-10 rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                     >
                       <option value="">Selecionar corretora...</option>
+                      {selectedBroker.endsWith('-transactions') && (
+                        <option value={selectedBroker}>
+                          {BROKERS.find(b => b.slug === selectedBroker.replace(/-transactions$/, ''))?.label ?? selectedBroker} (transações)
+                        </option>
+                      )}
                       {BROKERS.map((b) => (
                         <option key={b.slug} value={b.slug}>
                           {b.label}

@@ -1,5 +1,6 @@
 import type { BrokerImporter } from './types';
 import { DegiroImporter } from './degiro';
+import { DegiroTransactionsImporter } from './degiro-transactions';
 import { IbkrImporter } from './ibkr';
 import { LightyearImporter } from './lightyear';
 import { Trading212Importer } from './trading212';
@@ -7,15 +8,19 @@ import { Trading212Importer } from './trading212';
 export type { BrokerImporter, ImportParseResult, ParsedPosition, RawImportRow, ImporterConfig } from './types';
 export { parseNumber, parseDate, detectAssetClass, normalizeCSVContent, getColumnValue } from './base';
 export { DegiroImporter } from './degiro';
+export { DegiroTransactionsImporter } from './degiro-transactions';
 export { IbkrImporter } from './ibkr';
 export { LightyearImporter } from './lightyear';
 export { Trading212Importer } from './trading212';
 
 /**
  * Registry mapping broker slugs to their importer instances.
+ * Transaction importers are registered with a "-transactions" suffix
+ * but map to the same broker slug for auto-detection.
  */
 export const importerRegistry: Map<string, BrokerImporter> = new Map([
   ['degiro', new DegiroImporter()],
+  ['degiro-transactions', new DegiroTransactionsImporter()],
   ['ibkr', new IbkrImporter()],
   ['lightyear', new LightyearImporter()],
   ['trading212', new Trading212Importer()],
@@ -30,13 +35,20 @@ export function getImporter(slug: string): BrokerImporter | undefined {
 
 /**
  * Auto-detect which importer matches the given CSV content.
- * Returns the first matching importer, or null if none match.
+ * Transaction importers are tried first (more specific format),
+ * then portfolio importers.
  */
 export function detectImporter(csvContent: string): BrokerImporter | null {
-  for (const importer of Array.from(importerRegistry.values())) {
-    if (importer.detectFormat(csvContent)) {
-      return importer;
-    }
+  // Try transaction importers first (they have stricter detection)
+  const txImporters = ['degiro-transactions'];
+  for (const key of txImporters) {
+    const imp = importerRegistry.get(key);
+    if (imp?.detectFormat(csvContent)) return imp;
+  }
+  // Then portfolio importers
+  for (const [key, importer] of importerRegistry) {
+    if (txImporters.includes(key)) continue;
+    if (importer.detectFormat(csvContent)) return importer;
   }
   return null;
 }
