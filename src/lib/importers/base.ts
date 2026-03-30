@@ -210,11 +210,19 @@ export function detectAssetClass(
  * Normalize CSV content: strip BOM, normalize line endings.
  */
 export function normalizeCSVContent(content: string): string {
-  // Strip UTF-8 BOM
-  let normalized = content.replace(/^\uFEFF/, '');
+  // Strip UTF-8 BOM and other zero-width/invisible characters
+  let normalized = content.replace(/^[\uFEFF\u200B\u200C\u200D\uFFFE\uFFFF]/, '');
 
   // Normalize line endings to \n
   normalized = normalized.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+
+  // Clean invisible characters from the header line (first line)
+  // that can break column name matching
+  const lines = normalized.split('\n');
+  if (lines.length > 0) {
+    lines[0] = lines[0].replace(/[\u200B\u200C\u200D\uFEFF\u00A0]/g, ' ').replace(/\s+/g, ' ');
+    normalized = lines.join('\n');
+  }
 
   // Remove trailing newlines
   normalized = normalized.trimEnd();

@@ -10,7 +10,7 @@ import {
 
 const PRODUCT_COLUMNS = ['Produto', 'Product', 'Produkt'];
 const ISIN_COLUMNS = ['Symbol/ISIN', 'ISIN', 'Symbool/ISIN'];
-const QUANTITY_COLUMNS = ['Quantidade', 'Qty', 'Quantity', 'Aantal', 'Amount'];
+const QUANTITY_COLUMNS = ['Quantidade', 'Qty', 'Qty.', 'Quantity', 'Aantal', 'Amount', 'Size'];
 const CLOSE_PRICE_COLUMNS = [
   'Preço de fecho',
   'Preco de fecho',
@@ -29,6 +29,8 @@ const VALUE_COLUMNS = [
   'Value',
   'Local value',
   'Waarde in EUR',
+  'Valor',
+  'Valor local',
 ];
 const CURRENCY_COLUMNS = ['Moeda', 'Currency', 'Valuta'];
 const EXCHANGE_COLUMNS = ['Bolsa', 'Exchange', 'Beurs'];
@@ -191,6 +193,16 @@ export class DegiroImporter implements BrokerImporter {
         const msg = e instanceof Error ? e.message : String(e);
         errors.push(`Row ${rowNum}: ${msg}`);
       }
+    }
+
+    // If no positions found, show column names to help debug
+    if (positions.length === 0 && rows.length > 0) {
+      const cols = Object.keys(rows[0]).filter(k => k.trim() !== '');
+      warnings.push(`Colunas encontradas no CSV: ${cols.join(', ')}`);
+      // Show first row values for debugging
+      const firstRow = rows[0];
+      const sample = cols.map(c => `${c}="${firstRow[c] ?? ''}"`).join(', ');
+      warnings.push(`Primeira linha: ${sample}`);
     }
 
     return { positions, errors, warnings, referenceDate: null };
